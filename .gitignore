@@ -1,0 +1,9 @@
+backend/.env
+backend/.env.docker
+backend/storage/
+frontend/dist/
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.DS_Store
