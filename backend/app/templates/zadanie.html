@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8"/>
+  <title>ZADANIE NR: {{ naglowek.ZNAG_Id }}</title>
+  <style>
+    @page { size: A4; margin: 14mm; }
+    body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10.5px; color:#111; line-height:1.25; }
+    .row { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .title { font-size: 19px; font-weight: 800; letter-spacing:.4px; }
+    .small { font-size:9.5px } .muted { color:#444 }
+    .mt6{ margin-top:6px } .mt8{ margin-top:8px } .mt12{ margin-top:12px }
+    .h80{ height:80px } .h70{ height:70px }
+
+    .box { border:1.2px solid #000; padding:7px 8px; background:#fff; }
+    .grid-header { border:1.2px solid #000; padding:5px 7px; font-weight:800; text-transform:uppercase; background:#efefef; }
+
+    table { width:100%; border-collapse:collapse; table-layout:fixed; }
+    th, td { border:1.2px solid #000; padding:6px 6px; vertical-align:top; }
+    th { background:#efefef; font-weight:800; font-size:10px; text-transform:uppercase; text-align:center; }
+
+    /* OPIS PRAC kolumny */
+    thead th:nth-child(1),
+    tbody td:nth-child(1),
+    thead th:nth-child(4),
+    tbody td:nth-child(4){ width:15%; }
+    thead th:nth-child(2),
+    tbody td:nth-child(2),
+    thead th:nth-child(5),
+    tbody td:nth-child(5){ width:35%; }
+    thead th:nth-child(3),
+    tbody td:nth-child(3),
+    thead th:nth-child(6),
+    tbody td:nth-child(6){ width:5%; text-align:center; }
+
+    .xcell{ display:inline-block; width:13px; height:13px; border:1.2px solid #000; text-align:center; line-height:12px; font-weight:800; margin-left:6px; }
+
+    /* 50/50: Wykorzystane godziny vs Zgoda Klienta */
+    .hours-consent { margin-top:12px; }
+    .hours-consent th, .hours-consent td { border:1.2px solid #000; padding:5px; }
+    .hours-consent thead th { background:#efefef; font-weight:800; text-transform:none; font-size:10.5px; }
+
+    /* kolumny: 9 po lewej = 50% (13% + 8×4.625%), 1 prawa = 50% */
+    .hours-consent col.col-label{ width:13%; }
+    .hours-consent col.col-x{ width:4.625%; }
+    .hours-consent col.col-consent{ width:50%; }
+
+    .hours-consent .label{ white-space:nowrap; font-weight:600; }
+    .hours-consent .x{ height:18px; }
+    .consent .field{ display:flex; align-items:flex-end; gap:6px; margin:8px 0; }
+    .consent .line{ flex:1 1 auto; border-bottom:1px solid #000; height:16px; }
+    .consent .short{ max-width:140px; }
+    .hours-footnote{ font-size:9px; color:#333; padding-top:4px; }
+
+    .footer{ position:fixed; left:14mm; right:14mm; bottom:9mm; font-size:8.5px; text-align:left; letter-spacing:.2px; }
+
+    .box, .grid-header, table{ break-inside:avoid; page-break-inside:avoid; }
+    tr{ break-inside:avoid; page-break-inside:avoid; }
+  </style>
+</head>
+<body>
+
+  <div class="row">
+    <div class="title">GH&nbsp;SERWIS</div>
+    <div class="small muted">Data: {{ today }}</div>
+  </div>
+
+  <div class="row mt8">
+    <div class="title">ZADANIE NR:&nbsp;{{ naglowek.ZNAG_Id }}</div>
+  </div>
+
+  <div class="box mt8">
+    <div><b>KLIENT:</b> {{ naglowek.ZNAG_KlientNazwa or '' }}</div>
+    <div class="row mt6">
+      <div><b>ADRES:</b> {{ naglowek.ZNAG_KlientAdres or '' }}</div>
+      <div><b>MIASTO:</b> {{ naglowek.ZNAG_KlientMiasto or '' }}</div>
+      <div><b>POWIAT:</b> {{ naglowek.ZNAG_KlientPowiat or '' }}</div>
+    </div>
+    <div class="mt6"><b>TELEFON:</b> {{ naglowek.ZNAG_KlientTelefon or '' }}</div>
+  </div>
+
+  <div class="box mt8">
+    <div class="row">
+      <div>AWARIA <span class="xcell">{% if naglowek.ZNAG_TypPrzegladu == 'W' %}x{% endif %}</span></div>
+      <div>PRACE RÓŻNE <span class="xcell"></span></div>
+      <div>KONSERWACJA <span class="xcell">{% if naglowek.ZNAG_TypPrzegladu in ['A','B'] %}x{% endif %}</span></div>
+      <div>MONTAŻ I URUCHOMIENIE <span class="xcell"></span></div>
+    </div>
+  </div>
+
+  <div class="box mt8">
+    <div class="row">
+      <div><b>KONTRAKT:</b> {{ naglowek.ZNAG_Kontrakt or '' }}</div>
+      <div><b>TYP PRZEGLĄDU:</b> {{ naglowek.ZNAG_TypPrzegladu or '' }}</div>
+      <div><b>CZĘSTOTLIWOŚĆ:</b> {{ naglowek.ZNAG_Czestotliwosc or '' }}</div>
+    </div>
+    <div class="row mt6">
+      <div><b>DATA PLANOWANA:</b> {{ naglowek.ZNAG_DataPlanowana or '' }}</div>
+      <div><b>DATA WYKONANIA:</b> {{ naglowek.ZNAG_DataWykonania or '' }}</div>
+      <div><b>PRZYPISANE OSOBY:</b> {{ serwisanci|join(', ') }}</div>
+    </div>
+  </div>
+
+  <div class="grid-header mt12">OPIS PRAC</div>
+  <table>
+    <thead>
+      <tr>
+        <th>urządzenie</th><th>opis</th><th>ok</th>
+        <th>urządzenie</th><th>opis</th><th>ok</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pair in pozycje|batch(2, fill_with=None) %}
+        <tr>
+          {% for p in pair %}
+            {% if p %}
+              <td>{{ p.ZPOZ_UrzadzenieNumer }}</td>
+              <td>{{ p.ZPOZ_UrzadzenieOpis }}</td>
+              <td></td>
+            {% else %}
+              <td></td><td></td><td></td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="grid-header mt12">OBSERWACJE SERWISANTÓW</div>
+  <div class="box h80"></div>
+
+  <!-- 50/50 Wykorzystane Godziny / Zgoda Klienta -->
+  <table class="hours-consent">
+    <colgroup>
+      <col class="col-label">
+      <col class="col-x"><col class="col-x"><col class="col-x"><col class="col-x">
+      <col class="col-x"><col class="col-x"><col class="col-x"><col class="col-x">
+      <col class="col-consent">
+    </colgroup>
+    <thead>
+      <tr>
+        <th colspan="9" style="text-align:left;">Wykorzystane Godziny</th>
+        <th>Zgoda Klienta</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Dzień</td>
+        <td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td>
+        <td class="consent" rowspan="8">
+          <div class="consent">
+            <div class="field"><span>Nazwisko</span><div class="line"></div></div>
+            <div class="field"><span>Podpis</span><div class="line"></div></div>
+            <div style="height:18px;"></div>
+            <div class="field"><span>Data</span><div class="line short"></div></div>
+            <div class="field"><span>Dział</span><div class="line short"></div></div>
+          </div>
+        </td>
+      </tr>
+      <tr><td class="label">Świąteczny(1)</td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td></tr>
+      <tr><td class="label">Sobota/Noc(1)</td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td></tr>
+      <tr><td class="label">Godziny dojazdu</td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td></tr>
+      <tr><td class="label">Naprawa</td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td></tr>
+      <tr><td class="label">Wyjazd</td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td></tr>
+      <tr><td class="label">Dieta</td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td></tr>
+      <tr><td class="label">Km.</td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td><td class="x"></td></tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="10" class="hours-footnote">(1) Zaznaczyć X w odpowiednich miejscach.</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="footer">
+    GH CRANES SP. Z O.O &nbsp; Tel.: +48 34 3597317 &nbsp; E-MAIL: serwis@ghsa.pl
+  </div>
+</body>
+</html>

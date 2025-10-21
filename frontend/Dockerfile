@@ -1,9 +1,11 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps \
+ && npm i -D vite @vitejs/plugin-react typescript --legacy-peer-deps
 COPY frontend /app
 RUN npm run build
+
 FROM nginx:alpine
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html

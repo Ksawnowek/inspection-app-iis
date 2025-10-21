@@ -1,9 +1,29 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .core.config import settings
-from .api.routers import orders, inspections
-app=FastAPI(title="Inspection API (IIS-ready)")
-app.add_middleware(CORSMiddleware, allow_origins=settings.ALLOWED_ORIGINS, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
-app.include_router(orders.router); app.include_router(inspections.router)
-@app.get("/healthz")
-def health(): return {"status":"ok"}
+import os
+
+from app.api.routers.zadania import router as zadania_router
+from app.api.routers.protokoly import router as protokoly_router
+from app.core.paths import PDF_DIR, SIG_DIR  # sam import utworzy katalogi
+
+ALLOWED = os.getenv("ALLOWED_ORIGINS", "http://localhost:8080,http://localhost:5173").split(",")
+
+app = FastAPI(title="GHSerwis API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in ALLOWED],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/api/healthz")
+def healthz(): 
+    return {"status": "ok"}
+
+app.include_router(zadania_router)
+app.include_router(protokoly_router)
+
+
+
