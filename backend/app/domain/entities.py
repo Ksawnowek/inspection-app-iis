@@ -18,3 +18,7 @@ class Inspection(BaseModel):
     checklist_type:str; remarks:Optional[str]=None; pdf_path:Optional[str]=None; status:int=0
 class InspectionWithValues(Inspection):
     values:Dict[str,str]={}
+
+
+
+

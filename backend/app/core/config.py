@@ -11,4 +11,7 @@ class Settings:
     SIG_SUBDIR=os.getenv("SIG_SUBDIR","sigs")
     FTP={"host":os.getenv("FTP_HOST",""),"port":int(os.getenv("FTP_PORT","21")),"user":os.getenv("FTP_USER",""),"pass":os.getenv("FTP_PASS",""),"basedir":os.getenv("FTP_BASEDIR","/reports")}
     SFTP={"host":os.getenv("SFTP_HOST",""),"port":int(os.getenv("SFTP_PORT","22")),"user":os.getenv("SFTP_USER",""),"pass":os.getenv("SFTP_PASS",""),"basedir":os.getenv("SFTP_BASEDIR","/reports")}
+    SECRET_KEY = os.getenv("SECRET_KEY","")
+    ACCESS_TOKEN_ALGORITHM = os.getenv("ALGORITHM","")
+    ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES",30)
 settings=Settings()

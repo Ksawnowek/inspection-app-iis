@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ZadaniaPage from "./pages/ZadaniaPage";
 import ZadaniePozycjePage from "./pages/ZadaniePozycjePage";
 import ProtokolPage from "./pages/ProtokolPage";
+import LoginPage from "./pages/LoginPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 export default function App() {
   return (
@@ -11,6 +13,8 @@ export default function App() {
         <Route path="/" element={<ZadaniaPage />} />
         <Route path="/zadania/:znagId" element={<ZadaniePozycjePage />} />
         <Route path="/protokol/:pnaglId" element={<ProtokolPage />} />
+        <Route path="login" element={<LoginPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
