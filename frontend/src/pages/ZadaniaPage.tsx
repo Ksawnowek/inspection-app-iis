@@ -7,6 +7,9 @@ export default function ZadaniaPage() {
   const [rows, setRows] = useState<Zadanie[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [searchPhrase, setSearchPhrase] = useState('');
+
+
 
   useEffect(() => {
     getZadania().then(setRows).finally(() => setLoading(false));
@@ -36,12 +39,41 @@ export default function ZadaniaPage() {
     }
   };
 
+  const handleSearchSubmit = () => {
+    let visibleRows = rows.filter( z => {
+            const idAsString = String(z.ZNAG_Id);
+            return idAsString.startsWith(searchPhrase);
+          });
+    if(visibleRows.length == 1){
+      let href = '/zadania/' + visibleRows[0].ZNAG_Id;
+      window.location.href = href; 
+    }
+      
+  };
+
   if (loading) return <p>Ładowanie…</p>;
 
   return (
     <div className="container">
-      <h2>Zadania</h2>
 
+
+      <h2>Zadania</h2>
+      <div className="search-bar p-2 d-flex w-100">
+        <input
+        className="w-100"
+        type="text"
+        name="searchPhrase"
+        value={searchPhrase}
+        onChange={(e) => setSearchPhrase(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault(); 
+            handleSearchSubmit();
+          }
+        }}
+        placeholder="Wyszukaj ID..."
+        />
+      </div>
       <table>
         <thead>
           <tr>
@@ -54,7 +86,10 @@ export default function ZadaniaPage() {
           </tr>
         </thead>
         <tbody>
-          {rows.map((z) => (
+          {rows.filter( z => {
+            const idAsString = String(z.ZNAG_Id);
+            return idAsString.startsWith(searchPhrase);
+          }).map((z) => (
             <tr key={z.ZNAG_Id}>
               <td>{z.ZNAG_Id}</td>
               <td>{z.ZNAG_TypPrzegladu}</td>

@@ -1,0 +1,24 @@
+główny widok
+-> dla serwisanta możliwość wpisania numeru zadania (search bar lub wchodzenie od razu w zlecenie ?)
+
+
+
+do zadania dodajemy obserwacje serwisanta i podpis klienta
+
+zadania/xxxx
+-> do przeglądu ma być zaznaczone, jak odznaczam to ucieka -> widok dla operatora/serwisanta
+-> widok w formacie tabelki (nagłówki z bazy) - tabelka jeden ciemniejszy jaśniejszy
+-> dla koordynatora -> widzi wszystko i wyszarzone są odznaczone
+-> zmiana backendu, żeby pobierał odpowiednie rzeczy w zależności od roli
+
+-> ładniejsze ładowanie
+
+-> logowanie [OK]
+-> jwt [OK]
+-> rejestracja przez koordynatora [OK]
+
+protokół
+-> zmiana checkbox Zdjęcie na aparat i automatyczne przejście do aparatu
+-> zapisywanie do bazy przy zmianach wszystkiego do id_pos
+-> generacja protokołu (html) -> musi zawierać podpis -> fixnąć
+

@@ -6,9 +6,10 @@ from app.api.routers.zadania import router as zadania_router
 from app.api.routers.protokoly import router as protokoly_router
 from app.api.routers.auth import router as auth_router
 from app.core.paths import PDF_DIR, SIG_DIR  # sam import utworzy katalogi
+from fastapi.security import OAuth2PasswordBearer
 
 ALLOWED = os.getenv("ALLOWED_ORIGINS", "http://localhost:8080,http://localhost:5173").split(",")
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 app = FastAPI(title="GHSerwis API")
 
 app.add_middleware(

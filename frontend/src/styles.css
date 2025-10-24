@@ -6,3 +6,7 @@ body { margin: 0; background: #fafafa; color: #111; }
 table { width: 100%; border-collapse: collapse; }
 th, td { border-bottom: 1px solid #eee; padding: 8px 10px; text-align: left; }
 button { cursor: pointer; }
+
+.w-70{
+    width: 70% !important;
+}

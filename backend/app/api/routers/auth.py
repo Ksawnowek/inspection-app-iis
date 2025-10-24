@@ -1,7 +1,10 @@
-from fastapi import FastAPI, Depends, APIRouter, HTTPException
-from app.domain.requestsDTO import LoginRequest, RegisterRequest
-from app.services.auth_service import AuthService
+from typing import Annotated
 
+from fastapi import FastAPI, Response, Depends, APIRouter, HTTPException
+from app.domain.requestsDTO import LoginRequest, RegisterRequest
+from app.schemas.user import User
+from app.services.auth_service import AuthService
+from app.dependencies import get_current_user_from_cookie
 
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
 
@@ -13,22 +16,21 @@ router = APIRouter(prefix="/api/auth", tags=["authentication"])
     }
 """
 @router.post("/login")
-async def handle_login(data: LoginRequest, service: AuthService = Depends(AuthService)):
+async def handle_login(data: LoginRequest, response: Response, service: AuthService = Depends(AuthService)):
     token = service.auth_user(data.login, data.pwd)
     if token is None:
         raise HTTPException(status_code=401,detail="Incorrect username or password")
 
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=False,  #TODO True po przejściu na https
+        samesite="lax",
+        max_age=1800
+    )
 
-
-
-
-
-
-
+    return {"status": "success", "message": "Logged in successfully"}
 
 
 """
@@ -36,21 +38,25 @@ async def handle_login(data: LoginRequest, service: AuthService = Depends(AuthSe
     {
         "login": "xxx",
         "pwd": "xxx",
-        "imie": "xxx",
-        "nazwisko": "xxx",
-        "rola": x,  
+        "name": "xxx",
+        "surname": "xxx",
+        "role": x,  
     }
 """
 @router.post("/register")
 async def handle_register(data: RegisterRequest, service: AuthService = Depends(AuthService)):
-    result = service.register_user(data.login, data.pwd, data.imie, data.nazwisko, data.rola)
+    result = service.register_user(data.login, data.name, data.surname, data.pwd, data.role)
     if result:
-        status = "sukces"
+        status = "success"
         response = "Udało się!"
     else:
         status = "failed"
         response = "Niepowodzenie operacji"
     return {
         "status": status,
-        "otrzymane_dane": response
+        "message": response
     }
+
+@router.get("/test")
+async def test(current_user: Annotated[User, Depends(get_current_user_from_cookie)]):
+    return current_user

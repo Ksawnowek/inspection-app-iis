@@ -34,10 +34,28 @@ class AuthService():
 
 
 
-    def register_user(self, login, pwd, imie, nazwisko, rola):
+    def register_user(self, login, imie, nazwisko, pwd, rola):
         #TODO włączyć unique na loginie xD
         passwordHash = bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt())
         user = User(imie=imie, nazwisko=nazwisko, login=login, pwd=passwordHash, rola=rola)
         result = self.repo.add_user(user)
 
         return result
+
+    def validate_and_decode_token(self, token):
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ACCESS_TOKEN_ALGORITHM)
+
+            username: str = payload.get("sub")
+            if username is None:
+                return None
+
+        except JWTError:
+            return None
+
+        user = self.repo.get_by_login(username)
+
+        if user is None:
+            return None
+
+        return user

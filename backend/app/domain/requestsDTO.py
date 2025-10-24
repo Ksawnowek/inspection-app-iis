@@ -6,7 +6,7 @@ class LoginRequest(BaseModel):
 
 class RegisterRequest(BaseModel):
     login: str
+    name: str
+    surname: str
     pwd: str
-    imie: str
-    nazwisko: str
-    rola: int
+    role: int
