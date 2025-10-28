@@ -11,15 +11,14 @@ class UserRepo:
     def get_by_login(self, login) -> User | None:
         cur = self.conn.cursor()
         sql = """
-        SELECT 
-            UZT_Imie,     
-            UZT_Nazwisko, 
-            UZT_Login,     
-            UZT_pwd,       
-            UZT_ROL_id  
-        FROM dbo.Uzytkownik 
-        WHERE UZT_Login = ?
-        """
+              SELECT RTRIM(UZT_Imie)     AS UZT_Imie, 
+                     RTRIM(UZT_Nazwisko) AS UZT_Nazwisko, 
+                     RTRIM(UZT_Login)    AS UZT_Login, 
+                     RTRIM(UZT_pwd)      AS UZT_pwd, 
+                     UZT_ROL_id 
+              FROM dbo.Uzytkownik
+              WHERE UZT_Login = ? \
+              """
         cur.execute(sql, login)
 
         row = cur.fetchone()
@@ -39,7 +38,7 @@ class UserRepo:
             values (?, ?, ?, ?, ?)
         """
         cur = self.conn.cursor()
-        params = (user.imie, user.nazwisko, user.login, user.pwd, user.rola)
+        params = (user.name, user.surname, user.login, user.pwd, user.role)
 
         try:
             cur.execute(sql, params)
@@ -54,3 +53,19 @@ class UserRepo:
             print(e)
             self.conn.rollback()
             return False
+
+    def get_role_name(self, role_id):
+        sql = """
+        SELECT 
+            RTRIM(ROL_Opis) AS ROL_Opis
+        from dbo.Role
+        WHERE ROL_Id = ?
+        """
+        cur = self.conn.cursor()
+        cur.execute(sql, role_id)
+        row = cur.fetchone()
+
+        if not row:
+            return None
+
+        return row[0]

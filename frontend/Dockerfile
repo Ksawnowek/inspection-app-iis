@@ -3,7 +3,9 @@ WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm install --legacy-peer-deps \
  && npm i -D vite @vitejs/plugin-react typescript --legacy-peer-deps \
- && npm i bootstrap@5.3.8
+ && npm i bootstrap@5.3.8 \
+ && npm i react-bootstrap bootstrap \
+ && npm i react-hot-toast
 COPY frontend /app
 RUN npm run build
 

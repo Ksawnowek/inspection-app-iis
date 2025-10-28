@@ -13,7 +13,7 @@ export type ZadaniePozycja = {
   ZPOZ_ZNAG_Id: number;
   ZPOZ_UrzadzenieNumer: string;
   ZPOZ_UrzadzenieOpis: string;
-  ZPOZ_UrzadzenieDoPrzegladu: 0 | 1;
+  ZPOZ_UrzadzenieDoPrzegladu: false | true;
 };
 
 export type ProtokolNaglowek = {

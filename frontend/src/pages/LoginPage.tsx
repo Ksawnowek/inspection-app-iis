@@ -1,13 +1,14 @@
 import {act, useState, ChangeEvent} from "react";
 import {tryLogin} from "../api/auth"
+import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
-  const [login, setLogin] = useState<string>("");
-  const [passowrd, setPassword] = useState<string>("");
   const [formData, setFormData] = useState({
     login: '', 
     password: ''
   });
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,18 +21,17 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await tryLogin(formData.login, formData.password);
-
-      if (response.status === 'success') {
-        
-        console.log("Logowanie udane:", response.message);
-        
-        window.location.href = '/'; 
-
-      } else {
-        console.error("Błąd logowania:", response.message);
+      await toast.promise(
+      login(formData.login, formData.password), 
+      {
+        loading: 'Logowanie...', 
+        success: 'Zalogowano pomyślnie!',
+        error: (err) => `Błąd: ${err.message || 'Nieprawidłowy login lub hasło'}`, 
       }
-
+    );
+    setTimeout(() => {
+      window.location.href = '/'; 
+    }, 500);
     } catch (error) {
       console.error("Wystąpił błąd połączenia:", error);
     }

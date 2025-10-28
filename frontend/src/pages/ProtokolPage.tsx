@@ -6,6 +6,7 @@ import ProtokolGroup from "../components/ProtokolGroup";
 import PhotoButton from "../components/PhotoButton";
 import SignatureDialog from "../components/SignatureDialog";
 import { dodajZdjecie } from "../api/zdjecia";
+import Spinner from "../components/Spinner";
 
 const USER = "serwisant";
 
@@ -54,7 +55,10 @@ export default function ProtokolPage() {
     alert("Podpis zapisany.");
   }
 
-  if (!data) return <p>Ładowanie…</p>;
+  if (!data) return <Spinner />;
+
+  console.log(data)
+  console.log(groups)
 
   return (
     <div className="container">

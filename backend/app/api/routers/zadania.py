@@ -1,78 +1,114 @@
-# backend/app/api/routers/zadania.py
+from typing import Annotated, Optional, Dict, Any, List
+
 from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.responses import FileResponse
 
-from app.db import get_conn
-from app.repositories.zadania_repo import ZadaniaRepo
-from app.services.pdf_zadanie_service import render_zadanie_pdf as generate_zadanie_pdf
-from app.services.pdf_zadanie_service import render_zadanie_pdf
+# Usunięto import get_conn i ZadaniaRepo, bo są ukryte za serwisem
+
+from app.dependencies import get_current_user_from_cookie
+from app.schemas.user import User
+# Usunięto nieużywany import AuthService
+from app.services.pdf_zadanie_service import render_zadanie_pdf  # Używamy tylko aliasu
 from app.core.paths import PDF_DIR
+from app.services.zadania_service import ZadaniaService
 
 router = APIRouter(prefix="/api/zadania", tags=["Zadania"])
+
+
+ZadaniaServiceDep = Annotated[ZadaniaService, Depends(ZadaniaService)]
+CurrentUserDep = Annotated[User, Depends(get_current_user_from_cookie)]
 
 
 # ============= LISTA / SZCZEGÓŁY =============
 
 @router.get("")
 def list_zadania(
-    dateFrom: str | None = None,
-    dateTo: str | None = None,
-    onlyOpen: bool = False,
-    conn = Depends(get_conn),
-):
+        zadania_service: ZadaniaServiceDep,
+        dateFrom: str | None = None,
+        dateTo: str | None = None,
+        onlyOpen: bool = False,
+) -> List[Dict[str, Any]]:
     """
     Zwraca listę zadań (możesz filtrować datą i tylko otwarte).
-    Repo powinno obsłużyć te filtry; jeżeli masz prostą listę, po prostu je zignoruje.
+    Korzysta z ZadaniaService, który deleguje wywołanie do Repo.
     """
-    repo = ZadaniaRepo()
-    return repo.lista(conn, date_from=dateFrom, date_to=dateTo, only_open=onlyOpen)
+    return zadania_service.get_lista(
+        date_from=dateFrom,
+        date_to=dateTo,
+        only_open=onlyOpen
+    )
 
 
 @router.get("/{znag_id}")
-def get_zadanie(znag_id: int, conn = Depends(get_conn)):
+def get_zadanie(
+        znag_id: int,
+        zadania_service: ZadaniaServiceDep
+) -> Dict[str, Any]:
     """
     Zwraca nagłówek zadania (np. z widoku v_Zadania).
     """
-    repo = ZadaniaRepo()
-    nag = repo.naglowek(conn, znag_id)
+    nag = zadania_service.get_naglowek(znag_id)
     if not nag:
         raise HTTPException(404, "Zadanie nie istnieje")
     return nag
 
 
 @router.get("/{znag_id}/pozycje")
-def get_zadanie_pozycje(znag_id: int, conn = Depends(get_conn)):
+def get_zadanie_pozycje(
+        current_user: CurrentUserDep,
+        znag_id: int,
+        zadania_service: ZadaniaServiceDep):
     """
-    Zwraca pozycje zadania (np. z widoku v_ZadaniePozycje).
+    Zwraca pozycje zadania (np. z widoku v_ZadaniePozycje). 
+    Używa logiki z Serwisu, aby zastosować filtry zależne od roli użytkownika.
     """
-    repo = ZadaniaRepo()
-    return repo.pozycje(conn, znag_id)
+    result = zadania_service.get_pozycje_by_user_role(current_user, znag_id)
+
+    if not result:
+        # Możesz chcieć zwrócić pustą listę zamiast 404, ale zachowałem logikę:
+        raise HTTPException(status_code=404, detail="Pozycje nie istnieją")
+
+    return result
 
 
 # ============= ZARZĄDZANIE POZYCJĄ (flaga do przeglądu) =============
 
 @router.put("/pozycje/{zpoz_id}/do-przegladu")
 def set_do_przegladu(
-    zpoz_id: int,
-    payload: dict = Body(...),   # {"value": true/false, "user": "kto"}
-    conn = Depends(get_conn),
+        zpoz_id: int,
+        zadania_service: ZadaniaServiceDep,
+        payload: Dict[str, Any] = Body(...),  # {"value": true/false, "user": "kto"}
 ):
+    """
+    Ustawia flagę 'do przeglądu' w wybranej pozycji zadania.
+    """
     value = bool(payload.get("value"))
     user = payload.get("user")
-    repo = ZadaniaRepo()
-    repo.ustaw_do_przegladu(conn, zpoz_id, value, user)
+
+    result = zadania_service.set_do_przegladu(zpoz_id, value, user)
+
+    if not result:
+        raise HTTPException(status_code=500, detail="Operacja nie powiodła się (rollback w DB)")
+
     return {"ok": True}
 
 
 # ============= GENEROWANIE PDF =============
 
 @router.post("/{znag_id}/pdf/generuj")
-def generuj_pdf(znag_id: int, body: dict | None = Body(None), conn=Depends(get_conn)):
-    repo = ZadaniaRepo()
-    nagl = repo.naglowek(conn, znag_id)
+def generuj_pdf(
+        znag_id: int,
+        zadania_service: ZadaniaServiceDep,
+        body: dict | None = Body(None),
+):
+    """
+    Generuje i zwraca plik PDF dla danego zadania.
+    """
+    nagl = zadania_service.get_naglowek(znag_id)
     if not nagl:
         raise HTTPException(404, "Zadanie nie istnieje")
-    poz = repo.pozycje(conn, znag_id)
+
+    poz = zadania_service.get_pozycje(znag_id)
 
     serwisanci = (body or {}).get("serwisanci") or []
     out_path = PDF_DIR / f"zadanie_{znag_id}.pdf"
@@ -83,4 +119,9 @@ def generuj_pdf(znag_id: int, body: dict | None = Body(None), conn=Depends(get_c
         pozycje=poz,
         serwisanci=serwisanci
     )
-    return FileResponse(str(out_path), media_type="application/pdf", filename=f"zadanie_{znag_id}.pdf")
+
+    return FileResponse(
+        str(out_path),
+        media_type="application/pdf",
+        filename=f"zadanie_{znag_id}.pdf"
+    )

@@ -22,6 +22,13 @@ export async function getZadaniePozycje(
   return data;
 }
 
+export async function getZadaniePozycjeSerwisant(
+  znagId: number
+): Promise<ZadaniePozycja[]> {
+  const { data } = await api.get<ZadaniePozycja[]>(`/zadania/${znagId}/pozycje-serwisant`);
+  return data;
+}
+
 /** Ustaw/wyłącz flagę 'do przeglądu' dla pozycji zadania */
 export async function setDoPrzegladu(
   zpozId: number,

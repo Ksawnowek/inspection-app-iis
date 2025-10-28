@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getZadania, generateZadaniePdf } from "../api/zadania";
 import { Zadanie } from "../types";
 import { Link } from "react-router-dom";
+import Spinner from "../components/Spinner";
 
 export default function ZadaniaPage() {
   const [rows, setRows] = useState<Zadanie[]>([]);
@@ -51,7 +52,7 @@ export default function ZadaniaPage() {
       
   };
 
-  if (loading) return <p>Ładowanie…</p>;
+  if (loading) return <Spinner/>;
 
   return (
     <div className="container">
@@ -74,7 +75,7 @@ export default function ZadaniaPage() {
         placeholder="Wyszukaj ID..."
         />
       </div>
-      <table>
+      <table className="table table-secondary table-striped table-shadow">
         <thead>
           <tr>
             <th>ID</th>

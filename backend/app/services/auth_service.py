@@ -37,7 +37,7 @@ class AuthService():
     def register_user(self, login, imie, nazwisko, pwd, rola):
         #TODO włączyć unique na loginie xD
         passwordHash = bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt())
-        user = User(imie=imie, nazwisko=nazwisko, login=login, pwd=passwordHash, rola=rola)
+        user = User(name=imie, surname=nazwisko, login=login, pwd=passwordHash, role=rola)
         result = self.repo.add_user(user)
 
         return result
@@ -59,3 +59,6 @@ class AuthService():
             return None
 
         return user
+
+    def get_role(self, role_id):
+        return self.repo.get_role_name(role_id)

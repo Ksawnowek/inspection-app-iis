@@ -1,5 +1,7 @@
 import React from "react";
 import { ProtokolPozycja } from "../types";
+import PhotoButton from "./PhotoButton";
+import { dodajZdjecie } from "../api/zdjecia";
 
 type Props = {
   group: string;
@@ -14,6 +16,12 @@ const MAP: Record<typeof OCENY[number], keyof ProtokolPozycja> = {
   NR: "PPOZ_OcenaNR",
   NA: "PPOZ_OcenaNA",
 };
+
+
+function addPhotoPreview(){
+  const previewSpan = document.querySelector()
+}
+
 
 export default function ProtokolGroup({ group, items, onChange }: Props) {
   return (
@@ -63,6 +71,16 @@ export default function ProtokolGroup({ group, items, onChange }: Props) {
                 onChange={(e) => onChange(row.PPOZ_Id, { PPOZ_CzyZdjecia: e.target.checked ? 1 : 0 })}
               />
               Zdjęcia
+              {/* <PhotoButton
+                onPick={async (file) => {
+                            await dodajZdjecie(row.PPOZ_Id, file);
+                            alert("Dodano zdjęcie.");
+                          }}
+              ></PhotoButton>
+              <span className="photo-preview">
+               <img src={}/> 
+
+              </span> */}
             </label>
           </div>
         </div>

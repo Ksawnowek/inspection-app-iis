@@ -1,24 +1,59 @@
 główny widok
--> dla serwisanta możliwość wpisania numeru zadania (search bar lub wchodzenie od razu w zlecenie ?)
-
-
-
-do zadania dodajemy obserwacje serwisanta i podpis klienta
-
-zadania/xxxx
--> do przeglądu ma być zaznaczone, jak odznaczam to ucieka -> widok dla operatora/serwisanta
--> widok w formacie tabelki (nagłówki z bazy) - tabelka jeden ciemniejszy jaśniejszy
--> dla koordynatora -> widzi wszystko i wyszarzone są odznaczone
--> zmiana backendu, żeby pobierał odpowiednie rzeczy w zależności od roli
-
--> ładniejsze ładowanie
+-> dla serwisanta możliwość wpisania numeru zadania (search bar lub wchodzenie od razu w zlecenie ?) [OK]
 
 -> logowanie [OK]
 -> jwt [OK]
 -> rejestracja przez koordynatora [OK]
+-> ochrona podstron przed niezalogowanym użytkownikiem [OK]
+-> zmiana backendu, żeby pobierał odpowiednie rzeczy w zależności od roli [OK]
+->popup logowania[OK]
+-> ładniejsze ładowanie[OK]
+
+zadania/xxxx
+-> widok w formacie tabelki (nagłówki z bazy) - tabelka jeden ciemniejszy jaśniejszy[OK]
+
+zadania/xxxx
+-> do przeglądu ma być zaznaczone, jak odznaczam to ucieka -> widok dla operatora/serwisanta [OK?]
+-> dla koordynatora -> widzi wszystko i wyszarzone są odznaczone[OK?]
+do przegląduy domyślnie wszystko, odznacza sobie tylko koordynator, usuń z widoku serwisanta [OK]
+
+
+-> do zadania dodajemy obserwacje serwisanta i podpis klienta
+
 
 protokół
--> zmiana checkbox Zdjęcie na aparat i automatyczne przejście do aparatu
--> zapisywanie do bazy przy zmianach wszystkiego do id_pos
+-> zmiana checkbox Zdjęcie na aparat
+-> zapisywanie do bazy przy zmianach wszystkiego do id_poz
 -> generacja protokołu (html) -> musi zawierać podpis -> fixnąć
 
+
+->popup rejestracji
+
+
+
+Pytania: 
+-> co ma być w USER (ZadaniePozycjePage) login? -> do protokołu ma być wpisanych 2 ostatnich co to robili -> rejestr operacji?
+
+
+
+
+
+
+
+
+
+widok główny(zadania):
+-> podpis
+-> uwagi
+-> wypełnienie godzin -> pole tekstowe 
+
+
+Baza:
+zadanie nagl -> dodać pdf path
+
+Zdjęcia:
+-> rozdzielić baze na zdjęcia do pozycji i do protokołu (2 tabele z relacjami)
+-> jeden do wielu
+-> podgląd dodanych zdjęć, żeby można było wywalić
+
+-> Spróbować ORM na pozycje protokołu

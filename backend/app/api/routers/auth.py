@@ -57,6 +57,25 @@ async def handle_register(data: RegisterRequest, service: AuthService = Depends(
         "message": response
     }
 
-@router.get("/test")
-async def test(current_user: Annotated[User, Depends(get_current_user_from_cookie)]):
-    return current_user
+@router.post("/logout")
+async def handle_logout(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        secure=True,  # Ustaw na False, jeśli testujesz na http (nie https)
+        samesite="lax"  # Musi pasować do tego z /login
+    )
+
+    return {"status": "success", "message": "Logged out successfully"}
+
+
+@router.get("/me")
+async def test(current_user: Annotated[User, Depends(get_current_user_from_cookie)], service: AuthService = Depends(AuthService) ):
+    role = service.get_role(current_user.role)
+    response = {
+        "login": current_user.login,
+        "name": current_user.name,
+        "surname": current_user.surname,
+        "role": role
+    }
+    return {"status": "success", "message": response}

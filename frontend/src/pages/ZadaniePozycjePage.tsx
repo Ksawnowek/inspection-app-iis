@@ -1,48 +1,104 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getZadaniePozycje, setDoPrzegladu } from "../api/zadania";
+import { getZadaniePozycje, getZadaniePozycjeSerwisant, setDoPrzegladu } from "../api/zadania";
 import { ZadaniePozycja } from "../types";
 import DoPrzegladuSwitch from "../components/DoPrzegladuSwitch";
+import Spinner from "../components/Spinner";
+import DoPrzegladuButton from "../components/DoPrzegladuButton";
+import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 const USER = "koordynator"; // albo z logowania
 
 export default function ZadaniePozycjePage() {
   const { znagId } = useParams();
+  const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ZadaniePozycja[]>([]);
   const [saving, setSaving] = useState<number | null>(null);
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  //na podstawie tej zmiennej wyświetli się kolumna ze zmianą statusu do przeglądu
+  const showDoPrzegladu = user.role == "Kierownik";
 
   useEffect(() => {
     if (!znagId) return;
-    getZadaniePozycje(Number(znagId)).then(setRows);
+      getZadaniePozycje(Number(znagId)).then(setRows).finally(() => setLoading(false));
   }, [znagId]);
 
   async function toggle(zpoz: ZadaniePozycja, value: boolean) {
-    setSaving(zpoz.ZPOZ_Id);
-    await setDoPrzegladu(zpoz.ZPOZ_Id, value, USER);
-    setRows((prev) => prev.map(r => r.ZPOZ_Id === zpoz.ZPOZ_Id ? { ...r, ZPOZ_UrzadzenieDoPrzegladu: value ? 1 : 0 } : r));
-    setSaving(null);
+    try {
+      await toast.promise(
+        setDoPrzegladu(zpoz.ZPOZ_Id, value, USER), 
+        {
+          loading: 'Wykonuje operacje...', 
+          success: 'Oznaczono pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Operacja niepowiodła się'}`, 
+        }
+      );
+
+      setRows((prev) => prev.map(r => r.ZPOZ_Id === zpoz.ZPOZ_Id ? { ...r, ZPOZ_UrzadzenieDoPrzegladu: value ? true : false } : r));
+
+    } catch (error) {
+      console.error("Operacja nie powiodła się (obsłużone przez toast):", error);
+    } 
   }
+
+  
+
+
 
   return (
     <div className="container">
       <h2>Zadanie #{znagId}</h2>
       <Link to="/">← Wróć</Link>
-      <div style={{ marginTop:12 }}>
+      <div style={{ marginTop: 12 }}>
+  {loading === false ? (
+    <table style={{ width: "100%", borderCollapse: "collapse" }} className="table table-secondary table-striped table-shadow">
+      <thead>
+        <tr style={{ borderBottom: "1px solid #ccc" }}>
+          <th style={{ padding: 8, textAlign: "left" }}>Numer</th>
+          <th style={{ padding: 8, textAlign: "left" }}>Opis</th>
+          {showDoPrzegladu && (
+          <th style={{ padding: 8, textAlign: "left" }}>Do przeglądu</th>
+          )}
+          <th style={{ padding: 8, textAlign: "left" }}>Akcje</th>
+        </tr>
+      </thead>
+      <tbody>
         {rows.map(r => (
-          <div key={r.ZPOZ_Id} style={{ border:"1px solid #eee", padding:8, marginBottom:8 }}>
-            <div><b>{r.ZPOZ_UrzadzenieNumer}</b> — {r.ZPOZ_UrzadzenieOpis}</div>
-            <div style={{ display:"flex", gap:16, alignItems:"center", marginTop:6 }}>
-              <DoPrzegladuSwitch
-                checked={r.ZPOZ_UrzadzenieDoPrzegladu === 1}
-                onChange={(v) => toggle(r, v)}
-              />
-              {saving === r.ZPOZ_Id && <span>Zapisywanie…</span>}
-              {r.ZPOZ_UrzadzenieDoPrzegladu === 1 &&
+          <tr key={r.ZPOZ_Id} style={{ borderBottom: "1px solid #eee" }}>
+            
+            <td style={{ padding: 8 }}>
+              <b>{r.ZPOZ_UrzadzenieNumer}</b>
+            </td>
+            
+            <td style={{ padding: 8 }}>
+              {r.ZPOZ_UrzadzenieOpis}
+            </td>
+
+            {showDoPrzegladu && (
+              <td style={{ padding: 8 }}>
+                <DoPrzegladuButton
+                  isDoPrzegladu={r.ZPOZ_UrzadzenieDoPrzegladu === true}
+                  onChange={(v) => toggle(r, v)}
+                ></DoPrzegladuButton>
+              </td>
+            )}
+
+            <td style={{ padding: 8 }}>
+              {/* {saving === r.ZPOZ_Id && <span>Zapisywanie…</span>} */}
+              {r.ZPOZ_UrzadzenieDoPrzegladu === true &&
                 <Link to={`/protokol/${r.ZPOZ_Id}`}>Protokół</Link>}
-            </div>
-          </div>
+            </td>
+          
+          </tr>
         ))}
-      </div>
+      </tbody>
+    </table>
+  ) : (
+    <Spinner />
+  )}
+</div>
     </div>
   );
 }

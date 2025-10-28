@@ -6,17 +6,21 @@ import ProtokolPage from "./pages/ProtokolPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ProtectedRoute from "./components/ProtectedRoute"
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<ZadaniaPage />} />
-        <Route path="/zadania/:znagId" element={<ZadaniePozycjePage />} />
-        <Route path="/protokol/:pnaglId" element={<ProtokolPage />} />
+        {/* Trasy publiczne */}
         <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<ZadaniaPage />} />
+          <Route path="/zadania/:znagId" element={<ZadaniePozycjePage />} />
+          <Route path="/protokol/:pnaglId" element={<ProtokolPage />} />
+          <Route path="register" element={<RegisterPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
