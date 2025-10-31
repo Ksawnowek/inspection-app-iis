@@ -1,10 +1,13 @@
 export type Zadanie = {
-  ZNAG_Id: number;
-  ZNAG_TypPrzegladu: string;
-  ZNAG_KlientNazwa: string;
-  ZNAG_KlientMiasto?: string;   // w widoku
-  ZNAG_Miejscowosc?: string;    // jeśli gdzieś indziej używasz
-  ZNAG_DataPlanowana?: string | null;
+  vZNAG_Id: number;
+  vZNAG_TypPrzegladu: string;
+  vZNAG_KlientNazwa: string;
+  vZNAG_KlientMiasto?: string;   // w widoku
+  vZNAG_Miejscowosc?: string;    // jeśli gdzieś indziej używasz
+  vZNAG_DataPlanowana?: string | null;
+  vZNAG_Uwagi?: string | null;
+  vZNAG_UwagiGodziny?: string | null;
+  vZNAG_KlientPodpis?: string | null;
 };
 
 

@@ -1,7 +1,10 @@
+from sqlalchemy.sql.sqltypes import UnicodeText
+
+from app.models.types import TrimmedString
 from typing import Optional
 import datetime
 
-from sqlalchemy import BigInteger, Boolean, Column, ForeignKeyConstraint, Identity, Index, Integer, NCHAR, PrimaryKeyConstraint, SmallInteger, Table, Unicode, text
+from sqlalchemy import BigInteger, Boolean, Column, ForeignKeyConstraint, Identity, Index, Integer, PrimaryKeyConstraint, SmallInteger, Table, Unicode, text
 from sqlalchemy.dialects.mssql import DATETIME2
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -13,8 +16,8 @@ t_Kontrakt = Table(
     'Kontrakt', Base.metadata,
     Column('KONT_Id', Integer, Identity(start=1, increment=1), nullable=False),
     Column('KONT_Kontrakt', SmallInteger, nullable=False),
-    Column('KONT_UrzadzenieNumer', NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('KONT_UrzadzenieOpis', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    Column('KONT_UrzadzenieNumer', TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('KONT_UrzadzenieOpis', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
 )
 
 
@@ -25,7 +28,7 @@ class Role(Base):
     )
 
     ROL_Id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
-    ROL_Opis: Mapped[str] = mapped_column(NCHAR(10, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ROL_Opis: Mapped[str] = mapped_column(TrimmedString(10, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
 
     Uzytkownik: Mapped[list['Uzytkownik']] = relationship('Uzytkownik', back_populates='Role_')
 
@@ -37,17 +40,17 @@ class UrGrupa(Base):
     )
 
     URG_Id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    URG_Kod: Mapped[str] = mapped_column(NCHAR(2, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    URG_Typ: Mapped[str] = mapped_column(NCHAR(1, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    URG_Opis: Mapped[str] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    URG_Kod: Mapped[str] = mapped_column(TrimmedString(2, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    URG_Typ: Mapped[str] = mapped_column(TrimmedString(1, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    URG_Opis: Mapped[str] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
 
 
 t_UrOperacja = Table(
     'UrOperacja', Base.metadata,
     Column('URO_Id', Integer, nullable=False),
     Column('URO_URG_Id', Integer, nullable=False),
-    Column('URO_Kod', NCHAR(2, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('URO_Opis', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    Column('URO_Kod', TrimmedString(2, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('URO_Opis', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
 )
 
 
@@ -60,30 +63,32 @@ class ZadanieNagl(Base):
     ZNAG_Id: Mapped[int] = mapped_column(Integer, primary_key=True)
     ZNAG_DataDokumentu: Mapped[datetime.datetime] = mapped_column(DATETIME2, nullable=False)
     ZNAG_KlientNumer: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    ZNAG_KlientNazwa: Mapped[str] = mapped_column(NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    ZNAG_KlientTelefon: Mapped[str] = mapped_column(NCHAR(16, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    ZNAG_KlientAdres: Mapped[str] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    ZNAG_KlientMiasto: Mapped[str] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    ZNAG_KlientPowiat: Mapped[str] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    ZNAG_KategoriaKod: Mapped[str] = mapped_column(NCHAR(20, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    ZNAG_KategoriaOpis: Mapped[str] = mapped_column(NCHAR(20, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZNAG_KlientNazwa: Mapped[str] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZNAG_KlientTelefon: Mapped[str] = mapped_column(TrimmedString(16, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZNAG_KlientAdres: Mapped[str] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZNAG_KlientMiasto: Mapped[str] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZNAG_KlientPowiat: Mapped[str] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZNAG_KategoriaKod: Mapped[str] = mapped_column(TrimmedString(20, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZNAG_KategoriaOpis: Mapped[str] = mapped_column(TrimmedString(20, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
     ZNAG_Kontrakt: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     ZNAG_DataPlanowana: Mapped[datetime.datetime] = mapped_column(DATETIME2, nullable=False)
-    ZNAG_TypPrzegladu: Mapped[Optional[str]] = mapped_column(NCHAR(1, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_TypPrzegladu: Mapped[Optional[str]] = mapped_column(TrimmedString(1, 'SQL_Latin1_General_CP1_CI_AS'))
     ZNAG_Czestotliwosc: Mapped[Optional[int]] = mapped_column(SmallInteger)
-    ZNAG_Osoby: Mapped[Optional[str]] = mapped_column(NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_Osoby: Mapped[Optional[str]] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'))
     ZNAG_DataWykonania: Mapped[Optional[datetime.datetime]] = mapped_column(DATETIME2)
-    ZNAG_GodzSwieta: Mapped[Optional[str]] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'))
-    ZNAG_GodzSobNoc: Mapped[Optional[str]] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'))
-    ZNAG_GodzDojazdu: Mapped[Optional[str]] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'))
-    ZNAG_GodzNaprawa: Mapped[Optional[str]] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'))
-    ZNAG_GodzWyjazd: Mapped[Optional[str]] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'))
-    ZNAG_GodzDieta: Mapped[Optional[str]] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'))
-    ZNAG_GodzKm: Mapped[Optional[str]] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'))
-    ZNAG_KlientNazwisko: Mapped[Optional[str]] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'))
-    ZNAG_KlientDzial: Mapped[Optional[str]] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_GodzSwieta: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_GodzSobNoc: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_GodzDojazdu: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_GodzNaprawa: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_GodzWyjazd: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_GodzDieta: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_GodzKm: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_KlientNazwisko: Mapped[Optional[str]] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_KlientDzial: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
     ZNAG_KlientDataZatw: Mapped[Optional[datetime.datetime]] = mapped_column(DATETIME2)
-    ZNAG_KlientPodpis: Mapped[Optional[str]] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_KlientPodpis: Mapped[Optional[str]] = mapped_column(UnicodeText(collation='SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_Uwagi: Mapped[Optional[str]] = mapped_column(TrimmedString(250, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_UwagiGodziny: Mapped[Optional[str]] = mapped_column(TrimmedString(150, 'SQL_Latin1_General_CP1_CI_AS'))
 
     ZadaniePoz: Mapped[list['ZadaniePoz']] = relationship('ZadaniePoz', back_populates='ZadanieNagl_')
 
@@ -96,31 +101,31 @@ class Zdjecia(Base):
 
     ZDJ_Id: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
     ZDJ_ParentId: Mapped[int] = mapped_column(Integer, nullable=False)
-    ZDJ_Sciezka: Mapped[str] = mapped_column(NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZDJ_Sciezka: Mapped[str] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
 
 
 t_v_ProtokolNaglWidok = Table(
     'v_ProtokolNaglWidok', Base.metadata,
     Column('PNAGL_Id', Integer, nullable=False),
     Column('PNAGL_ZPOZ_Id', Integer, nullable=False),
-    Column('PNAGL_Typ', NCHAR(1, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('PNAGL_Tytul', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('PNAGL_Klient', NCHAR(120, 'SQL_Latin1_General_CP1_CI_AS')),
-    Column('PNAGL_Miejscowosc', NCHAR(120, 'SQL_Latin1_General_CP1_CI_AS')),
-    Column('PNAGL_Producent', NCHAR(120, 'SQL_Latin1_General_CP1_CI_AS')),
-    Column('PNAGL_Udzwig', NCHAR(20, 'SQL_Latin1_General_CP1_CI_AS')),
-    Column('PNAGL_NrUrzadzenia', NCHAR(20, 'SQL_Latin1_General_CP1_CI_AS')),
-    Column('PNAGL_ModelWciagnika', NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS')),
-    Column('PNAGL_PodpisKlienta', NCHAR(10, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PNAGL_Typ', TrimmedString(1, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('PNAGL_Tytul', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('PNAGL_Klient', TrimmedString(120, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PNAGL_Miejscowosc', TrimmedString(120, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PNAGL_Producent', TrimmedString(120, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PNAGL_Udzwig', TrimmedString(20, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PNAGL_NrUrzadzenia', TrimmedString(20, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PNAGL_ModelWciagnika', TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PNAGL_PodpisKlienta', TrimmedString(10, 'SQL_Latin1_General_CP1_CI_AS')),
     Column('PNAGL_DataAkceptacji', DATETIME2),
-    Column('PNAGL_UZTOstatni', NCHAR(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('PNAGL_UZTOstatni', TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
     Column('PNAGL_PdfPath', Unicode(500, 'SQL_Latin1_General_CP1_CI_AS')),
     Column('ZPOZ_ZNAG_Id', Integer, nullable=False),
-    Column('ZPOZ_UrzadzenieNumer', NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('ZPOZ_UrzadzenieOpis', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('ZPOZ_UrzadzenieNumer', TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('ZPOZ_UrzadzenieOpis', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
     Column('ZNAG_Kontrakt', SmallInteger, nullable=False),
-    Column('ZNAG_KlientNazwa', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('ZNAG_KlientMiasto', NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    Column('ZNAG_KlientNazwa', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('ZNAG_KlientMiasto', TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
 )
 
 
@@ -129,31 +134,34 @@ t_v_ProtokolPozWidok = Table(
     Column('PPOZ_Id', Integer, nullable=False),
     Column('PPOZ_PNAGL_Id', Integer, nullable=False),
     Column('PPOZ_Lp', SmallInteger, nullable=False),
-    Column('PPOZ_GrupaOperacji', NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('PPOZ_Operacja', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('PPOZ_GrupaOperacji', TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('PPOZ_Operacja', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
     Column('PPOZ_OcenaNP', Boolean, nullable=False),
     Column('PPOZ_OcenaO', Boolean, nullable=False),
     Column('PPOZ_OcenaNR', Boolean, nullable=False),
     Column('PPOZ_OcenaNA', Boolean, nullable=False),
-    Column('PPOZ_Uwagi', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PPOZ_Uwagi', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS')),
     Column('PPOZ_CzyZdjecia', Boolean, nullable=False),
-    Column('PPOZ_UZTOstatni', NCHAR(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('PPOZ_UZTOstatni', TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
     Column('ZdjeciaCount', Integer)
 )
 
 
 t_v_Zadania = Table(
     'v_Zadania', Base.metadata,
-    Column('ZNAG_Id', Integer, nullable=False),
-    Column('ZNAG_DataDokumentu', DATETIME2, nullable=False),
-    Column('ZNAG_Kontrakt', SmallInteger, nullable=False),
-    Column('ZNAG_KlientNazwa', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('ZNAG_KlientMiasto', NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('ZNAG_TypPrzegladu', NCHAR(1, 'SQL_Latin1_General_CP1_CI_AS')),
-    Column('Poz_All', Integer),
-    Column('Poz_DoPrzegladu', Integer),
-    Column('Protokoly_Aktywne', Integer),
-    Column('Protokoly_Zamkniete', Integer)
+    Column('vZNAG_Id', Integer, nullable=False),
+    Column('vZNAG_DataDokumentu', DATETIME2, nullable=False),
+    Column('vZNAG_Kontrakt', SmallInteger, nullable=False),
+    Column('vZNAG_KlientNazwa', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('vZNAG_KlientMiasto', TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('vZNAG_TypPrzegladu', TrimmedString(1, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('vPoz_All', Integer),
+    Column('vPoz_DoPrzegladu', Integer),
+    Column('vProtokoly_Aktywne', Integer),
+    Column('vProtokoly_Zamkniete', Integer),
+    Column('vZNAG_Uwagi', TrimmedString(250, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('vZNAG_UwagiGodziny', TrimmedString(150, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('vZNAG_KlientPodpis', UnicodeText(collation='SQL_Latin1_General_CP1_CI_AS'))
 )
 
 
@@ -161,8 +169,8 @@ t_v_ZadaniePozycje = Table(
     'v_ZadaniePozycje', Base.metadata,
     Column('ZPOZ_Id', Integer, nullable=False),
     Column('ZPOZ_ZNAG_Id', Integer, nullable=False),
-    Column('ZPOZ_UrzadzenieNumer', NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
-    Column('ZPOZ_UrzadzenieOpis', NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('ZPOZ_UrzadzenieNumer', TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
+    Column('ZPOZ_UrzadzenieOpis', TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
     Column('ZPOZ_UrzadzenieDoPrzegladu', Boolean, nullable=False),
     Column('PNAGL_Id', Integer),
     Column('PNAGL_Aktywny', Integer),
@@ -179,12 +187,12 @@ class Uzytkownik(Base):
     )
 
     UZT_Id: Mapped[int] = mapped_column(SmallInteger, Identity(start=1, increment=1), primary_key=True)
-    UZT_Imie: Mapped[str] = mapped_column(NCHAR(25, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    UZT_Nazwisko: Mapped[str] = mapped_column(NCHAR(40, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    UZT_Imie: Mapped[str] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    UZT_Nazwisko: Mapped[str] = mapped_column(TrimmedString(40, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
     UZT_ROL_Id: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text('((101))'))
     UZT_TS: Mapped[datetime.datetime] = mapped_column(DATETIME2, nullable=False, server_default=text('(getdate())'))
-    UZT_Login: Mapped[Optional[str]] = mapped_column(NCHAR(10, 'SQL_Latin1_General_CP1_CI_AS'))
-    UZT_pwd: Mapped[Optional[str]] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'))
+    UZT_Login: Mapped[Optional[str]] = mapped_column(TrimmedString(10, 'SQL_Latin1_General_CP1_CI_AS'))
+    UZT_pwd: Mapped[Optional[str]] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'))
 
     Role_: Mapped['Role'] = relationship('Role', back_populates='Uzytkownik')
 
@@ -199,8 +207,8 @@ class ZadaniePoz(Base):
 
     ZPOZ_Id: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
     ZPOZ_ZNAG_Id: Mapped[int] = mapped_column(Integer, nullable=False)
-    ZPOZ_UrzadzenieNumer: Mapped[str] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    ZPOZ_UrzadzenieOpis: Mapped[str] = mapped_column(NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZPOZ_UrzadzenieNumer: Mapped[str] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    ZPOZ_UrzadzenieOpis: Mapped[str] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
     ZPOZ_UrzadzenieDoPrzegladu: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text('((1))'))
 
     ZadanieNagl_: Mapped['ZadanieNagl'] = relationship('ZadanieNagl', back_populates='ZadaniePoz')
@@ -216,26 +224,27 @@ class ProtokolNagl(Base):
 
     PNAGL_Id: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
     PNAGL_ZPOZ_Id: Mapped[int] = mapped_column(Integer, nullable=False)
-    PNAGL_Typ: Mapped[str] = mapped_column(NCHAR(1, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    PNAGL_Tytul: Mapped[str] = mapped_column(NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    PNAGL_Typ: Mapped[str] = mapped_column(TrimmedString(1, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    PNAGL_Tytul: Mapped[str] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
     PNAGL_Aktywny: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text('((1))'))
-    PNAGL_UZTOstatni: Mapped[str] = mapped_column(NCHAR(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False, server_default=text("(N'System')"))
+    PNAGL_UZTOstatni: Mapped[str] = mapped_column(TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False, server_default=text("(N'System')"))
     PNAGL_TS: Mapped[datetime.datetime] = mapped_column(DATETIME2, nullable=False, server_default=text('(getdate())'))
-    PNAGL_Klient: Mapped[Optional[str]] = mapped_column(NCHAR(120, 'SQL_Latin1_General_CP1_CI_AS'))
-    PNAGL_Miejscowosc: Mapped[Optional[str]] = mapped_column(NCHAR(120, 'SQL_Latin1_General_CP1_CI_AS'))
-    PNAGL_Producent: Mapped[Optional[str]] = mapped_column(NCHAR(120, 'SQL_Latin1_General_CP1_CI_AS'))
-    PNAGL_Udzwig: Mapped[Optional[str]] = mapped_column(NCHAR(20, 'SQL_Latin1_General_CP1_CI_AS'))
-    PNAGL_NrUrzadzenia: Mapped[Optional[str]] = mapped_column(NCHAR(20, 'SQL_Latin1_General_CP1_CI_AS'))
-    PNAGL_ModelWciagnika: Mapped[Optional[str]] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'))
-    PNAGL_Uwagi: Mapped[Optional[str]] = mapped_column(NCHAR(512, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_Klient: Mapped[Optional[str]] = mapped_column(TrimmedString(120, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_Miejscowosc: Mapped[Optional[str]] = mapped_column(TrimmedString(120, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_Producent: Mapped[Optional[str]] = mapped_column(TrimmedString(120, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_Udzwig: Mapped[Optional[str]] = mapped_column(TrimmedString(20, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_NrUrzadzenia: Mapped[Optional[str]] = mapped_column(TrimmedString(20, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_ModelWciagnika: Mapped[Optional[str]] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_Uwagi: Mapped[Optional[str]] = mapped_column(TrimmedString(512, 'SQL_Latin1_General_CP1_CI_AS'))
     PNAGL_CzyZaakceptowany: Mapped[Optional[bool]] = mapped_column(Boolean)
-    PNAGL_Zaakceptowal: Mapped[Optional[str]] = mapped_column(NCHAR(50, 'SQL_Latin1_General_CP1_CI_AS'))
-    PNAGL_PodpisKlienta: Mapped[Optional[str]] = mapped_column(NCHAR(10, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_Zaakceptowal: Mapped[Optional[str]] = mapped_column(TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_PodpisKlienta: Mapped[Optional[str]] = mapped_column(TrimmedString(10, 'SQL_Latin1_General_CP1_CI_AS'))
     PNAGL_DataAkceptacji: Mapped[Optional[datetime.datetime]] = mapped_column(DATETIME2)
     PNAGL_PdfPath: Mapped[Optional[str]] = mapped_column(Unicode(500, 'SQL_Latin1_General_CP1_CI_AS'))
 
     ZadaniePoz_: Mapped['ZadaniePoz'] = relationship('ZadaniePoz', back_populates='ProtokolNagl')
     ProtokolPoz: Mapped[list['ProtokolPoz']] = relationship('ProtokolPoz', back_populates='ProtokolNagl_')
+    ZdjeciaProtokol: Mapped[list['ZdjeciaProtokol']] = relationship('ZdjeciaProtokol', back_populates='ProtokolNagl_')
 
 
 class ProtokolPoz(Base):
@@ -248,15 +257,44 @@ class ProtokolPoz(Base):
     PPOZ_Id: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
     PPOZ_PNAGL_Id: Mapped[int] = mapped_column(Integer, nullable=False)
     PPOZ_Lp: Mapped[int] = mapped_column(SmallInteger, nullable=False)
-    PPOZ_GrupaOperacji: Mapped[str] = mapped_column(NCHAR(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
-    PPOZ_Operacja: Mapped[str] = mapped_column(NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    PPOZ_GrupaOperacji: Mapped[str] = mapped_column(TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+    PPOZ_Operacja: Mapped[str] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
     PPOZ_OcenaNP: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text('((0))'))
     PPOZ_OcenaO: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text('((0))'))
     PPOZ_OcenaNR: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text('((0))'))
     PPOZ_OcenaNA: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text('((0))'))
     PPOZ_CzyZdjecia: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text('((0))'))
-    PPOZ_UZTOstatni: Mapped[str] = mapped_column(NCHAR(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False, server_default=text("(N'System')"))
+    PPOZ_UZTOstatni: Mapped[str] = mapped_column(TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False, server_default=text("(N'System')"))
     PPOZ_TS: Mapped[datetime.datetime] = mapped_column(DATETIME2, nullable=False, server_default=text('(getdate())'))
-    PPOZ_Uwagi: Mapped[Optional[str]] = mapped_column(NCHAR(255, 'SQL_Latin1_General_CP1_CI_AS'))
+    PPOZ_Uwagi: Mapped[Optional[str]] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'))
 
     ProtokolNagl_: Mapped['ProtokolNagl'] = relationship('ProtokolNagl', back_populates='ProtokolPoz')
+    ZdjeciaProtokolPoz: Mapped[list['ZdjeciaProtokolPoz']] = relationship('ZdjeciaProtokolPoz', back_populates='ProtokolPoz_')
+
+
+class ZdjeciaProtokol(Base):
+    __tablename__ = 'ZdjeciaProtokol'
+    __table_args__ = (
+        ForeignKeyConstraint(['ZDJ_PNAGL_Id'], ['ProtokolNagl.PNAGL_Id'], name='FK_ZdjeciaProtokol_ProtokolNagl'),
+        PrimaryKeyConstraint('ZDJ_Id', name='PK_ZdjeciaProtokol')
+    )
+
+    ZDJ_Id: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
+    ZDJ_PNAGL_Id: Mapped[int] = mapped_column(Integer, nullable=False)
+    ZDJ_Sciezka: Mapped[str] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+
+    ProtokolNagl_: Mapped['ProtokolNagl'] = relationship('ProtokolNagl', back_populates='ZdjeciaProtokol')
+
+
+class ZdjeciaProtokolPoz(Base):
+    __tablename__ = 'ZdjeciaProtokolPoz'
+    __table_args__ = (
+        ForeignKeyConstraint(['ZDJP_PPOZ_Id'], ['ProtokolPoz.PPOZ_Id'], name='FK_ZdjeciaProtokol_ProtokolPoz'),
+        PrimaryKeyConstraint('ZDJP_Id', name='PK_ZdjeciaProtokolPoz')
+    )
+
+    ZDJP_Id: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
+    ZDJP_PPOZ_Id: Mapped[int] = mapped_column(Integer, nullable=False)
+    ZDJP_Sciezka: Mapped[str] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+
+    ProtokolPoz_: Mapped['ProtokolPoz'] = relationship('ProtokolPoz', back_populates='ZdjeciaProtokolPoz')

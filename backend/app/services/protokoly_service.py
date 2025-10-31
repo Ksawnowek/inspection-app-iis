@@ -4,6 +4,7 @@ from app.services.file_service import FileService
 from app.services.pdf_service import PdfService
 from app.schemas.protokoly import ZapisProtokolu
 from app.errors import ProtokolNotFound, PdfNotGenerated, SaveError
+from app.models.models import ProtokolNagl, ProtokolPoz
 
 
 class ProtokolyService:
@@ -19,6 +20,13 @@ class ProtokolyService:
             raise ProtokolNotFound(pnagl_id)
         poz = self.repo.pozycje(pnagl_id)
         return {"inspection": nag, "values": poz}
+
+    def get_protokol_details2(self, pnagl_id: int):
+        nag = self.repo.naglowek2(pnagl_id)
+        if not nag:
+            raise ProtokolNotFound(pnagl_id)
+        result = self._mapPozToGrupa(nag.ProtokolPoz)
+        return {"values": result}
 
     def zapisz_pozycje(self, payload: ZapisProtokolu):
         try:
@@ -65,3 +73,12 @@ class ProtokolyService:
             return {"ok": True}
         except Exception as e:
             raise SaveError(f"Błąd zapisu podpisu: {e}")
+
+
+    def _mapPozToGrupa(self, pozycje : list[ProtokolPoz]):
+        poz_map = {}
+        for poz in pozycje:
+            if poz.PPOZ_GrupaOperacji not in poz_map:
+                poz_map[poz.PPOZ_GrupaOperacji] = []
+            poz_map[poz.PPOZ_GrupaOperacji].append(poz)
+        return poz_map

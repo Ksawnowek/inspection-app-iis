@@ -18,6 +18,15 @@ def podglad(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_ser
     except ProtokolNotFound as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+@router.get("/test/{pnagl_id}")
+def podglad2(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_service)):
+    try:
+        res = service.get_protokol_details2(pnagl_id)
+        print(res)
+        return res
+    except ProtokolNotFound as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 @router.put("/{pnagl_id}")
 def zapisz(payload: ZapisProtokolu, service: ProtokolyService = Depends(get_protokoly_service)):
     # Zakładamy, że pnagl_id jest w payloadu lub nie jest potrzebne w serwisie

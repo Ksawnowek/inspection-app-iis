@@ -1,13 +1,17 @@
 from typing import Any, Dict, List, Optional
 import pyodbc
-from fastapi import Depends
-# Założenie: Pamiętaj o imporcie get_conn
-from app.db import get_conn
+from sqlalchemy.engine import Engine
+from sqlalchemy import select, func, desc
+from sqlalchemy.orm import Session
+from typing import List, Dict, Any, Optional
+
+from app.models.models import t_v_Zadania, ZadanieNagl
 
 
 class ZadaniaRepo:
-    def __init__(self, conn: pyodbc.Connection = Depends(get_conn)):
+    def __init__(self, conn: pyodbc.Connection,  session: Session):
         self.conn = conn
+        self.session = session
 
     def lista_zadan(self,
                     kontrakt: str | None = None,
@@ -16,20 +20,51 @@ class ZadaniaRepo:
         sql = "SELECT * FROM dbo.v_Zadania WHERE 1=1"
         args: list[Any] = []
         if kontrakt:
-            sql += " AND ZNAG_Kontrakt = ?"
+            sql += " AND vZNAG_Kontrakt = ?"
             args.append(kontrakt)
         if date_from:
-            sql += " AND ZNAG_DataDokumentu >= ?"
+            sql += " AND vZNAG_DataDokumentu >= ?"
             args.append(date_from)
         if date_to:
-            sql += " AND ZNAG_DataDokumentu < DATEADD(day,1,?)"
+            sql += " AND vZNAG_DataDokumentu < DATEADD(day,1,?)"
             args.append(date_to)
 
-        sql += " ORDER BY ZNAG_DataDokumentu DESC, ZNAG_Id DESC"
+        sql += " ORDER BY vZNAG_DataDokumentu DESC, vZNAG_Id DESC"
         cur = self.conn.cursor() # Zmiana: użycie self.conn
         cur.execute(sql, tuple(args))
         cols = [d[0] for d in cur.description]
         return [dict(zip(cols, r)) for r in cur.fetchall()]
+
+    def lista_zadan_sqlalchemy(self,
+                               kontrakt: str | None = None,
+                               date_from: str | None = None,
+                               date_to: str | None = None) -> List[Dict[str, Any]]:
+        """
+        Pobiera listę zadań przy użyciu sesji SQLAlchemy i obiektu Table.
+        """
+
+        stmt = select(t_v_Zadania)
+
+        if kontrakt:
+            stmt = stmt.where(t_v_Zadania.c.vZNAG_Kontrakt == kontrakt)
+
+        if date_from:
+            stmt = stmt.where(t_v_Zadania.c.vZNAG_DataDokumentu >= date_from)
+
+        if date_to:
+            stmt = stmt.where(
+                t_v_Zadania.c.vZNAG_DataDokumentu < func.dateadd('day', 1, date_to)
+            )
+
+        stmt = stmt.order_by(
+            t_v_Zadania.c.vZNAG_DataDokumentu.desc(),
+            t_v_Zadania.c.vZNAG_Id.desc()
+        )
+
+        with Session(self.engine) as session:
+            result = session.execute(stmt).mappings().all()
+
+            return list(result)
 
     def pozycje_zadania(self, znag_id: int) -> List[Dict[str, Any]]:
         cur = self.conn.cursor()
@@ -81,3 +116,7 @@ class ZadaniaRepo:
               kontrakt: str | None = None) -> List[Dict[str, Any]]:
         # Alias jest prosty, ponieważ lista_zadan używa self.conn
         return self.lista_zadan(kontrakt=kontrakt, date_from=date_from, date_to=date_to)
+
+    def get_zadanie_by_id(self, znagl_id: int) -> ZadanieNagl | None:
+        zadanie = self.session.get(ZadanieNagl, znagl_id)
+        return zadanie

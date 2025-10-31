@@ -66,3 +66,27 @@ export async function downloadZadaniePdf(
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+
+export async function patchZadanie(
+  znagId: number,
+  fieldName: string,
+  fieldValue: string
+): Promise<Zadanie> {
+  const { data } = await api.patch(
+    `/zadania/patch/${znagId}`,
+    {[fieldName]: fieldValue}
+  );
+  return data;
+}
+
+export async function podpiszZadanie(
+  znagId: number,
+  podpisKlienta: string
+): Promise<Zadanie>{
+  const { data } = await api.patch(
+    `/zadania/patch/${znagId}`,
+    {ZNAG_KlientPodpis: podpisKlienta}
+  )
+  return data;
+}

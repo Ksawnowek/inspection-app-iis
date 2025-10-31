@@ -2,12 +2,15 @@ import {act, useState, ChangeEvent} from "react";
 import {tryLogin} from "../api/auth"
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { Button } from 'react-bootstrap';
+
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     login: '', 
     password: ''
   });
+  const [isLogging, setIsLogging] = useState(false);
   const { login } = useAuth();
 
   const handleChange = (e) => {
@@ -21,6 +24,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLogging(true);
       await toast.promise(
       login(formData.login, formData.password), 
       {
@@ -34,6 +38,9 @@ export default function LoginPage() {
     }, 500);
     } catch (error) {
       console.error("Wystąpił błąd połączenia:", error);
+    }
+    finally{
+      setIsLogging(false);
     }
   };
 
@@ -65,7 +72,7 @@ export default function LoginPage() {
             onChange={handleChange}
           />
         </div>
-        <button type="submit">Zaloguj</button>
+        <Button variant="primary" type="submit">{isLogging ? "Logowanie..." : "Zaloguj"}</Button>
       </form>
     </div>
    </div>

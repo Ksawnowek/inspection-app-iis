@@ -17,8 +17,12 @@ zadania/xxxx
 -> dla koordynatora -> widzi wszystko i wyszarzone są odznaczone[OK?]
 do przegląduy domyślnie wszystko, odznacza sobie tylko koordynator, usuń z widoku serwisanta [OK]
 
+widok główny(zadania):
+-> podpis [OK]
+-> uwagi [OK]
+-> wypełnienie godzin -> pole tekstowe [OK]
 
--> do zadania dodajemy obserwacje serwisanta i podpis klienta
+
 
 
 protokół
@@ -36,24 +40,11 @@ Pytania:
 
 
 
-
-
-
-
-
-
-widok główny(zadania):
--> podpis
--> uwagi
--> wypełnienie godzin -> pole tekstowe 
-
-
 Baza:
 zadanie nagl -> dodać pdf path
 
 Zdjęcia:
--> rozdzielić baze na zdjęcia do pozycji i do protokołu (2 tabele z relacjami)
--> jeden do wielu
+-> rozdzielić baze na zdjęcia do pozycji i do protokołu (2 tabele z relacjami)[OK]-> jeden do wielu
 -> podgląd dodanych zdjęć, żeby można było wywalić
 
 -> Spróbować ORM na pozycje protokołu

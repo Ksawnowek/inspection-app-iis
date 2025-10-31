@@ -2,10 +2,12 @@ from typing import Annotated, Optional, Dict, Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.responses import FileResponse
+from starlette import status
 
 # Usunięto import get_conn i ZadaniaRepo, bo są ukryte za serwisem
 
-from app.dependencies import get_current_user_from_cookie
+from app.dependencies import get_current_user_from_cookie, get_zadania_service
+from app.domain.requestsDTO import ZadanieUpdateDTO
 from app.schemas.user import User
 # Usunięto nieużywany import AuthService
 from app.services.pdf_zadanie_service import render_zadanie_pdf  # Używamy tylko aliasu
@@ -15,7 +17,7 @@ from app.services.zadania_service import ZadaniaService
 router = APIRouter(prefix="/api/zadania", tags=["Zadania"])
 
 
-ZadaniaServiceDep = Annotated[ZadaniaService, Depends(ZadaniaService)]
+
 CurrentUserDep = Annotated[User, Depends(get_current_user_from_cookie)]
 
 
@@ -23,7 +25,7 @@ CurrentUserDep = Annotated[User, Depends(get_current_user_from_cookie)]
 
 @router.get("")
 def list_zadania(
-        zadania_service: ZadaniaServiceDep,
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
         dateFrom: str | None = None,
         dateTo: str | None = None,
         onlyOpen: bool = False,
@@ -38,11 +40,24 @@ def list_zadania(
         only_open=onlyOpen
     )
 
+@router.patch("/patch/{znag_id}")
+def patch_zadania_uwagi(
+        znag_id: int,
+        update_dto: ZadanieUpdateDTO,
+        service: ZadaniaService = Depends(get_zadania_service)
+):
+    try:
+        updated_zadanie = service.patch_zadanie(znag_id, update_dto)
+        return updated_zadanie
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 @router.get("/{znag_id}")
 def get_zadanie(
         znag_id: int,
-        zadania_service: ZadaniaServiceDep
+        zadania_service: ZadaniaService = Depends(get_zadania_service)
 ) -> Dict[str, Any]:
     """
     Zwraca nagłówek zadania (np. z widoku v_Zadania).
@@ -57,7 +72,7 @@ def get_zadanie(
 def get_zadanie_pozycje(
         current_user: CurrentUserDep,
         znag_id: int,
-        zadania_service: ZadaniaServiceDep):
+        zadania_service: ZadaniaService = Depends(get_zadania_service)):
     """
     Zwraca pozycje zadania (np. z widoku v_ZadaniePozycje). 
     Używa logiki z Serwisu, aby zastosować filtry zależne od roli użytkownika.
@@ -76,7 +91,7 @@ def get_zadanie_pozycje(
 @router.put("/pozycje/{zpoz_id}/do-przegladu")
 def set_do_przegladu(
         zpoz_id: int,
-        zadania_service: ZadaniaServiceDep,
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
         payload: Dict[str, Any] = Body(...),  # {"value": true/false, "user": "kto"}
 ):
     """
@@ -98,7 +113,7 @@ def set_do_przegladu(
 @router.post("/{znag_id}/pdf/generuj")
 def generuj_pdf(
         znag_id: int,
-        zadania_service: ZadaniaServiceDep,
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
         body: dict | None = Body(None),
 ):
     """
