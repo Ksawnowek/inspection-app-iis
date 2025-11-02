@@ -14,6 +14,8 @@ services:
       dockerfile: frontend/Dockerfile
     ports: ["8080:80"]
     depends_on: [api]
+    volumes:
+      - api_storage:/var/www/static/storage:ro
 
 volumes:
   api_storage: {}

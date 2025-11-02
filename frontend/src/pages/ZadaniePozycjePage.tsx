@@ -7,6 +7,7 @@ import Spinner from "../components/Spinner";
 import DoPrzegladuButton from "../components/DoPrzegladuButton";
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import TopBar from "../components/TopBar";
 
 const USER = "koordynator"; // albo z logowania
 
@@ -48,8 +49,9 @@ export default function ZadaniePozycjePage() {
 
 
   return (
-    <div className="container">
-      <h2>Zadanie #{znagId}</h2>
+    <>
+    <TopBar title={"Zadanie #" + znagId}/>
+    <div className="container" style={{ marginTop: '70px' }}>
       <Link to="/">← Wróć</Link>
       <div style={{ marginTop: 12 }}>
   {loading === false ? (
@@ -100,5 +102,6 @@ export default function ZadaniePozycjePage() {
   )}
 </div>
     </div>
+    </>
   );
 }

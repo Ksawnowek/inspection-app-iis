@@ -27,7 +27,7 @@ widok główny(zadania):
 
 protokół
 -> zmiana checkbox Zdjęcie na aparat
--> zapisywanie do bazy przy zmianach wszystkiego do id_poz
+-> zapisywanie do bazy przy zmianach wszystkiego do id_poz [OK]
 -> generacja protokołu (html) -> musi zawierać podpis -> fixnąć
 
 

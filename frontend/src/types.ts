@@ -1,3 +1,5 @@
+import { number, string } from "prop-types";
+
 export type Zadanie = {
   vZNAG_Id: number;
   vZNAG_TypPrzegladu: string;
@@ -27,19 +29,36 @@ export type ProtokolNaglowek = {
   PNAGL_NrUrzadzenia: string;
 };
 
-export type ProtokolPozycja = {
-  PPOZ_Id: number;
-  PPOZ_PNAGL_Id: number;
-  PPOZ_Lp: number;
+// export type ProtokolPozycja = {
+//   PPOZ_Id: number;
+//   PPOZ_PNAGL_Id: number;
+//   PPOZ_Lp: number;
+//   PPOZ_GrupaOperacji: string;
+//   PPOZ_Operacja: string;
+//   PPOZ_OcenaNP?: string | null;
+//   PPOZ_OcenaO?: string | null;
+//   PPOZ_OcenaNR?: string | null;
+//   PPOZ_OcenaNA?: string | null;
+//   PPOZ_Uwagi?: string | null;
+//   PPOZ_CzyZdjecia?: 0 | 1 | null;
+// };
+
+export interface ProtokolPozycja {
   PPOZ_GrupaOperacji: string;
+  PPOZ_OcenaNP: boolean;
+  PPOZ_OcenaNR: boolean;
+  PPOZ_CzyZdjecia: boolean;
+  PPOZ_TS: string; // Reprezentacja daty jako string (ISO 8601)
+  PPOZ_PNAGL_Id: number;
+  PPOZ_Id: number;
+  PPOZ_Lp: number;
   PPOZ_Operacja: string;
-  PPOZ_OcenaNP?: string | null;
-  PPOZ_OcenaO?: string | null;
-  PPOZ_OcenaNR?: string | null;
-  PPOZ_OcenaNA?: string | null;
-  PPOZ_Uwagi?: string | null;
-  PPOZ_CzyZdjecia?: 0 | 1 | null;
-};
+  PPOZ_OcenaO: boolean;
+  PPOZ_OcenaNA: boolean;
+  PPOZ_UZTOstatni: string;
+  PPOZ_Uwagi: string | null;
+  ZdjeciaProtokolPoz: ZdjecieProtokolPoz[]; // Możesz tu wstawić bardziej szczegółowy typ, jeśli wiesz, co zawiera ta tablica
+}
 
 export type ProtokolResponse = {
   inspection: ProtokolNaglowek;
@@ -50,3 +69,9 @@ export type ProtokolZapis = {
   user: string;
   values: Partial<ProtokolPozycja & { PPOZ_CzyZdjecia: boolean }> & { PPOZ_Id: number };
 };
+
+export interface ZdjecieProtokolPoz {
+  ZDJP_Id: number;
+  ZDJP_PPOZ_Id: number;
+  ZDJP_Sciezka: string;
+}

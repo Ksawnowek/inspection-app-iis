@@ -1,52 +1,111 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getProtokol, saveProtokol, podpiszProtokol } from "../api/protokoly";
-import { ProtokolPozycja, ProtokolResponse } from "../types";
+import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz } from "../api/protokoly";
+import { ProtokolNaglowek, ProtokolPozycja, ProtokolResponse, ZdjecieProtokolPoz } from "../types";
 import ProtokolGroup from "../components/ProtokolGroup";
 import PhotoButton from "../components/PhotoButton";
 import SignatureDialog from "../components/SignatureDialog";
 import { dodajZdjecie } from "../api/zdjecia";
 import Spinner from "../components/Spinner";
+import toast from 'react-hot-toast';
+import TopBar from "../components/TopBar";
 
 const USER = "serwisant";
 
 export default function ProtokolPage() {
   const { pnaglId } = useParams();
-  const [data, setData] = useState<ProtokolResponse | null>(null);
+  const [data, setData] = useState<Record<string, ProtokolPozycja[]>>(null);
+  const [naglowekData, setNaglowekData] = useState<ProtokolNaglowek>(null);
   const [dirty, setDirty] = useState<Record<number, Partial<ProtokolPozycja>>>({});
   const [signOpen, setSignOpen] = useState(false);
 
   useEffect(() => {
     if (!pnaglId) return;
-    getProtokol(Number(pnaglId)).then(setData);
+    getProtokolNaglowek(Number(pnaglId)).then(setNaglowekData);
+    getProtokolPoz(Number(pnaglId)).then(setData);
   }, [pnaglId]);
 
-  function patch(ppozId: number, partial: Partial<ProtokolPozycja>) {
+
+  const patchPoz = useCallback(async (ppozId: number, partial: Partial<ProtokolPozycja>) => {
+    let originalItem: ProtokolPozycja | null = null;
+    //Zapisanie zmian w UI -> żebyu podmieniło wartości np pola tekstowego
     setData(prev => {
       if (!prev) return prev;
-      const values = prev.values.map(v => v.PPOZ_Id === ppozId ? ({ ...v, ...partial }) : v);
-      return { ...prev, values };
+      const newData = { ...prev };
+      for (const groupName in newData) {
+        const items = newData[groupName];
+        const itemIndex = items.findIndex(item => item.PPOZ_Id === ppozId);
+        if (itemIndex > -1) {
+          const newItems = [...items];
+          newItems[itemIndex] = { ...newItems[itemIndex], ...partial };
+          newData[groupName] = newItems;
+          break;
+        }
+      }
+      return newData;
     });
-    setDirty(prev => ({ ...prev, [ppozId]: { ...(prev[ppozId] || {}), ...partial } }));
-  }
 
-  const groups = useMemo(() => {
-    const map = new Map<string, ProtokolPozycja[]>();
-    data?.values.forEach(v => {
-      const arr = map.get(v.PPOZ_GrupaOperacji) || [];
-      arr.push(v); map.set(v.PPOZ_GrupaOperacji, arr);
+    try {
+      await toast.promise( 
+        patchProtokolPoz(Number(ppozId), partial),
+        {
+          loading: 'Zapisywanie danych', 
+          success: 'Dane zapisano pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało zapisać się zmian do bazy danych!'}`, 
+        }
+    );
+    } catch (error) {
+      console.error("Błąd zapisu automatycznego:", error);
+      //przywrócenie do starego stanu, w razie błędu
+      if (originalItem) {
+        setData(prev => {
+          if (!prev) return prev;
+          const newData = { ...prev };
+          
+          for (const groupName in newData) {
+            const items = newData[groupName];
+            const itemIndex = items.findIndex(item => item.PPOZ_Id === ppozId);
+            
+            if (itemIndex > -1) {
+              const newItems = [...items];
+              newItems[itemIndex] = originalItem; 
+              newData[groupName] = newItems;
+              break;
+            }
+          }
+          return newData;
+        });
+      }
+    }
+  }, [pnaglId]);  
+
+  /**
+   * Ta funkcja służy do aktualizacji *tylko* listy zdjęć dla danej pozycji.
+   * Jest wywoływana, gdy dodanie lub usunięcie zdjęcia na serwerze się powiedzie.
+   */
+  const syncZdjeciaPozycji = useCallback((ppozId: number, nowaListaZdjec: ZdjecieProtokolPoz[]) => {
+    setData(prev => {
+      if (!prev) return prev;
+      const newData = { ...prev };
+      for (const groupName in newData) {
+        const items = newData[groupName];
+        const itemIndex = items.findIndex(item => item.PPOZ_Id === ppozId);
+        if (itemIndex > -1) {
+          const newItems = [...items];
+          // Tworzymy kopię itemu, ale z podmienioną listą zdjęć
+          newItems[itemIndex] = { 
+            ...newItems[itemIndex], 
+            ZdjeciaProtokolPoz: nowaListaZdjec 
+          };
+          newData[groupName] = newItems;
+          break;
+        }
+      }
+      return newData;
     });
-    return Array.from(map.entries());
-  }, [data]);
+  }, []);
 
-  async function handleSave() {
-    if (!pnaglId || !data) return;
-    const values = Object.entries(dirty).map(([id, p]) => ({ PPOZ_Id: Number(id), ...p }));
-    if (values.length === 0) return alert("Brak zmian.");
-    await saveProtokol(Number(pnaglId), { user: USER, values });
-    setDirty({});
-    alert("Zapisano.");
-  }
+
 
   async function handleSign(dataUrl: string) {
     if (!pnaglId) return;
@@ -57,46 +116,36 @@ export default function ProtokolPage() {
 
   if (!data) return <Spinner />;
 
-  console.log(data)
-  console.log(groups)
 
   return (
-    <div className="container">
+    <>
+    <TopBar title={"Protokół " + naglowekData.PNAGL_Klient + " " + naglowekData.PNAGL_NrUrzadzenia}/>
+    <div className="container" style={{ marginTop: '70px' }}>
       <Link to="/">← Wróć</Link>
-      <h2>{data.inspection.PNAGL_Tytul}</h2>
+      <h2>{naglowekData.PNAGL_Tytul}</h2>
       <div style={{ marginBottom:12 }}>
-        <div><b>Klient:</b> {data.inspection.PNAGL_Klient}</div>
-        <div><b>Miejscowość:</b> {data.inspection.PNAGL_Miejscowosc}</div>
-        <div><b>Nr urządzenia:</b> {data.inspection.PNAGL_NrUrzadzenia}</div>
+        <div><b>Klient:</b> {naglowekData.PNAGL_Klient}</div>
+        <div><b>Miejscowość:</b> {naglowekData.PNAGL_Miejscowosc}</div>
+        <div><b>Nr urządzenia:</b> {naglowekData.PNAGL_NrUrzadzenia}</div>
       </div>
 
-      {groups.map(([grp, items]) => (
+      {data && Object.entries(data).map(([grp, items]) => (
         <ProtokolGroup
           key={grp}
           group={grp}
           items={items}
-          onChange={patch}
+          onChange={patchPoz}
+          onSyncZdjecia={syncZdjeciaPozycji}
         />
       ))}
 
       <div style={{ display:"flex", gap:8 }}>
-        <button onClick={handleSave} disabled={Object.keys(dirty).length === 0}>Zapisz zmiany</button>
+        {/* <button onClick={handleSave} disabled={Object.keys(dirty).length === 0}>Zapisz zmiany</button> */}
         <button onClick={() => setSignOpen(true)}>Podpis klienta</button>
       </div>
 
       <SignatureDialog open={signOpen} onClose={() => setSignOpen(false)} onSave={handleSign} />
-
-      <hr />
-      <h3>Zdjęcia do pozycji</h3>
-      <p>Wybierz pozycję i zrób zdjęcie – dla przykładu bierzemy pierwszą pozycję.</p>
-      {data.values[0] && (
-        <PhotoButton
-          onPick={async (file) => {
-            await dodajZdjecie(data.values[0].PPOZ_Id, file);
-            alert("Dodano zdjęcie.");
-          }}
-        />
-      )}
     </div>
+    </>
   );
 }

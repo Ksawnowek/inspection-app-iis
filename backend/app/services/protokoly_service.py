@@ -1,4 +1,5 @@
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
+from app.domain.requestsDTO import ProtokolPozUpdateDTO
 from app.repositories.protokoly_repo import ProtokolyRepo
 from app.services.file_service import FileService
 from app.services.pdf_service import PdfService
@@ -21,12 +22,12 @@ class ProtokolyService:
         poz = self.repo.pozycje(pnagl_id)
         return {"inspection": nag, "values": poz}
 
-    def get_protokol_details2(self, pnagl_id: int):
-        nag = self.repo.naglowek2(pnagl_id)
+    def get_protokol_pozycje(self, pnagl_id: int):
+        nag = self.repo.get_naglowek_pozycje_by_id(pnagl_id)
         if not nag:
             raise ProtokolNotFound(pnagl_id)
         result = self._mapPozToGrupa(nag.ProtokolPoz)
-        return {"values": result}
+        return result
 
     def zapisz_pozycje(self, payload: ZapisProtokolu):
         try:
@@ -58,14 +59,14 @@ class ProtokolyService:
             raise PdfNotGenerated(path or "Brak ścieżki w bazie")
         return path
 
-    def dodaj_zdjecie(self, ppoz_id: int, plik: UploadFile):
-        try:
-            sciezka = self.file_service.save_image(plik)
-            self.repo.dodaj_zdjecie(ppoz_id, sciezka)
-            return {"ok": True, "path": sciezka}
-        except Exception as e:
-            # Tu można dodać logowanie błędu
-            raise SaveError(f"Błąd zapisu zdjęcia: {e}")
+    # def dodaj_zdjecie(self, ppoz_id: int, plik: UploadFile):
+    #     try:
+    #         sciezka = self.file_service.save_image(plik)
+    #         self.repo.dodaj_zdjecie(ppoz_id, sciezka)
+    #         return {"ok": True, "path": sciezka}
+    #     except Exception as e:
+    #         # Tu można dodać logowanie błędu
+    #         raise SaveError(f"Błąd zapisu zdjęcia: {e}")
 
     def zapisz_podpis(self, pnagl_id: int, podpis_klienta: str, kto: str):
         try:
@@ -82,3 +83,15 @@ class ProtokolyService:
                 poz_map[poz.PPOZ_GrupaOperacji] = []
             poz_map[poz.PPOZ_GrupaOperacji].append(poz)
         return poz_map
+
+    def get_protokol_nagl_by_id(self, pnagl_id):
+        return self.repo.get_protokol_nagl_by_id(pnagl_id)
+
+    def patch_ppoz(self, ppoz_id: int, update_dto: ProtokolPozUpdateDTO) -> ProtokolPoz:
+        ppoz = self.repo.get_poz_by_id(ppoz_id)
+        if ppoz is None:
+            return None
+        update_data = update_dto.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(ppoz, key, value)
+        return ppoz

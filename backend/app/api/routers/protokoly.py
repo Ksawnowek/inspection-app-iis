@@ -3,6 +3,9 @@
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse
+from starlette import status
+
+from app.domain.requestsDTO import ProtokolPozUpdateDTO
 from app.schemas.protokoly import ZapisProtokolu
 from app.services.protokoly_service import ProtokolyService
 from app.dependencies import get_protokoly_service
@@ -11,21 +14,37 @@ from app.errors import ProtokolNotFound, PdfNotGenerated, SaveError
 router = APIRouter(prefix="/api/protokoly", tags=["Protokoły"])
 
 # Zamiast globalnego 'repo', wstrzykujemy 'service' do każdego endpointu
-@router.get("/{pnagl_id}")
-def podglad(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_service)):
+# @router.get("/{pnagl_id}")
+# def podglad(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_service)):
+#     try:
+#         return service.get_protokol_details(pnagl_id)
+#     except ProtokolNotFound as e:
+#         raise HTTPException(status_code=404, detail=str(e))
+
+@router.get("/naglowek/{pnagl_id}")
+def get_pnagl_by_id(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_service)):
     try:
-        return service.get_protokol_details(pnagl_id)
+        return service.get_protokol_nagl_by_id(pnagl_id)
     except ProtokolNotFound as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.get("/test/{pnagl_id}")
-def podglad2(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_service)):
+@router.get("/pozycje/{pnagl_id}")
+def get_pozycje_by_id(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_service)):
     try:
-        res = service.get_protokol_details2(pnagl_id)
-        print(res)
+        res = service.get_protokol_pozycje(pnagl_id)
         return res
     except ProtokolNotFound as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+@router.patch("/pozycje/patch/{ppoz_id}")
+def patch_pozycja(ppoz_id:int, update_dto: ProtokolPozUpdateDTO, service: ProtokolyService = Depends(get_protokoly_service)):
+    try:
+        updated_poz = service.patch_ppoz(ppoz_id, update_dto)
+        return updated_poz
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 @router.put("/{pnagl_id}")
 def zapisz(payload: ZapisProtokolu, service: ProtokolyService = Depends(get_protokoly_service)):
@@ -55,16 +74,16 @@ def pobierz(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_ser
     except (ProtokolNotFound, PdfNotGenerated) as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.post("/pozycje/{ppoz_id}/zdjecia")
-def dodaj_zdjecie(
-    ppoz_id: int,
-    plik: UploadFile = File(...),
-    service: ProtokolyService = Depends(get_protokoly_service)
-):
-    try:
-        return service.dodaj_zdjecie(ppoz_id, plik)
-    except SaveError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+# @router.post("/pozycje/{ppoz_id}/zdjecia")
+# def dodaj_zdjecie(
+#     ppoz_id: int,
+#     plik: UploadFile = File(...),
+#     service: ProtokolyService = Depends(get_protokoly_service)
+# ):
+#     try:
+#         return service.dodaj_zdjecie(ppoz_id, plik)
+#     except SaveError as e:
+#         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/{pnagl_id}/podpis")
 def podpis(
@@ -77,3 +96,10 @@ def podpis(
         return service.zapisz_podpis(pnagl_id, podpis_klienta, kto)
     except SaveError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/pozycja/{ppoz_id}/zdjecia")
+async def post_pozycja_zdjecie(ppoz_id: int, file: UploadFile = File(...), service: ProtokolyService = Depends(get_protokoly_service)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Dozwolone są tylko pliki obrazów")
+    return await service.add_pozycja_zdjecie(ppoz_id, file)

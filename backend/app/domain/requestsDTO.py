@@ -16,3 +16,12 @@ class ZadanieUpdateDTO(BaseModel):
     ZNAG_Uwagi: Optional[str] = None
     ZNAG_UwagiGodziny: Optional[str] = None
     ZNAG_KlientPodpis: Optional[str] = None
+
+
+class ProtokolPozUpdateDTO(BaseModel ):
+    PPOZ_OcenaNP: Optional[bool] = None
+    PPOZ_OcenaO: Optional[bool] = None
+    PPOZ_OcenaNR: Optional[bool] = None
+    PPOZ_OcenaNA: Optional[bool] = None
+    PPOZ_CzyZdjecia: Optional[bool] = None
+    PPOZ_Uwagi: Optional[str] = None

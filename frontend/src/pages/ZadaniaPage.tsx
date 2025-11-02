@@ -6,6 +6,7 @@ import Spinner from "../components/Spinner";
 import ZadaniaTable from "../components/ZadaniaTable"; // Import nowego komponentu
 import { TextEditModal } from "../components/modals/TextEditModal";
 import SignatureDialog from "../components/SignatureDialog";
+import TopBar from "../components/TopBar";
 
 type ModalType = 'edit-uwagi' | 'edit-godziny' | 'podpis' | null;
 
@@ -94,8 +95,10 @@ export default function ZadaniaPage() {
   if (loading) return <Spinner />;
 
   return (
-    <div className="container">
-      <h2>Zadania</h2>
+    <>
+    <TopBar title="Zadania"/>
+    <div className="container" style={{ marginTop: '70px' }}>
+      
       <div className="search-bar p-2 d-flex w-100">
         <input
           className="w-100"
@@ -159,5 +162,6 @@ export default function ZadaniaPage() {
       )}
 
     </div>
+    </>
   );
 }

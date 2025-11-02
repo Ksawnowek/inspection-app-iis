@@ -4,11 +4,13 @@ from typing import Annotated, Optional
 from sqlalchemy.orm import Session
 
 from app.repositories.zadania_repo import ZadaniaRepo
+from app.repositories.zdjecia_repo import ZdjeciaRepo
 from app.schemas.user import User
 from app.services.auth_service import AuthService
 from sqlalchemy.engine import Engine
 
 from app.services.zadania_service import ZadaniaService
+from app.services.zdjecia_service import ZdjeciaService
 
 
 async def get_current_user_from_cookie(
@@ -41,11 +43,16 @@ from app.services.file_service import FileService
 from app.services.pdf_service import PdfService
 from app.services.protokoly_service import ProtokolyService
 
-def get_zadania_repo(conn: pyodbc.Connection = Depends(get_conn), session: Session = Depends(get_session))->ZadaniaRepo:
-    return ZadaniaRepo(conn, session)
+def get_zadania_repo(session: Session = Depends(get_session))->ZadaniaRepo:
+    return ZadaniaRepo(session)
 
-def get_protokoly_repo(conn: pyodbc.Connection = Depends(get_conn), session: Session = Depends(get_session)) -> ProtokolyRepo:
-    return ProtokolyRepo(conn, session)
+def get_protokoly_repo(session: Session = Depends(get_session)) -> ProtokolyRepo:
+    return ProtokolyRepo( session)
+
+def get_zdjecia_repo(
+    session: Session = Depends(get_session)
+) -> ZdjeciaRepo:
+    return ZdjeciaRepo(session)
 
 def get_file_service() -> FileService:
     return FileService()
@@ -65,3 +72,9 @@ def get_zadania_service(
         session: Session = Depends(get_session)
 ) -> ZadaniaService:
     return ZadaniaService(repo, session)
+
+
+def get_zdjecia_service(
+        repo: ZdjeciaRepo = Depends(get_zdjecia_repo)
+)-> ZdjeciaService:
+    return ZdjeciaService(repo)
