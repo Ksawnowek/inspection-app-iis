@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 from sqlalchemy import select, func, desc, text  # <-- Dodane `text`
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, Mapped
 from app.models.models import t_v_Zadania, ZadanieNagl  # Importujemy Table t_v_Zadania
 
 
@@ -80,7 +80,7 @@ class ZadaniaRepo:
             return False
 
     def naglowek(self, znag_id: int) -> Optional[Dict[str, Any]]:
-        stmt = text("SELECT * FROM dbo.v_Zadania WHERE ZNAG_Id = :znag_id")
+        stmt = text("SELECT * FROM dbo.v_Zadania WHERE vZNAG_Id = :znag_id")
         result = self.session.execute(stmt, {"znag_id": znag_id})
         row = result.fetchone()
 
@@ -104,3 +104,6 @@ class ZadaniaRepo:
         # Ta metoda (ORM) jest OK
         zadanie = self.session.get(ZadanieNagl, znagl_id)
         return zadanie
+
+    def get_podpis(self, znag_id: int) -> Mapped[str|None]:
+        return self.session.get(ZadanieNagl, znag_id).ZNAG_KlientPodpis

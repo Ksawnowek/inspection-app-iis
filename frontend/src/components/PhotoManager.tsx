@@ -33,7 +33,10 @@ function PhotoManager({ ppozId, initialZdjecia, onSyncZdjecia }: PhotoManagerPro
     };
     return (
       <label>
-        <CameraFill size={30} />
+        <CameraFill 
+          className="icon-hover-lift"
+          size={30} 
+        />
         <input type="file" accept="image/*" capture="environment" 
                onChange={handleChange} style={{ display: 'none' }} />
       </label>

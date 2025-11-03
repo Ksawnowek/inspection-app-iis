@@ -41,7 +41,7 @@ def list_zadania(
     )
 
 @router.patch("/patch/{znag_id}")
-def patch_zadania_uwagi(
+def patch_zadania(
         znag_id: int,
         update_dto: ZadanieUpdateDTO,
         service: ZadaniaService = Depends(get_zadania_service)
@@ -120,6 +120,7 @@ def generuj_pdf(
     Generuje i zwraca plik PDF dla danego zadania.
     """
     nagl = zadania_service.get_naglowek(znag_id)
+    podpis = zadania_service.get_podpis(znag_id)
     if not nagl:
         raise HTTPException(404, "Zadanie nie istnieje")
 
@@ -131,6 +132,7 @@ def generuj_pdf(
     render_zadanie_pdf(
         out_path=str(out_path),
         naglowek=nagl,
+        podpis=podpis,
         pozycje=poz,
         serwisanci=serwisanci
     )

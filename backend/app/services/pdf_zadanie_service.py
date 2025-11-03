@@ -11,12 +11,13 @@ env = Environment(
     autoescape=select_autoescape(["html", "xml"])
 )
 
-def render_zadanie_pdf(out_path: str, naglowek: dict, pozycje: list[dict], serwisanci: list[str] | None = None):
+def render_zadanie_pdf(out_path: str, naglowek: dict, podpis: str, pozycje: list[dict], serwisanci: list[str] | None = None):
     """Wyrenderuj HTML z Jinja2 i zapisz jako PDF przez wkhtmltopdf."""
     serwisanci = serwisanci or []
     html = env.get_template("zadanie.html").render(
         today=datetime.now().strftime("%d-%m-%Y"),
         naglowek=naglowek,
+        podpis_klient=podpis,
         pozycje=pozycje,
         serwisanci=serwisanci
     )

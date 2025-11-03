@@ -65,3 +65,6 @@ class ZadaniaService:
 
     def zapisz_podpis(self, znag_id, podpis_klienta):
         pass
+
+    def get_podpis(self, znag_id):
+        return self.repo.get_podpis(znag_id)

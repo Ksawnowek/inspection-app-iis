@@ -22,29 +22,44 @@ widok główny(zadania):
 -> uwagi [OK]
 -> wypełnienie godzin -> pole tekstowe [OK]
 
+Zdjęcia:
+-> rozdzielić baze na zdjęcia do pozycji i do protokołu (2 tabele z relacjami)[OK]-> jeden do wielu[OK]
+-> podgląd dodanych zdjęć, żeby można było wywalić[OK]
 
+-> Spróbować ORM na pozycje protokołu [OK]
 
 
 protokół
--> zmiana checkbox Zdjęcie na aparat
+-> zmiana checkbox Zdjęcie na aparat [OK]
 -> zapisywanie do bazy przy zmianach wszystkiego do id_poz [OK]
--> generacja protokołu (html) -> musi zawierać podpis -> fixnąć
+-> generacja protokołu (html) -> musi zawierać podpis -> fixnąć [OK]
+
+
+
 
 
 ->popup rejestracji
 
 
-
 Pytania: 
 -> co ma być w USER (ZadaniePozycjePage) login? -> do protokołu ma być wpisanych 2 ostatnich co to robili -> rejestr operacji?
-
-
 
 Baza:
 zadanie nagl -> dodać pdf path
 
-Zdjęcia:
--> rozdzielić baze na zdjęcia do pozycji i do protokołu (2 tabele z relacjami)[OK]-> jeden do wielu
--> podgląd dodanych zdjęć, żeby można było wywalić
 
--> Spróbować ORM na pozycje protokołu
+
+PDF zadania:
+Obserwacje serwisanta -> uwagi 
+
+Godziny wywalam i daje plain text
+
+dla pozycji -> do przeglądu -> ptaszek w innym wypadku krzyżyk
+
+dane dla klienta - sprawdzić czemu nie ciągnie
+
+TypPrzeglądu -> x przy odpowiednim
+
+
+fix na pole radio
+
