@@ -54,7 +54,7 @@ def render_protokol_pdf(out_path: str, protokol_nagl: ProtokolNagl, zadanie_nagl
 
     i nie wiem czy to tylko na konserwacje? jeśli tak to zmienić nazwę na protokol_konserwacja, żeby sie potem nie myliło
     """
-
+    #TODO szablon protokolu
     html = env.get_template("protokol.html").render(
         today=datetime.now().strftime("%d-%m-%Y"),
         naglowek_zadanie=zadanie_nagl,

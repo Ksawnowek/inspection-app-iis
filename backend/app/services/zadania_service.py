@@ -68,3 +68,6 @@ class ZadaniaService:
 
     def get_podpis(self, znag_id):
         return self.repo.get_podpis(znag_id)
+
+    def get_naglowek_by_id(self, znag_id) -> type[ZadanieNagl] | None:
+        return self.session.get(ZadanieNagl, znag_id)

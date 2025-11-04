@@ -1,14 +1,15 @@
 # app/routers/protokoly_router.py
 # (Zależności: fastapi, app.dependencies.get_protokoly_service, app.errors)
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Body
 from fastapi.responses import FileResponse
 from starlette import status
 
 from app.domain.requestsDTO import ProtokolPozUpdateDTO
 from app.schemas.protokoly import ZapisProtokolu
+from app.services.PDF_service import PDFService
 from app.services.protokoly_service import ProtokolyService
-from app.dependencies import get_protokoly_service
+from app.dependencies import get_protokoly_service, get_pdf_service
 from app.errors import ProtokolNotFound, PdfNotGenerated, SaveError
 
 router = APIRouter(prefix="/api/protokoly", tags=["Protokoły"])
@@ -103,3 +104,25 @@ async def post_pozycja_zdjecie(ppoz_id: int, file: UploadFile = File(...), servi
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Dozwolone są tylko pliki obrazów")
     return await service.add_pozycja_zdjecie(ppoz_id, file)
+
+
+@router.post("/{pnagl_id}/pdf/generuj")
+def generuj_pdf(
+        pnagl_id: int,
+        pdf_service: PDFService = Depends(get_pdf_service),
+        body: dict | None = Body(None),
+):
+    serwisanci = (body or {}).get("serwisanci") or []
+    try:
+        out_path = pdf_service.generuj_pdf_protokol(
+            pnagl_id
+        )
+    except Exception as e:
+        # Obsługa innych błędów generowania
+        raise HTTPException(500, detail="Błąd podczas generowania pliku PDF") from e
+
+    return FileResponse(
+        str(out_path),
+        media_type="application/pdf",
+        filename=f"protokol_{pnagl_id}.pdf"
+    )

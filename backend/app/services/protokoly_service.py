@@ -2,10 +2,10 @@ from fastapi import UploadFile, HTTPException
 from app.domain.requestsDTO import ProtokolPozUpdateDTO
 from app.repositories.protokoly_repo import ProtokolyRepo
 from app.services.file_service import FileService
-from app.services.pdf_service import PdfService
 from app.schemas.protokoly import ZapisProtokolu
 from app.errors import ProtokolNotFound, PdfNotGenerated, SaveError
 from app.models.models import ProtokolNagl, ProtokolPoz
+from app.services.pdf_service_old import PdfService
 
 
 class ProtokolyService:
@@ -37,17 +37,17 @@ class ProtokolyService:
             # Tu można dodać logowanie błędu
             raise SaveError(f"Błąd zapisu pozycji: {e}")
 
-    def generuj_pdf_protokolu(self, pnagl_id: int):
-        details = self.get_protokol_details(pnagl_id)  # Używa metody z tego samego serwisu
-        nag = details["inspection"]
-        poz = details["values"]
-
-        out_path = self.file_service.get_pdf_output_path(pnagl_id)
-
-        self.pdf_service.generuj_protokol_pdf(nag, poz, out_path)
-
-        self.repo.ustaw_pdf_sciezke(pnagl_id, out_path)
-        return {"pdf_path": out_path}
+    # def generuj_pdf_protokolu(self, pnagl_id: int):
+    #     details = self.get_protokol_details(pnagl_id)  # Używa metody z tego samego serwisu
+    #     nag = details["inspection"]
+    #     poz = details["values"]
+    #
+    #     out_path = self.file_service.get_pdf_output_path(pnagl_id)
+    #
+    #     self.pdf_service.generuj_protokol_pdf(nag, poz, out_path)
+    #
+    #     self.repo.ustaw_pdf_sciezke(pnagl_id, out_path)
+    #     return {"pdf_path": out_path}
 
     def get_sciezke_pdf(self, pnagl_id: int):
         nag = self.repo.naglowek(pnagl_id)
@@ -84,7 +84,7 @@ class ProtokolyService:
             poz_map[poz.PPOZ_GrupaOperacji].append(poz)
         return poz_map
 
-    def get_protokol_nagl_by_id(self, pnagl_id):
+    def get_protokol_nagl_by_id(self, pnagl_id) -> ProtokolNagl:
         return self.repo.get_protokol_nagl_by_id(pnagl_id)
 
     def patch_ppoz(self, ppoz_id: int, update_dto: ProtokolPozUpdateDTO) -> ProtokolPoz:

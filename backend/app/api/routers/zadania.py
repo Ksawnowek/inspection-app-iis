@@ -6,9 +6,10 @@ from starlette import status
 
 # Usunięto import get_conn i ZadaniaRepo, bo są ukryte za serwisem
 
-from app.dependencies import get_current_user_from_cookie, get_zadania_service
+from app.dependencies import get_current_user_from_cookie, get_zadania_service, get_pdf_service
 from app.domain.requestsDTO import ZadanieUpdateDTO
 from app.schemas.user import User
+from app.services.PDF_service import PDFService
 # Usunięto nieużywany import AuthService
 from app.services.pdf_zadanie_service import render_zadanie_pdf  # Używamy tylko aliasu
 from app.core.paths import PDF_DIR
@@ -112,6 +113,30 @@ def set_do_przegladu(
 
 @router.post("/{znag_id}/pdf/generuj")
 def generuj_pdf(
+        znag_id: int,
+        pdf_service: PDFService = Depends(get_pdf_service),
+        body: dict | None = Body(None),
+):
+    serwisanci = (body or {}).get("serwisanci") or []
+    try:
+        out_path = pdf_service.generuj_pdf_zadania(
+            znag_id=znag_id,
+            serwisanci=serwisanci
+        )
+    except Exception as e:
+        # Obsługa innych błędów generowania
+        raise HTTPException(500, detail="Błąd podczas generowania pliku PDF") from e
+
+    return FileResponse(
+        str(out_path),
+        media_type="application/pdf",
+        filename=f"zadanie_{znag_id}.pdf"
+    )
+
+
+
+@router.post("/{znag_id}/pdf/generuj/old")
+def generuj_pdf_old(
         znag_id: int,
         zadania_service: ZadaniaService = Depends(get_zadania_service),
         body: dict | None = Body(None),
