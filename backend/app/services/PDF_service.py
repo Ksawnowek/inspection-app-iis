@@ -53,7 +53,7 @@ class PDFService:
             # Ale jeśli chcemy, by serwis wiedział, że nie ma danych - jest OK
             raise HTTPException(404, "Zadanie nie istnieje")
 
-        protokol_grupy = self._protokoly_service.get_protokol_details(pnagl_id)
+        protokol_grupy = self._protokoly_service.get_protokol_pozycje(pnagl_id)
 
         # Generowanie ścieżki
         out_path = self._pdf_dir / f"protokol_{pnagl}.pdf"
