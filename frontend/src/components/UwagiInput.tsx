@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Form from 'react-bootstrap/Form';
 
 export function UwagiInput({ ppozId, initialValue, onChange: save }) {
   const [value, setValue] = useState(initialValue ?? "");
@@ -14,7 +15,9 @@ export function UwagiInput({ ppozId, initialValue, onChange: save }) {
   }
 
   return (
-    <input
+    <Form.Control 
+      as="textarea" 
+      rows={3}
       placeholder="Uwagi…"
       value={value}
       onChange={(e) => setValue(e.target.value)}

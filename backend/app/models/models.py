@@ -116,7 +116,7 @@ t_v_ProtokolNaglWidok = Table(
     Column('PNAGL_Udzwig', TrimmedString(20, 'SQL_Latin1_General_CP1_CI_AS')),
     Column('PNAGL_NrUrzadzenia', TrimmedString(20, 'SQL_Latin1_General_CP1_CI_AS')),
     Column('PNAGL_ModelWciagnika', TrimmedString(60, 'SQL_Latin1_General_CP1_CI_AS')),
-    Column('PNAGL_PodpisKlienta', TrimmedString(10, 'SQL_Latin1_General_CP1_CI_AS')),
+    Column('PNAGL_PodpisKlienta', UnicodeText(collation='SQL_Latin1_General_CP1_CI_AS')),
     Column('PNAGL_DataAkceptacji', DATETIME2),
     Column('PNAGL_UZTOstatni', TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False),
     Column('PNAGL_PdfPath', Unicode(500, 'SQL_Latin1_General_CP1_CI_AS')),
@@ -238,7 +238,7 @@ class ProtokolNagl(Base):
     PNAGL_Uwagi: Mapped[Optional[str]] = mapped_column(TrimmedString(512, 'SQL_Latin1_General_CP1_CI_AS'))
     PNAGL_CzyZaakceptowany: Mapped[Optional[bool]] = mapped_column(Boolean)
     PNAGL_Zaakceptowal: Mapped[Optional[str]] = mapped_column(TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'))
-    PNAGL_PodpisKlienta: Mapped[Optional[str]] = mapped_column(TrimmedString(10, 'SQL_Latin1_General_CP1_CI_AS'))
+    PNAGL_PodpisKlienta: Mapped[Optional[str]] = mapped_column(UnicodeText(collation='SQL_Latin1_General_CP1_CI_AS'))
     PNAGL_DataAkceptacji: Mapped[Optional[datetime.datetime]] = mapped_column(DATETIME2)
     PNAGL_PdfPath: Mapped[Optional[str]] = mapped_column(Unicode(500, 'SQL_Latin1_General_CP1_CI_AS'))
 

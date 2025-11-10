@@ -36,13 +36,22 @@ protokół
 
 
 
+fix na pole radio [OK]
+
+podpis dla protokołu [OK]
 
 
-->popup rejestracji
 
 
 Pytania: 
 -> co ma być w USER (ZadaniePozycjePage) login? -> do protokołu ma być wpisanych 2 ostatnich co to robili -> rejestr operacji?
+
+
+
+->toast rejestracji
+
+
+
 
 Baza:
 zadanie nagl -> dodać pdf path
@@ -61,5 +70,16 @@ dane dla klienta - sprawdzić czemu nie ciągnie
 TypPrzeglądu -> x przy odpowiednim
 
 
-fix na pole radio
 
+
+
+refresh token [może 3 dni?]
+
+dodanie przycisku do rejestracji usera dla kierownika
+
+panel zarządzania userami
+
+
+poprawki w pozycjach protokołu dla lepszego user experience
+
+zabezpieczenie endpointów

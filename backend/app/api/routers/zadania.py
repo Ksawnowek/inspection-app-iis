@@ -3,14 +3,10 @@ from typing import Annotated, Optional, Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.responses import FileResponse
 from starlette import status
-
-# Usunięto import get_conn i ZadaniaRepo, bo są ukryte za serwisem
-
 from app.dependencies import get_current_user_from_cookie, get_zadania_service, get_pdf_service
 from app.domain.requestsDTO import ZadanieUpdateDTO
 from app.schemas.user import User
 from app.services.PDF_service import PDFService
-# Usunięto nieużywany import AuthService
 from app.services.pdf_zadanie_service import render_zadanie_pdf  # Używamy tylko aliasu
 from app.core.paths import PDF_DIR
 from app.services.zadania_service import ZadaniaService

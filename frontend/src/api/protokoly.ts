@@ -33,5 +33,5 @@ export async function saveProtokol(pnaglId: number, payload: ProtokolZapis) {
 }
 
 export async function podpiszProtokol(pnaglId: number, podpis_klienta: string, zaakceptowal: string) {
-  await api.post(`/protokoly/${pnaglId}/podpis`, { podpis_klienta, zaakceptowal });
+  await api.post(`/protokoly/${pnaglId}/podpis`, { Podpis: podpis_klienta, Klient: zaakceptowal });
 }

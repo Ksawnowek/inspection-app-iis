@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { getZadaniePozycje, getZadaniePozycjeSerwisant, setDoPrzegladu } from "../api/zadania";
 import { ZadaniePozycja } from "../types";
 import DoPrzegladuSwitch from "../components/DoPrzegladuSwitch";
+import { Button } from 'react-bootstrap'; 
 import Spinner from "../components/Spinner";
 import DoPrzegladuButton from "../components/DoPrzegladuButton";
 import { useAuth } from '../contexts/AuthContext';
@@ -17,8 +18,8 @@ export default function ZadaniePozycjePage() {
   const [rows, setRows] = useState<ZadaniePozycja[]>([]);
   const [saving, setSaving] = useState<number | null>(null);
   const { user, isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
 
-  //na podstawie tej zmiennej wyświetli się kolumna ze zmianą statusu do przeglądu
   const showDoPrzegladu = user.role == "Kierownik";
 
   useEffect(() => {
@@ -90,7 +91,16 @@ export default function ZadaniePozycjePage() {
             <td style={{ padding: 8 }}>
               {/* {saving === r.ZPOZ_Id && <span>Zapisywanie…</span>} */}
               {r.ZPOZ_UrzadzenieDoPrzegladu === true &&
-                <Link to={`/protokol/${r.ZPOZ_Id}`}>Protokół</Link>}
+                // <Link to={`/protokol/${r.ZPOZ_Id}`}>Protokół</Link>
+                <Button
+                  variant="primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/protokol/${r.ZPOZ_Id}`);
+                  }}
+                >
+                  Otwórz protokół
+                </Button>}
             </td>
           
           </tr>

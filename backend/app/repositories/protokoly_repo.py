@@ -56,7 +56,8 @@ class ProtokolyRepo:
         }
 
         self.session.execute(stmt, params)
-        # 5. BRAK COMMIT! Sesja (get_session) zrobi to za nas.
+
+
 
     def podpisz(self, pnagl_id: int, podpis_klienta: str, zaakceptowal: str):
         stmt = text("EXEC dbo.sp_PNAGL_Podpisz :pnagl_id, :podpis, :akcept")

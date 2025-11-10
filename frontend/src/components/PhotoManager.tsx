@@ -35,7 +35,7 @@ function PhotoManager({ ppozId, initialZdjecia, onSyncZdjecia }: PhotoManagerPro
       <label>
         <CameraFill 
           className="icon-hover-lift"
-          size={30} 
+          size={50} 
         />
         <input type="file" accept="image/*" capture="environment" 
                onChange={handleChange} style={{ display: 'none' }} />
@@ -85,7 +85,7 @@ function PhotoManager({ ppozId, initialZdjecia, onSyncZdjecia }: PhotoManagerPro
       <div style={{ fontWeight: 600, fontSize: '0.9em', marginBottom: 4 }}>Zdjęcia:</div>
       
       {/* Lista miniaturek */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <div className='align-items-center' style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {initialZdjecia && initialZdjecia.map(zdjecie => (
           <div key={zdjecie.ZDJP_Id} style={{ position: 'relative' }}>
             <img src={"http://localhost:8080" + zdjecie.ZDJP_Sciezka} alt="miniaturka" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4 }} />

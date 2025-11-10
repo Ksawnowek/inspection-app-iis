@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, B
 from fastapi.responses import FileResponse
 from starlette import status
 
-from app.domain.requestsDTO import ProtokolPozUpdateDTO
+from app.domain.requestsDTO import ProtokolPozUpdateDTO, ProtokolPodpisDTO
 from app.schemas.protokoly import ZapisProtokolu
 from app.services.PDF_service import PDFService
 from app.services.protokoly_service import ProtokolyService
@@ -87,14 +87,13 @@ def pobierz(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_ser
 #         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/{pnagl_id}/podpis")
-def podpis(
+def podpisz(
     pnagl_id: int,
-    podpis_klienta: str = Form(...),
-    kto: str = Form("Klient"),
+    podpis_dto: ProtokolPodpisDTO,
     service: ProtokolyService = Depends(get_protokoly_service)
 ):
     try:
-        return service.zapisz_podpis(pnagl_id, podpis_klienta, kto)
+        return service.zapisz_podpis(pnagl_id, podpis_dto.Podpis, podpis_dto.Klient)
     except SaveError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

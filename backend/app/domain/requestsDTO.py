@@ -25,3 +25,7 @@ class ProtokolPozUpdateDTO(BaseModel ):
     PPOZ_OcenaNA: Optional[bool] = None
     PPOZ_CzyZdjecia: Optional[bool] = None
     PPOZ_Uwagi: Optional[str] = None
+
+class ProtokolPodpisDTO(BaseModel):
+    Klient: str
+    Podpis: str

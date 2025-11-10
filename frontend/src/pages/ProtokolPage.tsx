@@ -9,8 +9,11 @@ import { dodajZdjecie } from "../api/zdjecia";
 import Spinner from "../components/Spinner";
 import toast from 'react-hot-toast';
 import TopBar from "../components/TopBar";
+import { Button } from 'react-bootstrap';
 
 const USER = "serwisant";
+
+type ModalType = 'podpis' | null;
 
 export default function ProtokolPage() {
   const { pnaglId } = useParams();
@@ -18,14 +21,35 @@ export default function ProtokolPage() {
   const [naglowekData, setNaglowekData] = useState<ProtokolNaglowek>(null);
   const [dirty, setDirty] = useState<Record<number, Partial<ProtokolPozycja>>>({});
   const [signOpen, setSignOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
 
+
+  /*
+  Funcje otwierające/zamykające modala
+  */
+
+  const handleClose = () => {
+      setActiveModal(null);
+  };
+    
+  const handleShow = (modalName: ModalType) => {
+    setActiveModal(modalName); 
+  };
+  
+
+
+  /*
+  Pobranie nagłówka oraz pozycji zmapowanych w słownik: {grupa: [lista pozycji]}
+  */ 
   useEffect(() => {
     if (!pnaglId) return;
     getProtokolNaglowek(Number(pnaglId)).then(setNaglowekData);
     getProtokolPoz(Number(pnaglId)).then(setData);
   }, [pnaglId]);
 
-
+  /*
+    Funkcja patchująca pozycje, wywoływana podczas każdej zmiany na pozycji 
+  */
   const patchPoz = useCallback(async (ppozId: number, partial: Partial<ProtokolPozycja>) => {
     let originalItem: ProtokolPozycja | null = null;
     //Zapisanie zmian w UI -> żebyu podmieniło wartości np pola tekstowego
@@ -108,11 +132,11 @@ export default function ProtokolPage() {
 
 
   async function handleSign(dataUrl: string) {
-    if (!pnaglId) return;
-    await podpiszProtokol(Number(pnaglId), dataUrl, USER);
-    setSignOpen(false);
-    alert("Podpis zapisany.");
-  }
+        const zadanieId = pnaglId;
+        await podpiszProtokol(zadanieId, dataUrl, naglowekData.PNAGL_Klient);
+        handleClose();
+        naglowekData.PNAGL_PodpisKlienta = dataUrl;
+    }
 
   if (!data) return <Spinner />;
 
@@ -141,10 +165,20 @@ export default function ProtokolPage() {
 
       <div style={{ display:"flex", gap:8 }}>
         {/* <button onClick={handleSave} disabled={Object.keys(dirty).length === 0}>Zapisz zmiany</button> */}
-        <button onClick={() => setSignOpen(true)}>Podpis klienta</button>
+        <Button 
+        variant="primary" 
+        onClick={() => handleShow('podpis')}
+        >
+          Podpis klienta
+        </Button>
       </div>
 
-      <SignatureDialog open={signOpen} onClose={() => setSignOpen(false)} onSave={handleSign} />
+      <SignatureDialog 
+                open={activeModal === 'podpis'} 
+                onClose={handleClose} 
+                onSave={handleSign}
+                oldSignature={naglowekData ? naglowekData.PNAGL_PodpisKlienta : null}
+                 />
     </div>
     </>
   );

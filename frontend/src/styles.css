@@ -23,3 +23,7 @@ button { cursor: pointer; }
 .icon-hover-lift:hover {
   transform: scale(1.15) translateY(-3px);
 }
+
+.protokol-row:nth-child(even) {
+  background-color: #f8f9fa; 
+}
