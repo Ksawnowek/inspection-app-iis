@@ -3,6 +3,7 @@ import { number, string } from "prop-types";
 export type Zadanie = {
   vZNAG_Id: number;
   vZNAG_TypPrzegladu: string;
+  vZNAG_KategoriaKod?: string | null;
   vZNAG_KlientNazwa: string;
   vZNAG_KlientMiasto?: string;   // w widoku
   vZNAG_Miejscowosc?: string;    // jeśli gdzieś indziej używasz

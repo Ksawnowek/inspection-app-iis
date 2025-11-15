@@ -25,14 +25,14 @@ class PDFService:
         podpis = self._zadania_service.get_podpis(znag_id)
         poz = self._zadania_service.get_pozycje_orm(znag_id)
 
-        # Określ typ zadania na podstawie ZNAG_TypPrzegladu
-        typ_przegladu = nagl.ZNAG_TypPrzegladu or 'S'
+        # Określ typ zadania na podstawie ZNAG_KategoriaKod
+        kategoria_kod = nagl.ZNAG_KategoriaKod or 'S'
 
         # Generowanie ścieżki
         out_path = self._pdf_dir / f"zadanie_{znag_id}.pdf"
 
         # Wybierz szablon na podstawie typu zadania
-        if typ_przegladu == 'R':  # Awaria
+        if kategoria_kod == 'R':  # Awaria
             opis_prac = self._zadania_service.get_opis_prac(znag_id)
             materialy = self._zadania_service.get_materialy(znag_id)
             render_awaria_pdf(
@@ -44,7 +44,7 @@ class PDFService:
                 opis_prac=opis_prac,
                 materialy=materialy
             )
-        elif typ_przegladu == 'T':  # Prace różne
+        elif kategoria_kod == 'T':  # Prace różne
             opis_prac = self._zadania_service.get_opis_prac(znag_id)
             materialy = self._zadania_service.get_materialy(znag_id)
             render_prace_rozne_pdf(

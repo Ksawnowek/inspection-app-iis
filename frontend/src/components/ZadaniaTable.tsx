@@ -34,6 +34,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
     if (rows.length > 0) {
       console.log('=== DEBUG: Pierwsze zadanie ===');
       console.log('Typ przeglądu:', rows[0].vZNAG_TypPrzegladu);
+      console.log('Kategoria kod:', rows[0].vZNAG_KategoriaKod);
       console.log('Urządzenie:', rows[0].vZNAG_Urzadzenie);
       console.log('Tonaż:', rows[0].vZNAG_Tonaz);
       console.log('Awaria numer:', rows[0].vZNAG_AwariaNumer);
@@ -42,11 +43,15 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
 
       // Sprawdź ile jest zadań każdego typu
       const typeCounts: Record<string, number> = {};
+      const kategoriaCounts: Record<string, number> = {};
       rows.forEach(z => {
         const typ = z.vZNAG_TypPrzegladu || 'NULL';
+        const kat = z.vZNAG_KategoriaKod || 'NULL';
         typeCounts[typ] = (typeCounts[typ] || 0) + 1;
+        kategoriaCounts[kat] = (kategoriaCounts[kat] || 0) + 1;
       });
       console.log('Zadania według typu:', typeCounts);
+      console.log('Zadania według kategorii (KOD):', kategoriaCounts);
     }
   }, [rows]);
 
@@ -158,10 +163,10 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
                         </td>
                       </tr>
 
-                      {/* Wiersz 4: Dane awarii/prac różnych (tylko dla typu R i T) */}
-                      {(z.vZNAG_TypPrzegladu === 'R' || z.vZNAG_TypPrzegladu === 'T') && (
+                      {/* Wiersz 4: Dane awarii/prac różnych (tylko dla kategorii R i T) */}
+                      {(z.vZNAG_KategoriaKod === 'R' || z.vZNAG_KategoriaKod === 'T') && (
                         <tr>
-                          <td><strong>{z.vZNAG_TypPrzegladu === 'R' ? 'Dane awarii' : 'Dane prac różnych'}</strong></td>
+                          <td><strong>{z.vZNAG_KategoriaKod === 'R' ? 'Dane awarii' : 'Dane prac różnych'}</strong></td>
                           <td>
                             {z.vZNAG_Urzadzenie || z.vZNAG_Tonaz || z.vZNAG_AwariaNumer
                               ? `${z.vZNAG_Urzadzenie || '-'} / ${z.vZNAG_Tonaz || '-'} / ${z.vZNAG_AwariaNumer || '-'} / ${z.vZNAG_OkrGwar ? 'Gwarancja: TAK' : 'Gwarancja: NIE'}`

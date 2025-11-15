@@ -27,6 +27,7 @@ class ZadaniaRepo:
                 ZadanieNagl.ZNAG_GodzWyjazd,
                 ZadanieNagl.ZNAG_GodzDieta,
                 ZadanieNagl.ZNAG_GodzKm,
+                ZadanieNagl.ZNAG_KategoriaKod,
                 ZadanieNagl.ZNAG_Urzadzenie,
                 ZadanieNagl.ZNAG_Tonaz,
                 ZadanieNagl.ZNAG_AwariaNumer,
@@ -65,6 +66,7 @@ class ZadaniaRepo:
             row_dict['vZNAG_GodzWyjazd'] = row_dict.pop('ZNAG_GodzWyjazd', None)
             row_dict['vZNAG_GodzDieta'] = row_dict.pop('ZNAG_GodzDieta', None)
             row_dict['vZNAG_GodzKm'] = row_dict.pop('ZNAG_GodzKm', None)
+            row_dict['vZNAG_KategoriaKod'] = row_dict.pop('ZNAG_KategoriaKod', None)
             row_dict['vZNAG_Urzadzenie'] = row_dict.pop('ZNAG_Urzadzenie', None)
             row_dict['vZNAG_Tonaz'] = row_dict.pop('ZNAG_Tonaz', None)
             row_dict['vZNAG_AwariaNumer'] = row_dict.pop('ZNAG_AwariaNumer', None)
