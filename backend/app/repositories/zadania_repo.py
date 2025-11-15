@@ -27,6 +27,10 @@ class ZadaniaRepo:
                 ZadanieNagl.ZNAG_GodzWyjazd,
                 ZadanieNagl.ZNAG_GodzDieta,
                 ZadanieNagl.ZNAG_GodzKm,
+                ZadanieNagl.ZNAG_Urzadzenie,
+                ZadanieNagl.ZNAG_Tonaz,
+                ZadanieNagl.ZNAG_AwariaNumer,
+                ZadanieNagl.ZNAG_OkrGwar,
             )
             .select_from(t_v_Zadania)
             .join(ZadanieNagl, t_v_Zadania.c.vZNAG_Id == ZadanieNagl.ZNAG_Id)
@@ -50,7 +54,7 @@ class ZadaniaRepo:
 
         result = self.session.execute(stmt).mappings().all()
 
-        # Mapujemy kolumny godzin do formatu z prefixem vZNAG_
+        # Mapujemy kolumny godzin i nowe pola do formatu z prefixem vZNAG_
         mapped_result = []
         for row in result:
             row_dict = dict(row)
@@ -61,6 +65,10 @@ class ZadaniaRepo:
             row_dict['vZNAG_GodzWyjazd'] = row_dict.pop('ZNAG_GodzWyjazd', None)
             row_dict['vZNAG_GodzDieta'] = row_dict.pop('ZNAG_GodzDieta', None)
             row_dict['vZNAG_GodzKm'] = row_dict.pop('ZNAG_GodzKm', None)
+            row_dict['vZNAG_Urzadzenie'] = row_dict.pop('ZNAG_Urzadzenie', None)
+            row_dict['vZNAG_Tonaz'] = row_dict.pop('ZNAG_Tonaz', None)
+            row_dict['vZNAG_AwariaNumer'] = row_dict.pop('ZNAG_AwariaNumer', None)
+            row_dict['vZNAG_OkrGwar'] = row_dict.pop('ZNAG_OkrGwar', None)
             mapped_result.append(row_dict)
 
         return mapped_result
