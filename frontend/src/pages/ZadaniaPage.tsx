@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { getZadania, generateZadaniePdf, patchZadanie, podpiszZadanie } from "../api/zadania";
+import { getZadania, generateZadaniePdf, patchZadanie, patchZadanieMultiple, podpiszZadanie } from "../api/zadania";
 import { Zadanie } from "../types";
 // Usunięto Link, ponieważ jest teraz używany tylko w ZadaniaTable
 import Spinner from "../components/Spinner";
 import ZadaniaTable from "../components/ZadaniaTable"; // Import nowego komponentu
 import { TextEditModal } from "../components/modals/TextEditModal";
+import { HoursEditModal } from "../components/modals/HoursEditModal";
 import SignatureDialog from "../components/SignatureDialog";
 import TopBar from "../components/TopBar";
 
@@ -36,6 +37,19 @@ export default function ZadaniaPage() {
     setRows(prevRows =>
       prevRows.map(row =>
         row.vZNAG_Id === zadanieId ? { ...row, ["v" + valueName]: newValue } : row
+      )
+    );
+  };
+
+  const handleSaveHours = async (hoursData: any) => {
+    if (!selectedZadanie) throw new Error("Nie wybrano zadania");
+    const zadanieId = selectedZadanie.vZNAG_Id;
+    await patchZadanieMultiple(zadanieId, hoursData);
+    setRows(prevRows =>
+      prevRows.map(row =>
+        row.vZNAG_Id === zadanieId ? { ...row, ...Object.fromEntries(
+          Object.entries(hoursData).map(([k, v]) => ["v" + k, v])
+        ) } : row
       )
     );
   };
@@ -141,20 +155,27 @@ export default function ZadaniaPage() {
             elementId={selectedZadanie.vZNAG_Id}
             onSave={handleSaveUwagi}
           />
-          
-          <TextEditModal
+
+          <HoursEditModal
             show={activeModal === 'edit-godziny'}
             onHide={handleClose}
-            title="Edytuj godziny"
-            name="ZNAG_UwagiGodziny"
-            oldValue={selectedZadanie.vZNAG_UwagiGodziny || ""}
             elementId={selectedZadanie.vZNAG_Id}
-            onSave={handleSaveUwagi}
+            initialData={{
+              ZNAG_GodzSwieta: selectedZadanie.vZNAG_GodzSwieta || "",
+              ZNAG_GodzSobNoc: selectedZadanie.vZNAG_GodzSobNoc || "",
+              ZNAG_GodzDojazdu: selectedZadanie.vZNAG_GodzDojazdu || "",
+              ZNAG_GodzNaprawa: selectedZadanie.vZNAG_GodzNaprawa || "",
+              ZNAG_GodzWyjazd: selectedZadanie.vZNAG_GodzWyjazd || "",
+              ZNAG_GodzDieta: selectedZadanie.vZNAG_GodzDieta || "",
+              ZNAG_GodzKm: selectedZadanie.vZNAG_GodzKm || "",
+              ZNAG_UwagiGodziny: selectedZadanie.vZNAG_UwagiGodziny || "",
+            }}
+            onSave={handleSaveHours}
           />
 
-          <SignatureDialog 
-          open={activeModal === 'podpis'} 
-          onClose={handleClose} 
+          <SignatureDialog
+          open={activeModal === 'podpis'}
+          onClose={handleClose}
           onSave={handleSign}
           oldSignature={selectedZadanie ? selectedZadanie.vZNAG_KlientPodpis : null}
            />

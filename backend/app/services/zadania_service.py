@@ -75,3 +75,7 @@ class ZadaniaService:
     def get_pozycje_orm(self, znag_id: int) -> List[ZadaniePoz]:
         """Pobiera pozycje zadania jako obiekty ORM (nie słowniki)."""
         return self.repo.get_pozycje_orm(znag_id)
+
+    def get_naglowek_pelny(self, znag_id: int) -> Optional[Dict[str, Any]]:
+        """Pobiera pełne dane zadania (wszystkie kolumny włącznie z godzinami)."""
+        return self.repo.naglowek_pelny(znag_id)

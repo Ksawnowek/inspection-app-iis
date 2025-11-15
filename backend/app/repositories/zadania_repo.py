@@ -14,12 +14,23 @@ class ZadaniaRepo:
                     date_from: str | None = None,
                     date_to: str | None = None) -> List[Dict[str, Any]]:
         """
-        Pobiera listę zadań przy użyciu sesji SQLAlchemy i obiektu Table.
-        (To jest kod z Twojej metody `lista_zadan_sqlalchemy`, ale poprawiony)
+        Pobiera listę zadań łącząc widok v_Zadania z tabelą ZadanieNagl (aby uzyskać pola godzin).
         """
-
-        # 2. Używamy obiektu Table (t_v_Zadania) zamiast surowego SQL
-        stmt = select(t_v_Zadania)
+        # JOIN widoku v_Zadania z tabelą ZadanieNagl
+        stmt = (
+            select(
+                t_v_Zadania,
+                ZadanieNagl.ZNAG_GodzSwieta,
+                ZadanieNagl.ZNAG_GodzSobNoc,
+                ZadanieNagl.ZNAG_GodzDojazdu,
+                ZadanieNagl.ZNAG_GodzNaprawa,
+                ZadanieNagl.ZNAG_GodzWyjazd,
+                ZadanieNagl.ZNAG_GodzDieta,
+                ZadanieNagl.ZNAG_GodzKm,
+            )
+            .select_from(t_v_Zadania)
+            .join(ZadanieNagl, t_v_Zadania.c.vZNAG_Id == ZadanieNagl.ZNAG_Id)
+        )
 
         if kontrakt:
             stmt = stmt.where(t_v_Zadania.c.vZNAG_Kontrakt == kontrakt)
@@ -37,10 +48,22 @@ class ZadaniaRepo:
             t_v_Zadania.c.vZNAG_Id.desc()
         )
 
-        # 3. Używamy wstrzykniętej sesji, a nie nowej
-        #    .mappings().all() zwraca od razu listę słowników
         result = self.session.execute(stmt).mappings().all()
-        return list(result)
+
+        # Mapujemy kolumny godzin do formatu z prefixem vZNAG_
+        mapped_result = []
+        for row in result:
+            row_dict = dict(row)
+            row_dict['vZNAG_GodzSwieta'] = row_dict.pop('ZNAG_GodzSwieta', None)
+            row_dict['vZNAG_GodzSobNoc'] = row_dict.pop('ZNAG_GodzSobNoc', None)
+            row_dict['vZNAG_GodzDojazdu'] = row_dict.pop('ZNAG_GodzDojazdu', None)
+            row_dict['vZNAG_GodzNaprawa'] = row_dict.pop('ZNAG_GodzNaprawa', None)
+            row_dict['vZNAG_GodzWyjazd'] = row_dict.pop('ZNAG_GodzWyjazd', None)
+            row_dict['vZNAG_GodzDieta'] = row_dict.pop('ZNAG_GodzDieta', None)
+            row_dict['vZNAG_GodzKm'] = row_dict.pop('ZNAG_GodzKm', None)
+            mapped_result.append(row_dict)
+
+        return mapped_result
 
     # 4. Usunąłem metodę `lista_zadan_sqlalchemy`, bo jej kod jest teraz w `lista_zadan`
 
@@ -113,3 +136,29 @@ class ZadaniaRepo:
         stmt = select(ZadaniePoz).where(ZadaniePoz.ZPOZ_ZNAG_Id == znag_id).order_by(ZadaniePoz.ZPOZ_UrzadzenieNumer)
         result = self.session.execute(stmt)
         return list(result.scalars().all())
+
+    def naglowek_pelny(self, znag_id: int) -> Optional[Dict[str, Any]]:
+        """Pobiera pełne dane zadania z tabeli ZadanieNagl (wszystkie kolumny włącznie z godzinami)."""
+        zadanie = self.session.get(ZadanieNagl, znag_id)
+        if not zadanie:
+            return None
+
+        # Konwersja obiektu ORM na słownik z prefixem "vZNAG_"
+        return {
+            "vZNAG_Id": zadanie.ZNAG_Id,
+            "vZNAG_DataDokumentu": zadanie.ZNAG_DataDokumentu,
+            "vZNAG_TypPrzegladu": zadanie.ZNAG_TypPrzegladu,
+            "vZNAG_KlientNazwa": zadanie.ZNAG_KlientNazwa,
+            "vZNAG_KlientMiasto": zadanie.ZNAG_KlientMiasto,
+            "vZNAG_DataPlanowana": zadanie.ZNAG_DataPlanowana,
+            "vZNAG_Uwagi": zadanie.ZNAG_Uwagi,
+            "vZNAG_UwagiGodziny": zadanie.ZNAG_UwagiGodziny,
+            "vZNAG_KlientPodpis": zadanie.ZNAG_KlientPodpis,
+            "vZNAG_GodzSwieta": zadanie.ZNAG_GodzSwieta,
+            "vZNAG_GodzSobNoc": zadanie.ZNAG_GodzSobNoc,
+            "vZNAG_GodzDojazdu": zadanie.ZNAG_GodzDojazdu,
+            "vZNAG_GodzNaprawa": zadanie.ZNAG_GodzNaprawa,
+            "vZNAG_GodzWyjazd": zadanie.ZNAG_GodzWyjazd,
+            "vZNAG_GodzDieta": zadanie.ZNAG_GodzDieta,
+            "vZNAG_GodzKm": zadanie.ZNAG_GodzKm,
+        }

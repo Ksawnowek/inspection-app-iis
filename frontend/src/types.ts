@@ -10,6 +10,13 @@ export type Zadanie = {
   vZNAG_Uwagi?: string | null;
   vZNAG_UwagiGodziny?: string | null;
   vZNAG_KlientPodpis?: string | null;
+  vZNAG_GodzSwieta?: string | null;
+  vZNAG_GodzSobNoc?: string | null;
+  vZNAG_GodzDojazdu?: string | null;
+  vZNAG_GodzNaprawa?: string | null;
+  vZNAG_GodzWyjazd?: string | null;
+  vZNAG_GodzDieta?: string | null;
+  vZNAG_GodzKm?: string | null;
 };
 
 

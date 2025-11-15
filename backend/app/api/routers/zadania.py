@@ -61,9 +61,9 @@ def get_zadanie(
         zadania_service: ZadaniaService = Depends(get_zadania_service)
 ) -> Dict[str, Any]:
     """
-    Zwraca nagłówek zadania (np. z widoku v_Zadania).
+    Zwraca pełne dane zadania (wszystkie kolumny włącznie z godzinami).
     """
-    nag = zadania_service.get_naglowek(znag_id)
+    nag = zadania_service.get_naglowek_pelny(znag_id)
     if not nag:
         raise HTTPException(404, "Zadanie nie istnieje")
     return nag
