@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formularz M-5 - Lista Kontrolna - Protokół {{ naglowek_protokol.PNAGL_Id }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+
+        body {
+            font-size: 0.7rem;
+            font-family: DejaVu Sans, Arial, sans-serif;
+            color: #111;
+            line-height: 1.2;
+        }
+        .report-container {
+            background: white;
+            padding: 10px;
+        }
+        .top-banner {
+            background-color: #333;
+            color: white;
+            padding: 6px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        .header-box {
+            border: 2px solid #000;
+            padding: 6px;
+            margin-bottom: 8px;
+        }
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2px;
+            font-size: 0.7rem;
+        }
+        .header-label {
+            font-weight: bold;
+        }
+        .section-title {
+            background-color: #000;
+            color: white;
+            padding: 3px 6px;
+            font-weight: bold;
+            margin: 8px 0 0 0;
+            font-size: 0.75rem;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .checklist-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .checklist-table td, .checklist-table th {
+            border: 1px solid #000;
+            padding: 3px;
+            font-size: 0.7rem;
+        }
+        .checklist-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .checklist-table td:first-child {
+            text-align: left;
+        }
+        .checklist-table td:not(:first-child) {
+            text-align: center;
+            width: 8%;
+        }
+        .checkbox-section {
+            border: 1px solid #000;
+            padding: 8px;
+            margin: 8px 0;
+            text-align: center;
+        }
+        .checkbox-section label {
+            margin: 0 15px;
+            font-size: 0.8rem;
+        }
+        .legend-box {
+            border: 1px solid #000;
+            padding: 8px;
+            margin: 8px 0;
+            font-size: 0.7rem;
+        }
+        .signature-section {
+            border: 1px solid #000;
+            padding: 8px;
+            margin-top: 8px;
+        }
+        .bottom-banner {
+            background-color: #ddd;
+            padding: 6px;
+            text-align: right;
+            font-weight: bold;
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+        .dotted-line {
+            border-bottom: 1px dotted #000;
+            display: inline-block;
+            min-width: 150px;
+        }
+        .checkbox-mark {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        tr {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- Banner górny -->
+        <div class="top-banner">
+            CRANES & COMPONENTS
+        </div>
+
+        <!-- Nagłówek z danymi -->
+        <div class="header-box">
+            <div class="header-row">
+                <div><span class="header-label">KLIENT:</span> {{ naglowek_protokol.PNAGL_Klient or naglowek_zadanie.ZNAG_KlientNazwa or '' }}</div>
+                <div><span class="header-label">WOJEWÓDZTWO:</span> {{ naglowek_protokol.PNAGL_Miejscowosc or naglowek_zadanie.ZNAG_KlientMiasto or '' }}</div>
+            </div>
+            <div class="header-row">
+                <div><span class="header-label">PRODUCENT:</span> {{ naglowek_protokol.PNAGL_Producent or '' }}</div>
+                <div><span class="header-label">UDŹWIG:</span> {{ naglowek_protokol.PNAGL_Udzwig or '' }}</div>
+            </div>
+            <div class="header-row">
+                <div><span class="header-label">TYTUŁ:</span> {{ naglowek_protokol.PNAGL_Tytul or '' }}</div>
+                <div><span class="header-label">Nr.:</span> {{ naglowek_protokol.PNAGL_NrUrzadzenia or '' }}</div>
+            </div>
+            {% if naglowek_protokol.PNAGL_ModelWciagnika %}
+            <div class="header-row">
+                <div><span class="header-label">MODEL:</span> {{ naglowek_protokol.PNAGL_ModelWciagnika }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Grupy operacji z pozycjami -->
+        {% if protokol_grupy %}
+            {% for grupa_nazwa, pozycje in protokol_grupy.items() %}
+                <div class="section-title">{{ grupa_nazwa }}</div>
+                <table class="checklist-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 52%;">OPIS</th>
+                            <th style="width: 12%;">NP</th>
+                            <th style="width: 12%;">D</th>
+                            <th style="width: 12%;">NR</th>
+                            <th style="width: 12%;">NA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for poz in pozycje %}
+                        <tr>
+                            <td>{{ poz.PPOZ_Operacja }}</td>
+                            <td>{% if poz.PPOZ_OcenaNP %}<span class="checkbox-mark">✓</span>{% endif %}</td>
+                            <td>{% if poz.PPOZ_OcenaO %}<span class="checkbox-mark">✓</span>{% endif %}</td>
+                            <td>{% if poz.PPOZ_OcenaNR %}<span class="checkbox-mark">✓</span>{% endif %}</td>
+                            <td>{% if poz.PPOZ_OcenaNA %}<span class="checkbox-mark">✓</span>{% endif %}</td>
+                        </tr>
+                        {% if poz.PPOZ_Uwagi %}
+                        <tr>
+                            <td colspan="5" style="background-color: #fff3cd; padding: 4px;">
+                                <strong>Uwagi:</strong> {{ poz.PPOZ_Uwagi }}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+        {% else %}
+            <div class="section-title">BRAK POZYCJI</div>
+            <div style="padding: 10px; text-align: center; color: #999;">
+                Brak pozycji do wyświetlenia
+            </div>
+        {% endif %}
+
+        <!-- Uwagi protokołu -->
+        {% if naglowek_protokol.PNAGL_Uwagi %}
+        <div class="section-title">UWAGI</div>
+        <div style="border: 1px solid #000; padding: 8px; margin-bottom: 8px; min-height: 40px;">
+            {{ naglowek_protokol.PNAGL_Uwagi }}
+        </div>
+        {% endif %}
+
+        <!-- Urządzenie nadaje się do dalszej eksploatacji -->
+        <div class="section-title">URZĄDZENIE NADAJE SIĘ DO DALSZEJ EKSPLOATACJI</div>
+        <div class="checkbox-section">
+            <label>
+                <span style="font-size: 1.5rem;">{% if naglowek_protokol.PNAGL_CzyZaakceptowany == False %}☑{% else %}☐{% endif %}</span> NIE
+            </label>
+            <label>
+                <span style="font-size: 1.5rem;">{% if naglowek_protokol.PNAGL_CzyZaakceptowany == True %}☑{% else %}☐{% endif %}</span> TAK
+            </label>
+        </div>
+
+        <!-- Legenda -->
+        <div class="legend-box">
+            <div class="mb-2">
+                <strong>NP</strong> Nie dotyczy &nbsp;&nbsp; <strong>NR</strong> Wymaga Naprawy /Wymiany
+            </div>
+            <div class="mb-2">
+                <strong>D</strong> OK &nbsp;&nbsp; <strong>NA</strong> NIE WYPEŁNIAĆ
+            </div>
+            <div class="mt-3">
+                Podpis SERWISANTA: {{ naglowek_protokol.PNAGL_UZTOstatni or '_____________________' }}
+            </div>
+        </div>
+
+        <!-- Sekcja podpisów -->
+        <div class="signature-section">
+            <div style="display: flex; justify-content: space-between;">
+                <div>
+                    Data realizacji: {{ naglowek_protokol.PNAGL_DataAkceptacji.strftime('%d/%m/%Y') if naglowek_protokol.PNAGL_DataAkceptacji else '____/____/____' }}
+                </div>
+                <div>
+                    Zaakceptował: {{ naglowek_protokol.PNAGL_Zaakceptowal or '_____________________' }}
+                </div>
+            </div>
+            {% if naglowek_protokol.PNAGL_PodpisKlienta %}
+            <div style="margin-top: 10px; text-align: right;">
+                <div><strong>Podpis klienta:</strong></div>
+                <img src="{{ naglowek_protokol.PNAGL_PodpisKlienta }}" style="max-width: 200px; max-height: 60px; display: inline-block;" alt="Podpis">
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Numer formularza -->
+        <div style="margin-top: 5px; font-size: 0.7rem;">
+            09.1.02 - PL (Rev. 0) | Protokół ID: {{ naglowek_protokol.PNAGL_Id }} | Data: {{ today }}
+        </div>
+
+        <!-- Banner dolny -->
+        <div class="bottom-banner">
+            EGZEMPLARZ DLA KLIENTA
+        </div>
+    </div>
+</body>
+</html>
