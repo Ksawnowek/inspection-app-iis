@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raport Prac Różnych - GH CRANES - Zadanie {{ naglowek.ZNAG_Id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @page {
+            size: A4;
+            margin: 14mm;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-size: 0.9rem;
+        }
+        .report-container {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header-section {
+            border: 2px solid #000;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .logo-section {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        .section-title {
+            background-color: #000;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+        }
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .form-table td, .form-table th {
+            border: 1px solid #000;
+            padding: 8px;
+        }
+        .checkbox-group label {
+            margin-right: 20px;
+        }
+        .signature-box {
+            border: 1px solid #000;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .dynamic-content {
+            min-height: 150px;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        .signature-img {
+            max-width: 200px;
+            max-height: 60px;
+            display: block;
+        }
+        @media print {
+            body {
+                background-color: white;
+            }
+            .report-container {
+                box-shadow: none;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- Nagłówek -->
+        <div class="row mb-3">
+            <div class="col-12 text-end">
+                <strong>Data:</strong> <span id="report-date">{{ today }}</span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-2">
+                <div class="logo-section">
+                    GH<br>SERWIS
+                </div>
+            </div>
+            <div class="col-10">
+                <div class="header-section">
+                    <h4 class="mb-3">PRACE RÓŻNE - ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
+
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <strong>KLIENT:</strong> <span id="client-id">{{ naglowek.ZNAG_KlientNumer }}</span> <span id="client-name">{{ naglowek.ZNAG_KlientNazwa or '' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>TELEFON:</strong> <span id="phone">{{ naglowek.ZNAG_KlientTelefon or '' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <strong>ADRES:</strong> <span id="address">{{ naglowek.ZNAG_KlientAdres or '' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>KONTAKT:</strong> <span id="contact">{{ naglowek.ZNAG_KlientNazwisko or '' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>MIASTO:</strong> <span id="city">{{ naglowek.ZNAG_KlientMiasto or '' }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>POWIAT:</strong> <span id="county">{{ naglowek.ZNAG_KlientPowiat or '' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>STANOWISKO:</strong> <span id="position">{{ naglowek.ZNAG_KlientDzial or '' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dane zadania -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <strong>KONTRAKT:</strong> <span id="contract">{{ naglowek.ZNAG_Kontrakt or '' }}</span>
+            </div>
+            <div class="col-md-4">
+                <strong>DATA PLANOWANA:</strong> <span id="planned-date">{{ naglowek.ZNAG_DataPlanowana.strftime('%d-%m-%Y') if naglowek.ZNAG_DataPlanowana else '' }}</span>
+            </div>
+            <div class="col-md-4">
+                <strong>PRZYPISANE OSOBY</strong>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
+            </div>
+            <div class="col-md-4">
+                <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
+            </div>
+            <div class="col-md-4">
+                <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
+            </div>
+        </div>
+
+        <!-- Zakres prac z oferty -->
+        <div class="section-title">ZAKRES PRAC Z OFERTY</div>
+        <div class="border p-3 mb-3" style="min-height: 200px;">
+            {% if opis_prac %}
+                {% for opis in opis_prac %}
+                    <p>{{ opis.ZOP_OpisPrac or '' }}</p>
+                {% endfor %}
+            {% else %}
+                <span id="work-scope">{{ naglowek.ZNAG_Uwagi or '' }}</span>
+            {% endif %}
+        </div>
+
+        <!-- Opis wykonanych prac -->
+        <div class="section-title">OPIS WYKONANYCH PRAC</div>
+        <table class="form-table mb-3">
+            <thead>
+                <tr>
+                    <th width="20%">urządzenie</th>
+                    <th width="25%">opis</th>
+                    <th width="5%">ok</th>
+                    <th width="20%">urządzenie</th>
+                    <th width="25%">opis</th>
+                    <th width="5%">ok</th>
+                </tr>
+            </thead>
+            <tbody id="work-description">
+                {% if pozycje %}
+                    {% for pair in pozycje|batch(2, fill_with=None) %}
+                    <tr>
+                        {% for p in pair %}
+                            {% if p %}
+                                <td>{{ p.ZPOZ_UrzadzenieNumer }}</td>
+                                <td>{{ p.ZPOZ_UrzadzenieOpis }}</td>
+                                <td><input type="checkbox" {% if p.ZPOZ_UrzadzenieDoPrzegladu %}checked{% endif %}></td>
+                            {% else %}
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Materiały -->
+        <div class="section-title">ZUŻYTE MATERIAŁY</div>
+        <table class="form-table mb-3">
+            <thead>
+                <tr>
+                    <th width="20%">KOD</th>
+                    <th width="40%">OPIS</th>
+                    <th width="15%">ILOŚĆ</th>
+                    <th width="25%">ZWR</th>
+                </tr>
+            </thead>
+            <tbody id="materials">
+                {% if materialy %}
+                    {% for mat in materialy %}
+                    <tr>
+                        <td>{{ mat.ZMAT_Kod or '' }}</td>
+                        <td>{{ mat.ZMAT_Opis or '' }}</td>
+                        <td>{{ mat.ZMAT_Ilosc or '' }}</td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Wykorzystane godziny -->
+        <div class="section-title">WYKORZYSTANE GODZINY</div>
+        <div class="dynamic-content" id="hours-content">
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td width="30%"><strong>Godziny świąteczne:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzSwieta or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Godziny sobota/noc:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzSobNoc or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Godziny dojazdu:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzDojazdu or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Godziny naprawy:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzNaprawa or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Godziny wyjazd:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzWyjazd or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dieta:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzDieta or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kilometry:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzKm or '' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% if naglowek.ZNAG_UwagiGodziny %}
+            <div class="mt-2">
+                <strong>Uwagi do godzin:</strong> {{ naglowek.ZNAG_UwagiGodziny }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Zgoda klienta -->
+        <div class="signature-box">
+            <div class="row">
+                <div class="col-6">
+                    <strong>Zgoda Klienta</strong>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-6">
+                    <strong>Nazwisko:</strong> {{ naglowek.ZNAG_KlientNazwisko or '____________________________' }}
+                </div>
+                <div class="col-6">
+                    <strong>Data:</strong> {{ naglowek.ZNAG_KlientDataZatw.strftime('%d-%m-%Y') if naglowek.ZNAG_KlientDataZatw else '____________________________' }}
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-6">
+                    <strong>Podpis:</strong>
+                    {% if podpis_klient %}
+                        <div class="mt-2">
+                            <img src="{{ podpis_klient }}" class="signature-img" alt="Podpis Klienta">
+                        </div>
+                    {% else %}
+                        ____________________________
+                    {% endif %}
+                </div>
+                <div class="col-6">
+                    <strong>Dział:</strong> {{ naglowek.ZNAG_KlientDzial or '____________________________' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stopka -->
+        <div class="text-center mt-4 small">
+            <p class="mb-0">GH CRANES SP. Z O.O Tel.: +48 34 3597317 - Fax: +48 34 3598410 E-MAIL: serwis@ghsa.pl</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

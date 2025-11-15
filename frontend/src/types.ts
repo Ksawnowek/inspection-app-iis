@@ -17,6 +17,10 @@ export type Zadanie = {
   vZNAG_GodzWyjazd?: string | null;
   vZNAG_GodzDieta?: string | null;
   vZNAG_GodzKm?: string | null;
+  vZNAG_Urzadzenie?: string | null;
+  vZNAG_Tonaz?: string | null;
+  vZNAG_AwariaNumer?: string | null;
+  vZNAG_OkrGwar?: boolean | null;
 };
 
 

@@ -5,8 +5,7 @@ from fastapi import HTTPException
 
 from app.services.protokoly_service import ProtokolyService
 from app.services.zadania_service import ZadaniaService
-from app.utils.pdf_generator import render_zadanie_pdf, render_protokol_pdf
-from app.utils.pdf_generator import render_zadanie_pdf
+from app.utils.pdf_generator import render_zadanie_pdf, render_protokol_pdf, render_awaria_pdf, render_prace_rozne_pdf
 
 
 class PDFService:
@@ -26,17 +25,45 @@ class PDFService:
         podpis = self._zadania_service.get_podpis(znag_id)
         poz = self._zadania_service.get_pozycje_orm(znag_id)
 
+        # Określ typ zadania na podstawie ZNAG_TypPrzegladu
+        typ_przegladu = nagl.ZNAG_TypPrzegladu or 'S'
+
         # Generowanie ścieżki
         out_path = self._pdf_dir / f"zadanie_{znag_id}.pdf"
 
-        # Renderowanie
-        render_zadanie_pdf(
-            out_path=str(out_path),
-            naglowek=nagl,
-            podpis=podpis,
-            pozycje=poz,
-            serwisanci=serwisanci
-        )
+        # Wybierz szablon na podstawie typu zadania
+        if typ_przegladu == 'R':  # Awaria
+            opis_prac = self._zadania_service.get_opis_prac(znag_id)
+            materialy = self._zadania_service.get_materialy(znag_id)
+            render_awaria_pdf(
+                out_path=str(out_path),
+                naglowek=nagl,
+                podpis=podpis,
+                pozycje=poz,
+                serwisanci=serwisanci,
+                opis_prac=opis_prac,
+                materialy=materialy
+            )
+        elif typ_przegladu == 'T':  # Prace różne
+            opis_prac = self._zadania_service.get_opis_prac(znag_id)
+            materialy = self._zadania_service.get_materialy(znag_id)
+            render_prace_rozne_pdf(
+                out_path=str(out_path),
+                naglowek=nagl,
+                podpis=podpis,
+                pozycje=poz,
+                serwisanci=serwisanci,
+                opis_prac=opis_prac,
+                materialy=materialy
+            )
+        else:  # Konserwacja (S, A, B, etc.)
+            render_zadanie_pdf(
+                out_path=str(out_path),
+                naglowek=nagl,
+                podpis=podpis,
+                pozycje=poz,
+                serwisanci=serwisanci
+            )
 
         return out_path
 

@@ -89,8 +89,49 @@ class ZadanieNagl(Base):
     ZNAG_KlientPodpis: Mapped[Optional[str]] = mapped_column(UnicodeText(collation='SQL_Latin1_General_CP1_CI_AS'))
     ZNAG_Uwagi: Mapped[Optional[str]] = mapped_column(TrimmedString(250, 'SQL_Latin1_General_CP1_CI_AS'))
     ZNAG_UwagiGodziny: Mapped[Optional[str]] = mapped_column(TrimmedString(150, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_Urzadzenie: Mapped[Optional[str]] = mapped_column(TrimmedString(100, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_Tonaz: Mapped[Optional[str]] = mapped_column(TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_AwariaNumer: Mapped[Optional[str]] = mapped_column(TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZNAG_OkrGwar: Mapped[Optional[bool]] = mapped_column(Boolean)
 
     ZadaniePoz: Mapped[list['ZadaniePoz']] = relationship('ZadaniePoz', back_populates='ZadanieNagl_')
+
+
+class ZadanieTyp(Base):
+    __tablename__ = 'ZadanieTyp'
+    __table_args__ = (
+        PrimaryKeyConstraint('ZTYP_Kod', name='PK_ZadanieTyp'),
+    )
+
+    ZTYP_Kod: Mapped[str] = mapped_column(TrimmedString(1, 'SQL_Latin1_General_CP1_CI_AS'), primary_key=True)
+    ZTYP_Opis: Mapped[str] = mapped_column(TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'), nullable=False)
+
+
+class ZadanieInneOpis(Base):
+    __tablename__ = 'ZadanieInneOpis'
+    __table_args__ = (
+        ForeignKeyConstraint(['ZOP_ZNAGL_Id'], ['ZadanieNagl.ZNAG_Id'], name='FK_ZadanieInneOpis_ZadanieNagl'),
+        PrimaryKeyConstraint('ZOP_Id', name='PK_ZadanieInneOpis'),
+    )
+
+    ZOP_Id: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
+    ZOP_ZNAGL_Id: Mapped[int] = mapped_column(Integer, nullable=False)
+    ZOP_OpisPrac: Mapped[Optional[str]] = mapped_column(UnicodeText(collation='SQL_Latin1_General_CP1_CI_AS'))
+
+
+class ZadanieInneMaterial(Base):
+    __tablename__ = 'ZadanieInneMaterial'
+    __table_args__ = (
+        ForeignKeyConstraint(['ZMAT_ZNAGL_Id'], ['ZadanieNagl.ZNAG_Id'], name='FK_ZadanieInneMaterial_ZadanieNagl'),
+        PrimaryKeyConstraint('ZMAT_Id', name='PK_ZadanieInneMaterial'),
+    )
+
+    ZMAT_Id: Mapped[int] = mapped_column(Integer, Identity(start=1, increment=1), primary_key=True)
+    ZMAT_ZNAGL_Id: Mapped[int] = mapped_column(Integer, nullable=False)
+    ZMAT_Kod: Mapped[Optional[str]] = mapped_column(TrimmedString(50, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZMAT_Opis: Mapped[Optional[str]] = mapped_column(TrimmedString(255, 'SQL_Latin1_General_CP1_CI_AS'))
+    ZMAT_ProWinId: Mapped[Optional[int]] = mapped_column(Integer)
+    ZMAT_Ilosc: Mapped[Optional[str]] = mapped_column(TrimmedString(25, 'SQL_Latin1_General_CP1_CI_AS'))
 
 
 class Zdjecia(Base):

@@ -23,6 +23,10 @@ class ZadanieUpdateDTO(BaseModel):
     ZNAG_GodzWyjazd: Optional[str] = None
     ZNAG_GodzDieta: Optional[str] = None
     ZNAG_GodzKm: Optional[str] = None
+    ZNAG_Urzadzenie: Optional[str] = None
+    ZNAG_Tonaz: Optional[str] = None
+    ZNAG_AwariaNumer: Optional[str] = None
+    ZNAG_OkrGwar: Optional[bool] = None
 
 
 class ProtokolPozUpdateDTO(BaseModel ):

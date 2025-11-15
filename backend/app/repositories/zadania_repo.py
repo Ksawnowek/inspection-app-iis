@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 from sqlalchemy import select, func, desc, text  # <-- Dodane `text`
 from sqlalchemy.orm import Session, Mapped
-from app.models.models import t_v_Zadania, ZadanieNagl, ZadaniePoz  # Importujemy Table t_v_Zadania
+from app.models.models import t_v_Zadania, ZadanieNagl, ZadaniePoz, ZadanieInneOpis, ZadanieInneMaterial  # Importujemy Table t_v_Zadania
 
 
 class ZadaniaRepo:
@@ -162,3 +162,15 @@ class ZadaniaRepo:
             "vZNAG_GodzDieta": zadanie.ZNAG_GodzDieta,
             "vZNAG_GodzKm": zadanie.ZNAG_GodzKm,
         }
+
+    def get_opis_prac(self, znag_id: int) -> List[ZadanieInneOpis]:
+        """Pobiera opisy prac dla zadania (dla awarii i prac różnych)."""
+        stmt = select(ZadanieInneOpis).where(ZadanieInneOpis.ZOP_ZNAGL_Id == znag_id)
+        result = self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    def get_materialy(self, znag_id: int) -> List[ZadanieInneMaterial]:
+        """Pobiera materiały użyte w zadaniu (dla awarii i prac różnych)."""
+        stmt = select(ZadanieInneMaterial).where(ZadanieInneMaterial.ZMAT_ZNAGL_Id == znag_id)
+        result = self.session.execute(stmt)
+        return list(result.scalars().all())
