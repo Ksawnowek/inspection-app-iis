@@ -179,8 +179,16 @@ class ZadaniaRepo:
         result = self.session.execute(stmt)
         return list(result.scalars().all())
 
-    def get_materialy(self, znag_id: int) -> List[ZadanieInneMaterial]:
-        """Pobiera materiały użyte w zadaniu (dla awarii i prac różnych)."""
-        stmt = select(ZadanieInneMaterial).where(ZadanieInneMaterial.ZMAT_ZNAGL_Id == znag_id)
-        result = self.session.execute(stmt)
-        return list(result.scalars().all())
+    def get_materialy(self, znag_id: int) -> List[Dict[str, Any]]:
+        """Pobiera materiały użyte w zadaniu (dla awarii i prac różnych) używając funkcji fun_ZadanieInnePoz."""
+        from sqlalchemy import text
+
+        # Wywołanie funkcji SQL fun_ZadanieInnePoz która zwraca materiały posortowane z Lp
+        stmt = text("""
+            SELECT Lp, ZMAT_Kod, ZMAT_Opis, ZMAT_Ilosc
+            FROM dbo.fun_ZadanieInnePoz(:znag_id)
+            ORDER BY Lp
+        """)
+
+        result = self.session.execute(stmt, {"znag_id": znag_id})
+        return [dict(row._mapping) for row in result]

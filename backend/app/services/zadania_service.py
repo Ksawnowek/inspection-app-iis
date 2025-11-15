@@ -84,6 +84,6 @@ class ZadaniaService:
         """Pobiera opisy prac dla zadania (dla awarii i prac różnych)."""
         return self.repo.get_opis_prac(znag_id)
 
-    def get_materialy(self, znag_id: int) -> List[ZadanieInneMaterial]:
-        """Pobiera materiały użyte w zadaniu (dla awarii i prac różnych)."""
+    def get_materialy(self, znag_id: int) -> List[Dict[str, Any]]:
+        """Pobiera materiały użyte w zadaniu (dla awarii i prac różnych) używając funkcji SQL."""
         return self.repo.get_materialy(znag_id)

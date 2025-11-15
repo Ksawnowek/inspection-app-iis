@@ -41,7 +41,7 @@ def render_zadanie_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycj
 
     return str(out)
 
-def render_awaria_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycje: list[ZadaniePoz], serwisanci: list[str] | None = None, opis_prac: list[ZadanieInneOpis] | None = None, materialy: list[ZadanieInneMaterial] | None = None):
+def render_awaria_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycje: list[ZadaniePoz], serwisanci: list[str] | None = None, opis_prac: list[ZadanieInneOpis] | None = None, materialy: list[dict] | None = None):
     """Wyrenderuj HTML z Jinja2 i zapisz jako PDF przez wkhtmltopdf dla zadań typu awaria."""
     serwisanci = serwisanci or []
     opis_prac = opis_prac or []
@@ -73,7 +73,7 @@ def render_awaria_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycje
 
     return str(out)
 
-def render_prace_rozne_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycje: list[ZadaniePoz], serwisanci: list[str] | None = None, opis_prac: list[ZadanieInneOpis] | None = None, materialy: list[ZadanieInneMaterial] | None = None):
+def render_prace_rozne_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycje: list[ZadaniePoz], serwisanci: list[str] | None = None, opis_prac: list[ZadanieInneOpis] | None = None, materialy: list[dict] | None = None):
     """Wyrenderuj HTML z Jinja2 i zapisz jako PDF przez wkhtmltopdf dla zadań typu prace różne."""
     serwisanci = serwisanci or []
     opis_prac = opis_prac or []
