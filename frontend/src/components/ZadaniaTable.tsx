@@ -29,6 +29,26 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
   onShowDetailsModal
 }) => {
 
+  // DEBUG: Sprawdź co przychodzi z API
+  React.useEffect(() => {
+    if (rows.length > 0) {
+      console.log('=== DEBUG: Pierwsze zadanie ===');
+      console.log('Typ przeglądu:', rows[0].vZNAG_TypPrzegladu);
+      console.log('Urządzenie:', rows[0].vZNAG_Urzadzenie);
+      console.log('Tonaż:', rows[0].vZNAG_Tonaz);
+      console.log('Awaria numer:', rows[0].vZNAG_AwariaNumer);
+      console.log('OkrGwar:', rows[0].vZNAG_OkrGwar);
+      console.log('Wszystkie klucze:', Object.keys(rows[0]));
+
+      // Sprawdź ile jest zadań każdego typu
+      const typeCounts: Record<string, number> = {};
+      rows.forEach(z => {
+        const typ = z.vZNAG_TypPrzegladu || 'NULL';
+        typeCounts[typ] = (typeCounts[typ] || 0) + 1;
+      });
+      console.log('Zadania według typu:', typeCounts);
+    }
+  }, [rows]);
 
   const fmtDate = (d?: string | null) => {
     if (!d) return "-";
