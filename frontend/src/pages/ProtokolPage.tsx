@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz } from "../api/protokoly";
+import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz, generateProtokolPdf } from "../api/protokoly";
 import { ProtokolNaglowek, ProtokolPozycja, ProtokolResponse, ZdjecieProtokolPoz } from "../types";
 import ProtokolGroup from "../components/ProtokolGroup";
 import PhotoButton from "../components/PhotoButton";
@@ -18,6 +18,7 @@ export default function ProtokolPage() {
   const [naglowekData, setNaglowekData] = useState<ProtokolNaglowek>(null);
   const [dirty, setDirty] = useState<Record<number, Partial<ProtokolPozycja>>>({});
   const [signOpen, setSignOpen] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   useEffect(() => {
     if (!pnaglId) return;
@@ -114,6 +115,24 @@ export default function ProtokolPage() {
     alert("Podpis zapisany.");
   }
 
+  const handlePdf = async () => {
+    if (!pnaglId) return;
+    try {
+      setGeneratingPdf(true);
+      const blob = await generateProtokolPdf(Number(pnaglId));
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `protokol_${pnaglId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      alert(`Nie udało się wygenerować PDF:\n${e?.message ?? e}`);
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
   if (!data) return <Spinner />;
 
 
@@ -142,6 +161,9 @@ export default function ProtokolPage() {
       <div style={{ display:"flex", gap:8 }}>
         {/* <button onClick={handleSave} disabled={Object.keys(dirty).length === 0}>Zapisz zmiany</button> */}
         <button onClick={() => setSignOpen(true)}>Podpis klienta</button>
+        <button onClick={handlePdf} disabled={generatingPdf}>
+          {generatingPdf ? "Generuję…" : "Wydrukuj PDF"}
+        </button>
       </div>
 
       <SignatureDialog open={signOpen} onClose={() => setSignOpen(false)} onSave={handleSign} />
