@@ -89,11 +89,12 @@ def pobierz(pnagl_id: int, service: ProtokolyService = Depends(get_protokoly_ser
 @router.post("/{pnagl_id}/podpis")
 def podpis(
     pnagl_id: int,
-    podpis_klienta: str = Form(...),
-    kto: str = Form("Klient"),
+    body: dict = Body(...),
     service: ProtokolyService = Depends(get_protokoly_service)
 ):
     try:
+        podpis_klienta = body.get("podpis_klienta", "")
+        kto = body.get("zaakceptowal", "Klient")
         return service.zapisz_podpis(pnagl_id, podpis_klienta, kto)
     except SaveError as e:
         raise HTTPException(status_code=400, detail=str(e))
