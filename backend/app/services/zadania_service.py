@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.domain.requestsDTO import ZadanieUpdateDTO
-from app.models.models import ZadanieNagl
+from app.models.models import ZadanieNagl, ZadaniePoz
 from app.repositories.zadania_repo import ZadaniaRepo
 from app.schemas.user import User
 from typing import Any, Dict, List, Optional
@@ -71,3 +71,7 @@ class ZadaniaService:
 
     def get_naglowek_by_id(self, znag_id) -> type[ZadanieNagl] | None:
         return self.session.get(ZadanieNagl, znag_id)
+
+    def get_pozycje_orm(self, znag_id: int) -> List[ZadaniePoz]:
+        """Pobiera pozycje zadania jako obiekty ORM (nie słowniki)."""
+        return self.repo.get_pozycje_orm(znag_id)

@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 from sqlalchemy import select, func, desc, text  # <-- Dodane `text`
 from sqlalchemy.orm import Session, Mapped
-from app.models.models import t_v_Zadania, ZadanieNagl  # Importujemy Table t_v_Zadania
+from app.models.models import t_v_Zadania, ZadanieNagl, ZadaniePoz  # Importujemy Table t_v_Zadania
 
 
 class ZadaniaRepo:
@@ -107,3 +107,9 @@ class ZadaniaRepo:
 
     def get_podpis(self, znag_id: int) -> Mapped[str|None]:
         return self.session.get(ZadanieNagl, znag_id).ZNAG_KlientPodpis
+
+    def get_pozycje_orm(self, znag_id: int) -> List[ZadaniePoz]:
+        """Pobiera pozycje zadania jako obiekty ORM (nie słowniki)."""
+        stmt = select(ZadaniePoz).where(ZadaniePoz.ZPOZ_ZNAG_Id == znag_id).order_by(ZadaniePoz.ZPOZ_UrzadzenieNumer)
+        result = self.session.execute(stmt)
+        return list(result.scalars().all())

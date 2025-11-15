@@ -144,12 +144,12 @@ def generuj_pdf_old(
     """
     Generuje i zwraca plik PDF dla danego zadania.
     """
-    nagl = zadania_service.get_naglowek(znag_id)
+    nagl = zadania_service.get_naglowek_by_id(znag_id)
     podpis = zadania_service.get_podpis(znag_id)
     if not nagl:
         raise HTTPException(404, "Zadanie nie istnieje")
 
-    poz = zadania_service.get_pozycje(znag_id)
+    poz = zadania_service.get_pozycje_orm(znag_id)
 
     serwisanci = (body or {}).get("serwisanci") or []
     out_path = PDF_DIR / f"zadanie_{znag_id}.pdf"

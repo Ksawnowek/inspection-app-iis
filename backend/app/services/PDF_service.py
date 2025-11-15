@@ -16,15 +16,15 @@ class PDFService:
         self._pdf_dir = pdf_dir
 
     def generuj_pdf_zadania(self, znag_id: int, serwisanci: list[str]) -> Path:
-        # Pobieranie danych
-        nagl = self._zadania_service.get_naglowek(znag_id)
+        # Pobieranie danych jako obiekty ORM (nie słowniki)
+        nagl = self._zadania_service.get_naglowek_by_id(znag_id)
         if not nagl:
             # Warto rozważyć, czy rzucanie 404 nie powinno zostać w routerze
             # Ale jeśli chcemy, by serwis wiedział, że nie ma danych - jest OK
             raise HTTPException(404, "Zadanie nie istnieje")
 
         podpis = self._zadania_service.get_podpis(znag_id)
-        poz = self._zadania_service.get_pozycje(znag_id)
+        poz = self._zadania_service.get_pozycje_orm(znag_id)
 
         # Generowanie ścieżki
         out_path = self._pdf_dir / f"zadanie_{znag_id}.pdf"
