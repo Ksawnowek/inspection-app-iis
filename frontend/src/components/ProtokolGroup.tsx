@@ -26,9 +26,9 @@ export default function ProtokolGroup({ group, items, onChange, onSyncZdjecia }:
 
   function handleRadioChange(ppozId, clickedOcena) {
     const partial = {};
-    OCENY.forEach(o => { partial[MAP[o]] = "0"; });
-    partial[MAP[clickedOcena]] = "1";
-    onChange(ppozId, partial); 
+    OCENY.forEach(o => { partial[MAP[o]] = false; });
+    partial[MAP[clickedOcena]] = true;
+    onChange(ppozId, partial);
   }
 
   return (
