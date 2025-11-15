@@ -1,8 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="utf-8"/>
-    <title>ZADANIE NR: {{ naglowek.ZNAG_Id }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raport Serwisowy - GH CRANES - Zadanie {{ naglowek.ZNAG_Id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         @page {
             size: A4;
@@ -10,439 +12,287 @@
         }
 
         body {
-            font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 10.5px;
-            color: #111;
-            line-height: 1.25;
+            background-color: #f8f9fa;
+            font-size: 0.9rem;
         }
-
-        .row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
+        .report-container {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-
-        .title {
-            font-size: 19px;
-            font-weight: 800;
-            letter-spacing: .4px;
+        .header-section {
+            border: 2px solid #000;
+            padding: 15px;
+            margin-bottom: 20px;
         }
-
-        .small {
-            font-size: 9.5px
+        .logo-section {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
         }
-
-        .muted {
-            color: #444
+        .section-title {
+            background-color: #000;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
         }
-
-        .mt6 {
-            margin-top: 6px
-        }
-
-        .mt8 {
-            margin-top: 8px
-        }
-
-        .mt12 {
-            margin-top: 12px
-        }
-
-        .h80 {
-            height: 80px
-        }
-
-        .h70 {
-            height: 70px
-        }
-
-        .box {
-            border: 1.2px solid #000;
-            padding: 7px 8px;
-            background: #fff;
-        }
-
-        .grid-header {
-            border: 1.2px solid #000;
-            padding: 5px 7px;
-            font-weight: 800;
-            text-transform: uppercase;
-            background: #efefef;
-        }
-
-        table {
+        .form-table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
         }
-
-        th, td {
-            border: 1.2px solid #000;
-            padding: 6px 6px;
-            vertical-align: top;
+        .form-table td, .form-table th {
+            border: 1px solid #000;
+            padding: 8px;
         }
-
-        th {
-            background: #efefef;
-            font-weight: 800;
-            font-size: 10px;
-            text-transform: uppercase;
-            text-align: center;
+        .checkbox-group label {
+            margin-right: 20px;
         }
-
-        /* OPIS PRAC kolumny */
-        thead th:nth-child(1),
-        tbody td:nth-child(1),
-        thead th:nth-child(4),
-        tbody td:nth-child(4) {
-            width: 15%;
+        .signature-box {
+            border: 1px solid #000;
+            padding: 15px;
+            margin-top: 20px;
         }
-
-        thead th:nth-child(2),
-        tbody td:nth-child(2),
-        thead th:nth-child(5),
-        tbody td:nth-child(5) {
-            width: 35%;
+        .dynamic-content {
+            min-height: 150px;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            background-color: #f8f9fa;
         }
-
-        thead th:nth-child(3),
-        tbody td:nth-child(3),
-        thead th:nth-child(6),
-        tbody td:nth-child(6) {
-            width: 5%;
-            text-align: center;
+        .signature-img {
+            max-width: 200px;
+            max-height: 60px;
+            display: block;
         }
-
-        .xcell {
-            display: inline-block;
-            width: 13px;
-            height: 13px;
-            border: 1.2px solid #000;
-            text-align: center;
-            line-height: 12px;
-            font-weight: 800;
-            margin-left: 6px;
-        }
-
-        /* 50/50: Wykorzystane godziny vs Zgoda Klienta */
-        .hours-consent {
-            margin-top: 12px;
-        }
-
-        .hours-consent th, .hours-consent td {
-            border: 1.2px solid #000;
-            padding: 5px;
-        }
-
-        .hours-consent thead th {
-            background: #efefef;
-            font-weight: 800;
-            text-transform: none;
-            font-size: 10.5px;
-        }
-
-        /* kolumny: 9 po lewej = 50% (13% + 8×4.625%), 1 prawa = 50% */
-        .hours-consent col.col-label {
-            width: 13%;
-        }
-
-        .hours-consent col.col-x {
-            width: 4.625%;
-        }
-
-        .hours-consent col.col-consent {
-            width: 50%;
-        }
-
-        .hours-consent .label {
-            white-space: nowrap;
-            font-weight: 600;
-        }
-
-        .hours-consent .x {
-            height: 18px;
-        }
-
-        .consent .field {
-            display: flex;
-            align-items: flex-end;
-            gap: 6px;
-            margin: 8px 0;
-        }
-
-        .consent .line {
-            flex: 1 1 auto;
-            border-bottom: 1px solid #000;
-            height: 16px;
-        }
-
-        .consent .short {
-            max-width: 140px;
-        }
-
-        .hours-footnote {
-            font-size: 9px;
-            color: #333;
-            padding-top: 4px;
-        }
-
-        .footer {
-            position: fixed;
-            left: 14mm;
-            right: 14mm;
-            bottom: 9mm;
-            font-size: 8.5px;
-            text-align: left;
-            letter-spacing: .2px;
-        }
-
-        .box, .grid-header, table {
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-
-        tr {
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-        .consent .signature-box {
-          flex: 1 1 auto; /* Powoduje, że kontener wypełnia dostępną przestrzeń (jak .line) */
-          border-bottom: 1px solid #000; /* Zachowuje dolną linię */
-          min-height: 40px; /* Minimalna wysokość na podpis - dostosuj wg potrzeb */
-          padding-bottom: 2px; /* Mały odstęp obrazka od dolnej linii */
-          box-sizing: border-box;
-        }
-
-        .consent .signature-img {
-          display: block;
-          max-width: 100%; /* Obrazek nie będzie szerszy niż dostępna przestrzeń */
-          max-height: 38px; /* Wysokość obrazka (min-height - padding-bottom) - dostosuj */
-          object-fit: contain; /* Zachowuje proporcje obrazka */
+        @media print {
+            body {
+                background-color: white;
+            }
+            .report-container {
+                box-shadow: none;
+                margin: 0;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="report-container">
+        <!-- Nagłówek -->
+        <div class="row mb-3">
+            <div class="col-12 text-end">
+                <strong>Data:</strong> <span id="report-date">{{ today }}</span>
+            </div>
+        </div>
 
-<div class="row">
-    <div class="title">GH&nbsp;SERWIS</div>
-    <div class="small muted">Data: {{ today }}</div>
-</div>
-
-<div class="row mt8">
-    <div class="title">ZADANIE NR:&nbsp;{{ naglowek.ZNAG_Id }}</div>
-</div>
-
-<div class="box mt8">
-    <div><b>KLIENT:</b> {{ naglowek.ZNAG_KlientNazwa or '' }}</div>
-    <div class="row mt6">
-        <div><b>ADRES:</b> {{ naglowek.ZNAG_KlientAdres or '' }}</div>
-        <div><b>MIASTO:</b> {{ naglowek.ZNAG_KlientMiasto or '' }}</div>
-        <div><b>POWIAT:</b> {{ naglowek.ZNAG_KlientPowiat or '' }}</div>
-    </div>
-    <div class="mt6"><b>TELEFON:</b> {{ naglowek.ZNAG_KlientTelefon or '' }}</div>
-</div>
-
-<div class="box mt8">
-    <div class="row">
-        <div>AWARIA <span class="xcell">{% if naglowek.ZNAG_TypPrzegladu == 'W' %}x{% endif %}</span></div>
-        <div>PRACE RÓŻNE <span class="xcell"></span></div>
-        <div>KONSERWACJA <span class="xcell">{% if naglowek.ZNAG_TypPrzegladu in ['A','B'] %}x{% endif %}</span></div>
-        <div>MONTAŻ I URUCHOMIENIE <span class="xcell"></span></div>
-    </div>
-</div>
-
-<div class="box mt8">
-    <div class="row">
-        <div><b>KONTRAKT:</b> {{ naglowek.ZNAG_Kontrakt or '' }}</div>
-        <div><b>TYP PRZEGLĄDU:</b> {{ naglowek.ZNAG_TypPrzegladu or '' }}</div>
-        <div><b>CZĘSTOTLIWOŚĆ:</b> {{ naglowek.ZNAG_Czestotliwosc or '' }}</div>
-    </div>
-    <div class="row mt6">
-        <div><b>DATA PLANOWANA:</b> {{ naglowek.ZNAG_DataPlanowana or '' }}</div>
-        <div><b>DATA WYKONANIA:</b> {{ naglowek.ZNAG_DataWykonania or '' }}</div>
-        <div><b>PRZYPISANE OSOBY:</b> {{ serwisanci|join(', ') }}</div>
-    </div>
-</div>
-
-<div class="grid-header mt12">OPIS PRAC</div>
-<table>
-    <thead>
-    <tr>
-        <th>urządzenie</th>
-        <th>opis</th>
-        <th>ok</th>
-        <th>urządzenie</th>
-        <th>opis</th>
-        <th>ok</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for pair in pozycje|batch(2, fill_with=None) %}
-        <tr>
-            {% for p in pair %}
-                {% if p %}
-                    <td>{{ p.ZPOZ_UrzadzenieNumer }}</td>
-                    <td>{{ p.ZPOZ_UrzadzenieOpis }}</td>
-                    <td></td>
-                {% else %}
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                {% endif %}
-            {% endfor %}
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
-
-<div class="grid-header mt12">OBSERWACJE SERWISANTÓW</div>
-<div class="box h80"></div>
-
-<!-- 50/50 Wykorzystane Godziny / Zgoda Klienta -->
-<table class="hours-consent">
-    <colgroup>
-        <col class="col-label">
-        <col class="col-x">
-        <col class="col-x">
-        <col class="col-x">
-        <col class="col-x">
-        <col class="col-x">
-        <col class="col-x">
-        <col class="col-x">
-        <col class="col-x">
-        <col class="col-consent">
-    </colgroup>
-    <thead>
-    <tr>
-        <th colspan="9" style="text-align:left;">Wykorzystane Godziny</th>
-        <th>Zgoda Klienta</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td class="label">Dzień</td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="consent" rowspan="8">
-            <div class="consent">
-                <div class="field"><span>Nazwisko</span>
-                    <div class="line"></div>
-                </div>
-                <div class="field">
-                    <span>Podpis</span>
-                    {% if podpis_klient %}
-                        <div class="signature-box">
-                            <img src="{{ podpis_klient }}" class="signature-img"
-                                 alt="Podpis Klienta">
-                        </div>
-                    {% else %}
-                        <div class="line"></div> {% endif %}
-                </div>
-                <div style="height:18px;"></div>
-                <div class="field"><span>Data</span>
-                    <div class="line short"></div>
-                </div>
-                <div class="field"><span>Dział</span>
-                    <div class="line short"></div>
+        <div class="row mb-3">
+            <div class="col-2">
+                <div class="logo-section">
+                    GH<br>SERWIS
                 </div>
             </div>
-        </td>
-    </tr>
-    <tr>
-        <td class="label">Świąteczny(1)</td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-    </tr>
-    <tr>
-        <td class="label">Sobota/Noc(1)</td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-    </tr>
-    <tr>
-        <td class="label">Godziny dojazdu</td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-    </tr>
-    <tr>
-        <td class="label">Naprawa</td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-    </tr>
-    <tr>
-        <td class="label">Wyjazd</td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-    </tr>
-    <tr>
-        <td class="label">Dieta</td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-    </tr>
-    <tr>
-        <td class="label">Km.</td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-        <td class="x"></td>
-    </tr>
-    </tbody>
-    <tfoot>
-    <tr>
-        <td colspan="10" class="hours-footnote">(1) Zaznaczyć X w odpowiednich miejscach.</td>
-    </tr>
-    </tfoot>
-</table>
+            <div class="col-10">
+                <div class="header-section">
+                    <h4 class="mb-3">ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
 
-<div class="footer">
-    GH CRANES SP. Z O.O &nbsp; Tel.: +48 34 3597317 &nbsp; E-MAIL: serwis@ghsa.pl
-</div>
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <strong>KLIENT:</strong> <span id="client-id">{{ naglowek.ZNAG_KlientNumer }}</span> <span id="client-name">{{ naglowek.ZNAG_KlientNazwa or '' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>TELEFON:</strong> <span id="phone">{{ naglowek.ZNAG_KlientTelefon or '' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <strong>ADRES:</strong> <span id="address">{{ naglowek.ZNAG_KlientAdres or '' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>KONTAKT:</strong> <span id="contact">{{ naglowek.ZNAG_KlientNazwisko or '' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>MIASTO:</strong> <span id="city">{{ naglowek.ZNAG_KlientMiasto or '' }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong>POWIAT:</strong> <span id="county">{{ naglowek.ZNAG_KlientPowiat or '' }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>STANOWISKO:</strong> <span id="position">{{ naglowek.ZNAG_KlientDzial or '' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typ prac -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="checkbox-group border p-3">
+                    <label><input type="checkbox" id="awaria" {% if naglowek.ZNAG_TypPrzegladu == 'W' %}checked{% endif %}> AWARIA</label>
+                    <label><input type="checkbox" id="prace-rozne"> PRACE RÓŻNE</label>
+                    <label><input type="checkbox" id="konserwacja" {% if naglowek.ZNAG_TypPrzegladu in ['A','B'] %}checked{% endif %}> KONSERWACJA</label>
+                    <label><input type="checkbox" id="montaz"> MONTAŻ I URUCHOMIENIE</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dane zadania -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <strong>KONTRAKT:</strong> <span id="contract">{{ naglowek.ZNAG_Kontrakt or '' }}</span>
+            </div>
+            <div class="col-md-4">
+                <strong>DATA PLANOWANA:</strong> <span id="planned-date">{{ naglowek.ZNAG_DataPlanowana.strftime('%d-%m-%Y') if naglowek.ZNAG_DataPlanowana else '' }}</span>
+            </div>
+            <div class="col-md-4">
+                <strong>PRZYPISANE OSOBY</strong>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
+            </div>
+            <div class="col-md-4">
+                <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
+            </div>
+            <div class="col-md-4">
+                <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <strong>CZĘSTOTLIWOŚĆ:</strong> <span id="frequency">{{ naglowek.ZNAG_Czestotliwosc or '' }}</span>
+            </div>
+        </div>
+
+        <!-- Opis prac -->
+        <div class="section-title">OPIS PRAC</div>
+        <table class="form-table mb-3">
+            <thead>
+                <tr>
+                    <th width="20%">urządzenie</th>
+                    <th width="25%">opis</th>
+                    <th width="5%">ok</th>
+                    <th width="20%">urządzenie</th>
+                    <th width="25%">opis</th>
+                    <th width="5%">ok</th>
+                </tr>
+            </thead>
+            <tbody id="work-description">
+                {% for pair in pozycje|batch(2, fill_with=None) %}
+                <tr>
+                    {% for p in pair %}
+                        {% if p %}
+                            <td>{{ p.ZPOZ_UrzadzenieNumer }}</td>
+                            <td>{{ p.ZPOZ_UrzadzenieOpis }}</td>
+                            <td><input type="checkbox" {% if p.ZPOZ_UrzadzenieDoPrzegladu %}checked{% endif %}></td>
+                        {% else %}
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Obserwacje -->
+        <div class="section-title">OBSERWACJE SERWISANTÓW</div>
+        <div class="border p-3 mb-3" style="min-height: 100px;">
+            <span id="observations">{{ naglowek.ZNAG_Uwagi or '' }}</span>
+        </div>
+
+        <!-- Wykorzystane godziny -->
+        <div class="section-title">WYKORZYSTANE GODZINY</div>
+        <div class="dynamic-content" id="hours-content">
+            <table class="table table-sm table-bordered">
+                <tbody>
+                    <tr>
+                        <td width="30%"><strong>Godziny świąteczne:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzSwieta or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Godziny sobota/noc:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzSobNoc or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Godziny dojazdu:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzDojazdu or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Godziny naprawy:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzNaprawa or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Godziny wyjazd:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzWyjazd or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dieta:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzDieta or '' }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Kilometry:</strong></td>
+                        <td>{{ naglowek.ZNAG_GodzKm or '' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% if naglowek.ZNAG_UwagiGodziny %}
+            <div class="mt-2">
+                <strong>Uwagi do godzin:</strong> {{ naglowek.ZNAG_UwagiGodziny }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Zgoda klienta -->
+        <div class="signature-box">
+            <div class="row">
+                <div class="col-6">
+                    <strong>Zgoda Klienta</strong>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-6">
+                    <strong>Nazwisko:</strong> {{ naglowek.ZNAG_KlientNazwisko or '____________________________' }}
+                </div>
+                <div class="col-6">
+                    <strong>Data:</strong> {{ naglowek.ZNAG_KlientDataZatw.strftime('%d-%m-%Y') if naglowek.ZNAG_KlientDataZatw else '____________________________' }}
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-6">
+                    <strong>Podpis:</strong>
+                    {% if podpis_klient %}
+                        <div class="mt-2">
+                            <img src="{{ podpis_klient }}" class="signature-img" alt="Podpis Klienta">
+                        </div>
+                    {% else %}
+                        ____________________________
+                    {% endif %}
+                </div>
+                <div class="col-6">
+                    <strong>Dział:</strong> {{ naglowek.ZNAG_KlientDzial or '____________________________' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Stopka -->
+        <div class="text-center mt-4 small">
+            <p class="mb-0">GH CRANES SP. Z O.O Tel.: +48 34 3597317 - Fax: +48 34 3598410 E-MAIL: serwis@ghsa.pl</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
