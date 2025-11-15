@@ -13,6 +13,7 @@ interface ZadaniaTableProps {
   onShowUwagiModal: (zadanie: Zadanie) => void;
   onShowGodzinyModal: (zadanie: Zadanie) => void;
   onShowPodpisModal: (zadanie: Zadanie) => void;
+  onShowDetailsModal: (zadanie: Zadanie) => void;
 }
 
 const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
@@ -24,7 +25,8 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
   onPdfClick,
   onShowUwagiModal,
   onShowGodzinyModal,
-  onShowPodpisModal
+  onShowPodpisModal,
+  onShowDetailsModal
 }) => {
 
 
@@ -135,6 +137,27 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
                           </button>
                         </td>
                       </tr>
+
+                      {/* Wiersz 4: Dane awarii/prac różnych (tylko dla typu R i T) */}
+                      {(z.vZNAG_TypPrzegladu === 'R' || z.vZNAG_TypPrzegladu === 'T') && (
+                        <tr>
+                          <td><strong>{z.vZNAG_TypPrzegladu === 'R' ? 'Dane awarii' : 'Dane prac różnych'}</strong></td>
+                          <td>
+                            {z.vZNAG_Urzadzenie || z.vZNAG_Tonaz || z.vZNAG_AwariaNumer
+                              ? `${z.vZNAG_Urzadzenie || '-'} / ${z.vZNAG_Tonaz || '-'} / ${z.vZNAG_AwariaNumer || '-'} / ${z.vZNAG_OkrGwar ? 'Gwarancja: TAK' : 'Gwarancja: NIE'}`
+                              : "Brak danych"
+                            }
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={(e) => { e.stopPropagation(); onShowDetailsModal(z); }}
+                              >
+                              Zarządzaj danymi
+                            </button>
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </td>
