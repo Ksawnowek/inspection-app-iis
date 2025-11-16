@@ -6,6 +6,7 @@ from app.repositories.users_repo import UserRepo
 from app.repositories.zadania_repo import ZadaniaRepo
 from app.repositories.zdjecia_repo import ZdjeciaRepo
 from app.services.auth_service import AuthService
+from app.services.user_service import UserService
 from app.services.zadania_service import ZadaniaService
 from app.services.zdjecia_service import ZdjeciaService
 from app.core.paths import PDF_DIR
@@ -66,6 +67,13 @@ def get_pdf_service(
         protokoly_service: ProtokolyService = Depends(get_protokoly_service)
 ):
     return PDFService(zadania_service, protokoly_service, PDF_DIR)
+
+def get_user_service(
+        repo: UserRepo = Depends(get_user_repo),
+        auth_service: AuthService = Depends(get_auth_service),
+):
+    return UserService(repo, auth_service)
+
 
 async def get_current_user_from_cookie(
     service: AuthService = Depends(get_auth_service),

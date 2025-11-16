@@ -132,13 +132,40 @@ export default function ProtokolPage() {
 
 
   async function handleSign(dataUrl: string) {
-        const zadanieId = pnaglId;
-        await podpiszProtokol(zadanieId, dataUrl, naglowekData.PNAGL_Klient);
-        handleClose();
-        naglowekData.PNAGL_PodpisKlienta = dataUrl;
+    // Upewnij się, że nagłówek istnieje, zanim spróbujesz go użyć
+    if (!naglowekData) {
+        toast.error("Błąd: Nie załadowano danych nagłówka!");
+        return;
     }
 
-  if (!data) return <Spinner />;
+    const zadanieId = pnaglId;
+    
+    try {
+        await toast.promise(
+            podpiszProtokol(zadanieId, dataUrl, naglowekData.PNAGL_Klient),
+            {
+                loading: 'Zapisywanie podpisu...',
+                success: 'Podpis zapisany!',
+                error: 'Błąd zapisu podpisu.'
+            }
+        );
+
+        setNaglowekData(poprzedniNaglowek => {
+            if (!poprzedniNaglowek) return null; 
+            return {
+                ...poprzedniNaglowek,
+                PNAGL_PodpisKlienta: dataUrl
+            };
+        });
+
+        handleClose();
+
+    } catch (error) {
+        console.error("Błąd przy zapisie podpisu:", error);
+    }
+}
+
+  if (!data || !naglowekData) return <Spinner />;
 
 
   return (
@@ -146,11 +173,33 @@ export default function ProtokolPage() {
     <TopBar title={"Protokół " + naglowekData.PNAGL_Klient + " " + naglowekData.PNAGL_NrUrzadzenia}/>
     <div className="container" style={{ marginTop: '70px' }}>
       <Link to="/">← Wróć</Link>
-      <h2>{naglowekData.PNAGL_Tytul}</h2>
-      <div style={{ marginBottom:12 }}>
-        <div><b>Klient:</b> {naglowekData.PNAGL_Klient}</div>
-        <div><b>Miejscowość:</b> {naglowekData.PNAGL_Miejscowosc}</div>
-        <div><b>Nr urządzenia:</b> {naglowekData.PNAGL_NrUrzadzenia}</div>
+      <div className="w-100 d-flex justify-content-between">
+        <div>
+          <h2>{naglowekData.PNAGL_Tytul}</h2>
+          <div style={{ marginBottom:12 }}>
+            <div><b>Klient:</b> {naglowekData.PNAGL_Klient}</div>
+            <div><b>Miejscowość:</b> {naglowekData.PNAGL_Miejscowosc}</div>
+            <div><b>Nr urządzenia:</b> {naglowekData.PNAGL_NrUrzadzenia}</div>
+          </div>
+        </div>
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          height: "100%", // lub np. "300px", jeśli ma być konkretna wysokość
+        }}>
+          <div>
+            
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Button 
+              variant="primary" 
+              onClick={() => handleShow('podpis')}
+            >
+              Podpis klienta
+            </Button>
+          </div>
+        </div>
       </div>
 
       {data && Object.entries(data).map(([grp, items]) => (
@@ -163,15 +212,7 @@ export default function ProtokolPage() {
         />
       ))}
 
-      <div style={{ display:"flex", gap:8 }}>
-        {/* <button onClick={handleSave} disabled={Object.keys(dirty).length === 0}>Zapisz zmiany</button> */}
-        <Button 
-        variant="primary" 
-        onClick={() => handleShow('podpis')}
-        >
-          Podpis klienta
-        </Button>
-      </div>
+      
 
       <SignatureDialog 
                 open={activeModal === 'podpis'} 

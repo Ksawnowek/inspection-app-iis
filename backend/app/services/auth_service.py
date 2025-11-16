@@ -1,8 +1,6 @@
 from typing import Any
 
 from app.models.models import Uzytkownik
-from app.schemas.user import User
-from fastapi import Depends
 from app.repositories.users_repo import UserRepo
 import bcrypt
 from app.core.config import settings
@@ -44,12 +42,12 @@ class AuthService:
 
     def register_user(self, login, imie, nazwisko, pwd, rola):
         #TODO włączyć unique na loginie xD
-        passwordHash = bcrypt.hashpw(pwd.encode('utf-8'), bcrypt.gensalt())
+        passwordHash = self.hash_pwd(pwd)
         user = Uzytkownik(
             UZT_Imie=imie,
             UZT_Nazwisko=nazwisko,
             UZT_Login=login,
-            UZT_pwd=passwordHash.decode('utf-8'),
+            UZT_pwd=passwordHash,
             UZT_ROL_Id=rola)
         result = self.repo.add_user(user)
 
@@ -84,3 +82,6 @@ class AuthService:
 
         encoded_jwt = jwt.encode(to_encode, settings.REFRESH_SECRET_KEY, algorithm=settings.TOKEN_ALGORITHM)
         return encoded_jwt
+
+    def hash_pwd(self, password):
+        return  bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')

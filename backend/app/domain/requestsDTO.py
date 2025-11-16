@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class LoginRequest(BaseModel):
@@ -29,3 +29,11 @@ class ProtokolPozUpdateDTO(BaseModel ):
 class ProtokolPodpisDTO(BaseModel):
     Klient: str
     Podpis: str
+
+
+class UzytkownikUpdateDTO(BaseModel):
+    UZT_Imie: Optional[str] = None
+    UZT_Nazwisko: Optional[str] = None
+    UZT_ROL_Id: Optional[int] = None
+    UZT_Login: Optional[str] = None
+    password: Optional[str] = Field(None, min_length=8)

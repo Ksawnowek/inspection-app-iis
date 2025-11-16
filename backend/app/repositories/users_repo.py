@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 import pyodbc
 from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, defer
 
 from app.models.models import Uzytkownik
 from app.schemas.user import User
@@ -28,18 +28,14 @@ class UserRepo:
     def add_user(self, user: Uzytkownik):
         self.session.add(user)
 
-    # def get_role_name(self, role_id):
-    #     sql = """
-    #     SELECT
-    #         RTRIM(ROL_Opis) AS ROL_Opis
-    #     from dbo.Role
-    #     WHERE ROL_Id = ?
-    #     """
-    #     cur = self.conn.cursor()
-    #     cur.execute(sql, role_id)
-    #     row = cur.fetchone()
-    #
-    #     if not row:
-    #         return None
-    #
-    #     return row[0]
+    """
+    Funkcja zwracająca listę użytkowników z wyczyszczonym polem hasła
+    """
+    def get_all_users(self):
+        return (self.session.query(Uzytkownik)
+                .options(selectinload(Uzytkownik.Role_))
+                .options(defer(Uzytkownik.UZT_pwd))
+                .all())
+
+    def get_user_by_id(self, uzt_id:int) -> Uzytkownik | None:
+        return self.session.get(Uzytkownik, uzt_id)

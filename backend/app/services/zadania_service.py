@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.domain.requestsDTO import ZadanieUpdateDTO
-from app.models.models import ZadanieNagl
+from app.models.models import ZadanieNagl, Uzytkownik
 from app.repositories.zadania_repo import ZadaniaRepo
 from app.schemas.user import User
 from typing import Any, Dict, List, Optional
@@ -13,8 +13,8 @@ class ZadaniaService:
         self.repo = repo
         self.session = session
 
-    def get_pozycje_by_user_role(self, user: User, znag_id: int) -> List[Dict[str, Any]]:
-        if user.role == 101:
+    def get_pozycje_by_user_role(self, user: Uzytkownik, znag_id: int) -> List[Dict[str, Any]]:
+        if Uzytkownik.UZT_ROL_Id == 101:
             return self.repo.pozycje_serwisant(znag_id)
         else:
             return self.repo.pozycje_zadania(znag_id)
@@ -54,14 +54,15 @@ class ZadaniaService:
         update_data = dto_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(zadanie, key, value)
-        try:
-            self.session.commit()
-            self.session.refresh(zadanie)
-            return zadanie
-        except Exception as e:
-            self.session.rollback()
-            print(f"Błąd podczas patch_zadanie: {e}")
-            raise RuntimeError("Błąd serwera podczas zapisu danych.")
+        return zadanie
+        # try:
+        #     self.session.commit()
+        #     self.session.refresh(zadanie)
+        #     return zadanie
+        # except Exception as e:
+        #     self.session.rollback()
+        #     print(f"Błąd podczas patch_zadanie: {e}")
+        #     raise RuntimeError("Błąd serwera podczas zapisu danych.")
 
     def zapisz_podpis(self, znag_id, podpis_klienta):
         pass

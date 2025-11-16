@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: [./backend/.env.docker]
+    # ZMIANA: Port jest dostępny TYLKO z wnętrza serwera (dla IIS)
+    ports: ["127.0.0.1:8001:8001"]
+    volumes: ["api_storage:/app/storage"]
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001
+    # Rekomendacja: Dodaj restart, aby usługa sama wstawała
+    restart: always
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    # ZMIANA: Port jest dostępny TYLKO z wnętrza serwera (dla IIS)
+    ports: ["127.0.0.1:8080:80"]
+    depends_on: [api]
+    volumes:
+      # Ten wolumen jest super pomysłem - serwowanie plików z Nginx
+      - api_storage:/var/www/static/storage:ro
+    # Rekomendacja: Dodaj restart
+    restart: always
+
+volumes:
+  api_storage: {}

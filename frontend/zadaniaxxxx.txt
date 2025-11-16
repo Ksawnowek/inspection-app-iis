@@ -73,13 +73,15 @@ TypPrzeglądu -> x przy odpowiednim
 
 
 
-refresh token [może 3 dni?]
+refresh token [może 3 dni?] [OK]
 
-dodanie przycisku do rejestracji usera dla kierownika
+dodanie przycisku do rejestracji usera dla kierownika [OK]
 
-panel zarządzania userami
+panel zarządzania userami [OK]
 
 
-poprawki w pozycjach protokołu dla lepszego user experience
+poprawki w pozycjach protokołu dla lepszego user experience [OK]
 
 zabezpieczenie endpointów
+
+zdjęcie do zadania

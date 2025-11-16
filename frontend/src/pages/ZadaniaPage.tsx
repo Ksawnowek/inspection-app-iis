@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getZadania, generateZadaniePdf, patchZadanie, podpiszZadanie } from "../api/zadania";
 import { Zadanie } from "../types";
-// Usunięto Link, ponieważ jest teraz używany tylko w ZadaniaTable
 import Spinner from "../components/Spinner";
-import ZadaniaTable from "../components/ZadaniaTable"; // Import nowego komponentu
+import ZadaniaTable from "../components/ZadaniaTable"; 
 import { TextEditModal } from "../components/modals/TextEditModal";
 import SignatureDialog from "../components/SignatureDialog";
 import TopBar from "../components/TopBar";
+import { Form } from 'react-bootstrap';
 
 type ModalType = 'edit-uwagi' | 'edit-godziny' | 'podpis' | null;
 
@@ -100,8 +100,7 @@ export default function ZadaniaPage() {
     <div className="container" style={{ marginTop: '70px' }}>
       
       <div className="search-bar p-2 d-flex w-100">
-        <input
-          className="w-100"
+        <Form.Control
           type="text"
           name="searchPhrase"
           value={searchPhrase}

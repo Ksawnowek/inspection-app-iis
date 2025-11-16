@@ -61,6 +61,20 @@ export interface ProtokolPozycja {
   ZdjeciaProtokolPoz: ZdjecieProtokolPoz[]; // Możesz tu wstawić bardziej szczegółowy typ, jeśli wiesz, co zawiera ta tablica
 }
 
+export interface Role {
+  ROL_Id: number;
+  ROL_Opis: string;
+}
+
+export interface Uzytkownik{
+  UZT_Id: number;
+  UZT_Imie: string;
+  UZT_Nazwisko: string;
+  UZT_Login: string;
+  UZT_ROL_Id: number;
+  ROL_Opis: string;
+}
+
 export type ProtokolResponse = {
   inspection: ProtokolNaglowek;
   values: ProtokolPozycja[];

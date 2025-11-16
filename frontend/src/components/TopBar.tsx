@@ -1,6 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Navbar, Container, Button, Spinner } from 'react-bootstrap';
-import { BoxArrowRight } from 'react-bootstrap-icons';
+import { BoxArrowRight, People, PersonAdd  } from 'react-bootstrap-icons';
 
 import { useAuth } from '../contexts/AuthContext'; 
 
@@ -11,6 +12,7 @@ interface TopBarProps {
 
 const TopBar: React.FC<TopBarProps> = ({ title }) => {
   const { user, isLoading, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
@@ -33,8 +35,34 @@ const TopBar: React.FC<TopBarProps> = ({ title }) => {
       return (
         <>
           <Navbar.Text className="me-3">
-            {/* DOSTOSUJ: Zmień 'user.username' na pole, którego faktycznie używasz */}
-            Zalogowano jako: **{user.name} {user.surname}** </Navbar.Text>
+            {user.name} {user.surname}
+          </Navbar.Text>
+          {user.role === 'Kierownik' && 
+            <Button
+              className="me-3" 
+              variant="outline-light" 
+              onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/register`);
+                  }}
+            >
+              <PersonAdd className="me-2" />
+              Dodaj użytkownika
+            </Button>
+    }
+    {user.role === 'Kierownik' &&
+            <Button
+              className="me-3"  
+              variant="outline-light" 
+              onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/manage-users`);
+                  }}
+            >
+              <People className="me-2" />
+              Zarządzaj użytkownikami
+            </Button>
+          }
           <Button 
             variant="outline-light" 
             onClick={handleLogout}

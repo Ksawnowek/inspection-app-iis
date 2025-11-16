@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Collapse, Button } from 'react-bootstrap'; // Import Collapse
+import { Collapse, Button } from 'react-bootstrap'; 
 import { Zadanie } from '../types';
 
 interface ZadaniaTableProps {
@@ -35,7 +35,8 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
   };
 
   return (
-    <table className="table table-secondary table-striped table-shadow">
+    // KROK 1: Usuń 'table-secondary' i 'table-striped'
+    <table className="table table-shadow">
       <thead>
         <tr>
           <th>ID</th>
@@ -50,102 +51,120 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
         {rows.filter(z => {
           const idAsString = String(z.vZNAG_Id);
           return idAsString.startsWith(searchPhrase);
-        }).map((z) => (
-          <React.Fragment key={z.vZNAG_Id}>
-            <tr onClick={() => onRowClick(z.vZNAG_Id)} style={{ cursor: 'pointer' }}>
-              <td>{z.vZNAG_Id}</td>
-              <td>{z.vZNAG_TypPrzegladu}</td>
-              <td>{z.vZNAG_KlientNazwa}</td>
-              <td>{z.vZNAG_KlientMiasto ?? z.vZNAG_Miejscowosc ?? "-"}</td>
-              <td>{fmtDate(z.vZNAG_DataPlanowana)}</td>
-              <td>
-                <Button
-                  variant="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/zadania/${z.vZNAG_Id}`);
-                  }}
-                >
-                  Otwórz
-                </Button>
-              </td>
-              <td>
-                <Button
-                  variant="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPdfClick(z.vZNAG_Id);
-                  }}
-                  disabled={busyId === z.vZNAG_Id}
-                >
-                  {busyId === z.vZNAG_Id ? "Generuję…" : "PDF"}
-                </Button>
-              </td>
-              <td>
-                {expandedId === z.vZNAG_Id ? "▾" : "▸"}
-              </td>
-            </tr>
+        })
+        // KROK 2: Dodaj 'index' do mapowania
+        .map((z, index) => {
+          
+          // KROK 3: Ustal klasę na podstawie indeksu
+          // index 0 (parzysty) = brak klasy (biały)
+          // index 1 (nieparzysty) = table-secondary (szary)
+          // index 2 (parzysty) = brak klasy (biały)
+          // ...itd.
+          const rowClass = index % 2 !== 0 ? 'table-secondary' : 'table-active';
 
-            {/* Wiersz z Collapse */}
-            <tr className="details-pane">
-              <td colSpan={8} style={{ padding: 0 }}>
-                <Collapse in={expandedId === z.vZNAG_Id}>
-                  <div>
-                    <table className="table table-light table-striped w-100 mb-0 details-table">
-                      <thead>
-                        <tr>
-                          <th style={{ width: '30%' }}>Element</th>
-                          <th>Status / Dane</th>
-                          <th style={{ textAlign: 'right' }}>Akcja</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td><strong>Uwagi</strong></td>
-                          <td>{z.vZNAG_Uwagi || "Brak uwag"}</td>
-                          <td style={{ textAlign: 'right' }}>
-                            <button
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={(e) => { e.stopPropagation(); onShowUwagiModal(z); }}
-                            >
-                              Zarządzaj uwagami
-                            </button>
-                          </td>
-                        </tr>
+          return (
+            <React.Fragment key={z.vZNAG_Id}>
+              {/* KROK 4: Zastosuj dynamiczną klasę do głównego wiersza */}
+              <tr 
+                onClick={() => onRowClick(z.vZNAG_Id)} 
+                style={{ cursor: 'pointer' }}
+                className={rowClass} 
+              >
+                <td>{z.vZNAG_Id}</td>
+                <td>{z.vZNAG_TypPrzegladu}</td>
+                <td>{z.vZNAG_KlientNazwa}</td>
+                <td>{z.vZNAG_KlientMiasto ?? z.vZNAG_Miejscowosc ?? "-"}</td>
+                <td>{fmtDate(z.vZNAG_DataPlanowana)}</td>
+                <td>
+                  <Button
+                    variant="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/zadania/${z.vZNAG_Id}`);
+                    }}
+                  >
+                    Otwórz
+                  </Button>
+                </td>
+                <td>
+                  <Button
+                    variant="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onPdfClick(z.vZNAG_Id);
+                    }}
+                    disabled={busyId === z.vZNAG_Id}
+                  >
+                    {busyId === z.vZNAG_Id ? "Generuję…" : "PDF"}
+                  </Button>
+                </td>
+                <td>
+                  {expandedId === z.vZNAG_Id ? "▾" : "▸"}
+                </td>
+              </tr>
 
-                        <tr>
-                          <td><strong>Godziny</strong></td>
-                          <td>{z.vZNAG_UwagiGodziny || "Nie zaraportowano"}</td>
-                          <td style={{ textAlign: 'right' }}>
-                            <button
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={(e) => { e.stopPropagation(); onShowGodzinyModal(z); }}
-                            >
-                              Zarządzaj godzinami
-                            </button>
-                          </td>
-                        </tr>
+              {/* KROK 5: Zastosuj tę samą klasę do wiersza ze szczegółami */}
+              <tr className={`details-pane ${rowClass}`}>
+                <td colSpan={8} style={{ padding: 0 }}>
+                  <Collapse in={expandedId === z.vZNAG_Id}>
+                    <div>
+                      {/* Tabela wewnętrzna nie potrzebuje zmian */}
+                      <table className="table table-light table-striped w-100 mb-0 details-table">
+                        <thead>
+                          <tr>
+                            <th style={{ width: '30%' }}>Element</th>
+                            <th>Status / Dane</th>
+                            <th style={{ textAlign: 'right' }}>Akcja</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><strong>Uwagi</strong></td>
+                            <td>{z.vZNAG_Uwagi || "Brak uwag"}</td>
+                            <td style={{ textAlign: 'right' }}>
+                              <button
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={(e) => { e.stopPropagation(); onShowUwagiModal(z); }}
+                              >
+                                Zarządzaj uwagami
+                              </button>
+                            </td>
+                          </tr>
 
-                        <tr>
-                          <td><strong>Podpis klienta</strong></td>
-                          <td>{z.vZNAG_KlientPodpis ? "Złożony" : "Brak podpisu"}</td>
-                          <td style={{ textAlign: 'right' }}>
-                            <button
-                              className="btn btn-sm btn-outline-primary"
-                              onClick={(e) => { e.stopPropagation(); onShowPodpisModal(z); }}
-                            >
-                              Pokaż / Złóż podpis
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </Collapse>
-              </td>
-            </tr>
-          </React.Fragment>
-        ))}
+                          <tr>
+                            <td><strong>Godziny</strong></td>
+                            <td>{z.vZNAG_UwagiGodziny || "Nie zaraportowano"}</td>
+                            <td style={{ textAlign: 'right' }}>
+                              <button
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={(e) => { e.stopPropagation(); onShowGodzinyModal(z); }}
+                              >
+                                Zarządzaj godzinami
+                              </button>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td><strong>Podpis klienta</strong></td>
+                            <td>{z.vZNAG_KlientPodpis ? "Złożony" : "Brak podpisu"}</td>
+                            <td style={{ textAlign: 'right' }}>
+                              <button
+                                className="btn btn-sm btn-outline-primary"
+                                onClick={(e) => { e.stopPropagation(); onShowPodpisModal(z); }}
+                              >
+                                Pokaż / Złóż podpis
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </Collapse>
+                </td>
+              </tr>
+            </React.Fragment>
+          );
+        })}
       </tbody>
     </table>
   );
