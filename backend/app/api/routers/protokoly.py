@@ -98,11 +98,11 @@ def podpisz(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/pozycja/{ppoz_id}/zdjecia")
-async def post_pozycja_zdjecie(ppoz_id: int, file: UploadFile = File(...), service: ProtokolyService = Depends(get_protokoly_service)):
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Dozwolone są tylko pliki obrazów")
-    return await service.add_pozycja_zdjecie(ppoz_id, file)
+# @router.post("/pozycja/{ppoz_id}/zdjecia")
+# async def post_pozycja_zdjecie(ppoz_id: int, file: UploadFile = File(...), service: ProtokolyService = Depends(get_protokoly_service)):
+#     if not file.content_type.startswith("image/"):
+#         raise HTTPException(status_code=400, detail="Dozwolone są tylko pliki obrazów")
+#     return await service.add_pozycja_zdjecie(ppoz_id, file)
 
 
 @router.post("/{pnagl_id}/pdf/generuj")
