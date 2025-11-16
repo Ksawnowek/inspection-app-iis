@@ -90,3 +90,14 @@ export async function podpiszZadanie(
   )
   return data;
 }
+
+export async function patchZadanieMultiple(
+  znagId: number,
+  fields: Record<string, any>
+): Promise<Zadanie> {
+  const { data } = await api.patch(
+    `/zadania/patch/${znagId}`,
+    fields
+  );
+  return data;
+}

@@ -3,6 +3,7 @@ import { number, string } from "prop-types";
 export type Zadanie = {
   vZNAG_Id: number;
   vZNAG_TypPrzegladu: string;
+  vZNAG_KategoriaKod?: string | null;
   vZNAG_KlientNazwa: string;
   vZNAG_KlientMiasto?: string;   // w widoku
   vZNAG_Miejscowosc?: string;    // jeśli gdzieś indziej używasz
@@ -10,6 +11,17 @@ export type Zadanie = {
   vZNAG_Uwagi?: string | null;
   vZNAG_UwagiGodziny?: string | null;
   vZNAG_KlientPodpis?: string | null;
+  vZNAG_GodzSwieta?: string | null;
+  vZNAG_GodzSobNoc?: string | null;
+  vZNAG_GodzDojazdu?: string | null;
+  vZNAG_GodzNaprawa?: string | null;
+  vZNAG_GodzWyjazd?: string | null;
+  vZNAG_GodzDieta?: string | null;
+  vZNAG_GodzKm?: string | null;
+  vZNAG_Urzadzenie?: string | null;
+  vZNAG_Tonaz?: string | null;
+  vZNAG_AwariaNumer?: string | null;
+  vZNAG_OkrGwar?: boolean | null;
 };
 
 

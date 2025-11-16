@@ -35,3 +35,24 @@ export async function saveProtokol(pnaglId: number, payload: ProtokolZapis) {
 export async function podpiszProtokol(pnaglId: number, podpis_klienta: string, zaakceptowal: string) {
   await api.post(`/protokoly/${pnaglId}/podpis`, { Podpis: podpis_klienta, Klient: zaakceptowal });
 }
+
+export async function generateProtokolPdf(pnaglId: number): Promise<Blob> {
+  const { data } = await api.post(
+    `/protokoly/${pnaglId}/pdf/generuj`,
+    {},
+    { responseType: "blob" }
+  );
+  return data as Blob;
+}
+
+export async function downloadProtokolPdf(pnaglId: number): Promise<void> {
+  const blob = await generateProtokolPdf(pnaglId);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `protokol_${pnaglId}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}

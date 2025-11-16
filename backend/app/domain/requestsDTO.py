@@ -16,6 +16,17 @@ class ZadanieUpdateDTO(BaseModel):
     ZNAG_Uwagi: Optional[str] = None
     ZNAG_UwagiGodziny: Optional[str] = None
     ZNAG_KlientPodpis: Optional[str] = None
+    ZNAG_GodzSwieta: Optional[str] = None
+    ZNAG_GodzSobNoc: Optional[str] = None
+    ZNAG_GodzDojazdu: Optional[str] = None
+    ZNAG_GodzNaprawa: Optional[str] = None
+    ZNAG_GodzWyjazd: Optional[str] = None
+    ZNAG_GodzDieta: Optional[str] = None
+    ZNAG_GodzKm: Optional[str] = None
+    ZNAG_Urzadzenie: Optional[str] = None
+    ZNAG_Tonaz: Optional[str] = None
+    ZNAG_AwariaNumer: Optional[str] = None
+    ZNAG_OkrGwar: Optional[bool] = None
 
 
 class ProtokolPozUpdateDTO(BaseModel ):

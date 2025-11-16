@@ -5,8 +5,7 @@ from fastapi import HTTPException
 
 from app.services.protokoly_service import ProtokolyService
 from app.services.zadania_service import ZadaniaService
-from app.utils.pdf_generator import render_zadanie_pdf, render_protokol_pdf
-from app.utils.pdf_generator import render_zadanie_pdf
+from app.utils.pdf_generator import render_zadanie_pdf, render_protokol_pdf, render_awaria_pdf, render_prace_rozne_pdf
 
 
 class PDFService:
@@ -16,27 +15,55 @@ class PDFService:
         self._pdf_dir = pdf_dir
 
     def generuj_pdf_zadania(self, znag_id: int, serwisanci: list[str]) -> Path:
-        # Pobieranie danych
-        nagl = self._zadania_service.get_naglowek(znag_id)
+        # Pobieranie danych jako obiekty ORM (nie słowniki)
+        nagl = self._zadania_service.get_naglowek_by_id(znag_id)
         if not nagl:
             # Warto rozważyć, czy rzucanie 404 nie powinno zostać w routerze
             # Ale jeśli chcemy, by serwis wiedział, że nie ma danych - jest OK
             raise HTTPException(404, "Zadanie nie istnieje")
 
         podpis = self._zadania_service.get_podpis(znag_id)
-        poz = self._zadania_service.get_pozycje(znag_id)
+        poz = self._zadania_service.get_pozycje_orm(znag_id)
+
+        # Określ typ zadania na podstawie ZNAG_KategoriaKod
+        kategoria_kod = nagl.ZNAG_KategoriaKod or 'S'
 
         # Generowanie ścieżki
         out_path = self._pdf_dir / f"zadanie_{znag_id}.pdf"
 
-        # Renderowanie
-        render_zadanie_pdf(
-            out_path=str(out_path),
-            naglowek=nagl,
-            podpis=podpis,
-            pozycje=poz,
-            serwisanci=serwisanci
-        )
+        # Wybierz szablon na podstawie typu zadania
+        if kategoria_kod == 'R':  # Awaria
+            opis_prac = self._zadania_service.get_opis_prac(znag_id)
+            materialy = self._zadania_service.get_materialy(znag_id)
+            render_awaria_pdf(
+                out_path=str(out_path),
+                naglowek=nagl,
+                podpis=podpis,
+                pozycje=poz,
+                serwisanci=serwisanci,
+                opis_prac=opis_prac,
+                materialy=materialy
+            )
+        elif kategoria_kod == 'T':  # Prace różne
+            opis_prac = self._zadania_service.get_opis_prac(znag_id)
+            materialy = self._zadania_service.get_materialy(znag_id)
+            render_prace_rozne_pdf(
+                out_path=str(out_path),
+                naglowek=nagl,
+                podpis=podpis,
+                pozycje=poz,
+                serwisanci=serwisanci,
+                opis_prac=opis_prac,
+                materialy=materialy
+            )
+        else:  # Konserwacja (S, A, B, etc.)
+            render_zadanie_pdf(
+                out_path=str(out_path),
+                naglowek=nagl,
+                podpis=podpis,
+                pozycje=poz,
+                serwisanci=serwisanci
+            )
 
         return out_path
 
@@ -56,7 +83,7 @@ class PDFService:
         protokol_grupy = self._protokoly_service.get_protokol_pozycje(pnagl_id)
 
         # Generowanie ścieżki
-        out_path = self._pdf_dir / f"protokol_{pnagl}.pdf"
+        out_path = self._pdf_dir / f"protokol_{pnagl_id}.pdf"
 
         # Renderowanie
         render_protokol_pdf(

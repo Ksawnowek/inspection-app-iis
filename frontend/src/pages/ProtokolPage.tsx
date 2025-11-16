@@ -21,9 +21,8 @@ export default function ProtokolPage() {
   const [naglowekData, setNaglowekData] = useState<ProtokolNaglowek>(null);
   const [dirty, setDirty] = useState<Record<number, Partial<ProtokolPozycja>>>({});
   const [signOpen, setSignOpen] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
-
-
   /*
   Funcje otwierające/zamykające modala
   */
@@ -31,16 +30,16 @@ export default function ProtokolPage() {
   const handleClose = () => {
       setActiveModal(null);
   };
-    
+
   const handleShow = (modalName: ModalType) => {
-    setActiveModal(modalName); 
+    setActiveModal(modalName);
   };
-  
+
 
 
   /*
   Pobranie nagłówka oraz pozycji zmapowanych w słownik: {grupa: [lista pozycji]}
-  */ 
+  */
   useEffect(() => {
     if (!pnaglId) return;
     getProtokolNaglowek(Number(pnaglId)).then(setNaglowekData);
@@ -48,7 +47,7 @@ export default function ProtokolPage() {
   }, [pnaglId]);
 
   /*
-    Funkcja patchująca pozycje, wywoływana podczas każdej zmiany na pozycji 
+    Funkcja patchująca pozycje, wywoływana podczas każdej zmiany na pozycji
   */
   const patchPoz = useCallback(async (ppozId: number, partial: Partial<ProtokolPozycja>) => {
     let originalItem: ProtokolPozycja | null = null;
@@ -139,7 +138,7 @@ export default function ProtokolPage() {
     }
 
     const zadanieId = pnaglId;
-    
+
     try {
         await toast.promise(
             podpiszProtokol(zadanieId, dataUrl, naglowekData.PNAGL_Klient),
@@ -151,7 +150,7 @@ export default function ProtokolPage() {
         );
 
         setNaglowekData(poprzedniNaglowek => {
-            if (!poprzedniNaglowek) return null; 
+            if (!poprzedniNaglowek) return null;
             return {
                 ...poprzedniNaglowek,
                 PNAGL_PodpisKlienta: dataUrl
@@ -164,6 +163,23 @@ export default function ProtokolPage() {
         console.error("Błąd przy zapisie podpisu:", error);
     }
 }
+ const handlePdf = async () => {
+    if (!pnaglId) return;
+    try {
+      setGeneratingPdf(true);
+      const blob = await generateProtokolPdf(Number(pnaglId));
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `protokol_${pnaglId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      alert(`Nie udało się wygenerować PDF:\n${e?.message ?? e}`);
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   if (!data || !naglowekData) return <Spinner />;
 
@@ -189,11 +205,11 @@ export default function ProtokolPage() {
           height: "100%", // lub np. "300px", jeśli ma być konkretna wysokość
         }}>
           <div>
-            
+
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               onClick={() => handleShow('podpis')}
             >
               Podpis klienta
@@ -212,11 +228,17 @@ export default function ProtokolPage() {
         />
       ))}
 
-      
+      <div style={{ display:"flex", gap:8 }}>
+        {/* <button onClick={handleSave} disabled={Object.keys(dirty).length === 0}>Zapisz zmiany</button> */}
+        <button onClick={() => setSignOpen(true)}>Podpis klienta</button>
+        <button onClick={handlePdf} disabled={generatingPdf}>
+          {generatingPdf ? "Generuję…" : "Wydrukuj PDF"}
+        </button>
+      </div>
 
-      <SignatureDialog 
-                open={activeModal === 'podpis'} 
-                onClose={handleClose} 
+      <SignatureDialog
+                open={activeModal === 'podpis'}
+                onClose={handleClose}
                 onSave={handleSign}
                 oldSignature={naglowekData ? naglowekData.PNAGL_PodpisKlienta : null}
                  />

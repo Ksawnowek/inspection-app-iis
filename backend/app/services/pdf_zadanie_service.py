@@ -4,7 +4,7 @@ from datetime import datetime
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import subprocess
 
-from app.models.models import ProtokolPoz, ProtokolNagl, ZadanieNagl
+from app.models.models import ProtokolPoz, ProtokolNagl, ZadanieNagl, ZadaniePoz
 
 TEMPL_DIR = Path(__file__).resolve().parent.parent / "templates"
 
@@ -13,7 +13,7 @@ env = Environment(
     autoescape=select_autoescape(["html", "xml"])
 )
 
-def render_zadanie_pdf(out_path: str, naglowek: dict, podpis: str, pozycje: list[dict], serwisanci: list[str] | None = None):
+def render_zadanie_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycje: list[ZadaniePoz], serwisanci: list[str] | None = None):
     """Wyrenderuj HTML z Jinja2 i zapisz jako PDF przez wkhtmltopdf."""
     serwisanci = serwisanci or []
     html = env.get_template("zadanie.html").render(

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Collapse, Button } from 'react-bootstrap'; 
+import { Collapse, Button } from 'react-bootstrap';
 import { Zadanie } from '../types';
 
 interface ZadaniaTableProps {
@@ -24,9 +24,36 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
   onPdfClick,
   onShowUwagiModal,
   onShowGodzinyModal,
-  onShowPodpisModal
+  onShowPodpisModal,
+  onShowDetailsModal
 }) => {
   const navigate = useNavigate();
+
+  // DEBUG: Sprawdź co przychodzi z API
+  React.useEffect(() => {
+    if (rows.length > 0) {
+      console.log('=== DEBUG: Pierwsze zadanie ===');
+      console.log('Typ przeglądu:', rows[0].vZNAG_TypPrzegladu);
+      console.log('Kategoria kod:', rows[0].vZNAG_KategoriaKod);
+      console.log('Urządzenie:', rows[0].vZNAG_Urzadzenie);
+      console.log('Tonaż:', rows[0].vZNAG_Tonaz);
+      console.log('Awaria numer:', rows[0].vZNAG_AwariaNumer);
+      console.log('OkrGwar:', rows[0].vZNAG_OkrGwar);
+      console.log('Wszystkie klucze:', Object.keys(rows[0]));
+
+      // Sprawdź ile jest zadań każdego typu
+      const typeCounts: Record<string, number> = {};
+      const kategoriaCounts: Record<string, number> = {};
+      rows.forEach(z => {
+        const typ = z.vZNAG_TypPrzegladu || 'NULL';
+        const kat = z.vZNAG_KategoriaKod || 'NULL';
+        typeCounts[typ] = (typeCounts[typ] || 0) + 1;
+        kategoriaCounts[kat] = (kategoriaCounts[kat] || 0) + 1;
+      });
+      console.log('Zadania według typu:', typeCounts);
+      console.log('Zadania według kategorii (KOD):', kategoriaCounts);
+    }
+  }, [rows]);
 
   const fmtDate = (d?: string | null) => {
     if (!d) return "-";
@@ -54,7 +81,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
         })
         // KROK 2: Dodaj 'index' do mapowania
         .map((z, index) => {
-          
+
           // KROK 3: Ustal klasę na podstawie indeksu
           // index 0 (parzysty) = brak klasy (biały)
           // index 1 (nieparzysty) = table-secondary (szary)
@@ -65,10 +92,10 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
           return (
             <React.Fragment key={z.vZNAG_Id}>
               {/* KROK 4: Zastosuj dynamiczną klasę do głównego wiersza */}
-              <tr 
-                onClick={() => onRowClick(z.vZNAG_Id)} 
+              <tr
+                onClick={() => onRowClick(z.vZNAG_Id)}
                 style={{ cursor: 'pointer' }}
-                className={rowClass} 
+                className={rowClass}
               >
                 <td>{z.vZNAG_Id}</td>
                 <td>{z.vZNAG_TypPrzegladu}</td>
@@ -156,6 +183,26 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
                               </button>
                             </td>
                           </tr>
+                        {/* Wiersz 4: Dane awarii/prac różnych (tylko dla kategorii R i T) */}
+                      {(z.vZNAG_KategoriaKod === 'R' || z.vZNAG_KategoriaKod === 'T') && (
+                        <tr>
+                          <td><strong>{z.vZNAG_KategoriaKod === 'R' ? 'Dane awarii' : 'Dane prac różnych'}</strong></td>
+                          <td>
+                            {z.vZNAG_Urzadzenie || z.vZNAG_Tonaz || z.vZNAG_AwariaNumer
+                              ? `${z.vZNAG_Urzadzenie || '-'} / ${z.vZNAG_Tonaz || '-'} / ${z.vZNAG_AwariaNumer || '-'} / ${z.vZNAG_OkrGwar ? 'Gwarancja: TAK' : 'Gwarancja: NIE'}`
+                              : "Brak danych"
+                            }
+                          </td>
+                          <td style={{ textAlign: 'right' }}>
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={(e) => { e.stopPropagation(); onShowDetailsModal(z); }}
+                              >
+                              Zarządzaj danymi
+                            </button>
+                          </td>
+                        </tr>
+                      )}
                         </tbody>
                       </table>
                     </div>

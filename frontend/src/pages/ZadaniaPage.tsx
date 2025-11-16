@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getZadania, generateZadaniePdf, patchZadanie, podpiszZadanie } from "../api/zadania";
+import { getZadania, generateZadaniePdf, patchZadanie, patchZadanieMultiple, podpiszZadanie } from "../api/zadania";
 import { Zadanie } from "../types";
 import Spinner from "../components/Spinner";
 import ZadaniaTable from "../components/ZadaniaTable"; 
 import { TextEditModal } from "../components/modals/TextEditModal";
+import { HoursEditModal } from "../components/modals/HoursEditModal";
+import { FailureDetailsModal } from "../components/modals/FailureDetailsModal";
 import SignatureDialog from "../components/SignatureDialog";
 import TopBar from "../components/TopBar";
 import { Form } from 'react-bootstrap';
 
-type ModalType = 'edit-uwagi' | 'edit-godziny' | 'podpis' | null;
+type ModalType = 'edit-uwagi' | 'edit-godziny' | 'podpis' | 'edit-details' | null;
 
 export default function ZadaniaPage() {
   const [rows, setRows] = useState<Zadanie[]>([]);
@@ -36,6 +38,32 @@ export default function ZadaniaPage() {
     setRows(prevRows =>
       prevRows.map(row =>
         row.vZNAG_Id === zadanieId ? { ...row, ["v" + valueName]: newValue } : row
+      )
+    );
+  };
+
+  const handleSaveHours = async (hoursData: any) => {
+    if (!selectedZadanie) throw new Error("Nie wybrano zadania");
+    const zadanieId = selectedZadanie.vZNAG_Id;
+    await patchZadanieMultiple(zadanieId, hoursData);
+    setRows(prevRows =>
+      prevRows.map(row =>
+        row.vZNAG_Id === zadanieId ? { ...row, ...Object.fromEntries(
+          Object.entries(hoursData).map(([k, v]) => ["v" + k, v])
+        ) } : row
+      )
+    );
+  };
+
+  const handleSaveDetails = async (detailsData: any) => {
+    if (!selectedZadanie) throw new Error("Nie wybrano zadania");
+    const zadanieId = selectedZadanie.vZNAG_Id;
+    await patchZadanieMultiple(zadanieId, detailsData);
+    setRows(prevRows =>
+      prevRows.map(row =>
+        row.vZNAG_Id === zadanieId ? { ...row, ...Object.fromEntries(
+          Object.entries(detailsData).map(([k, v]) => ["v" + k, v])
+        ) } : row
       )
     );
   };
@@ -127,6 +155,7 @@ export default function ZadaniaPage() {
         onShowUwagiModal={(zadanie) => handleShow('edit-uwagi', zadanie)}
         onShowGodzinyModal={(zadanie) => handleShow('edit-godziny', zadanie)}
         onShowPodpisModal={(zadanie) => handleShow('podpis', zadanie)}
+        onShowDetailsModal={(zadanie) => handleShow('edit-details', zadanie)}
       />
 
       {selectedZadanie && (
@@ -140,23 +169,43 @@ export default function ZadaniaPage() {
             elementId={selectedZadanie.vZNAG_Id}
             onSave={handleSaveUwagi}
           />
-          
-          <TextEditModal
+
+          <HoursEditModal
             show={activeModal === 'edit-godziny'}
             onHide={handleClose}
-            title="Edytuj godziny"
-            name="ZNAG_UwagiGodziny"
-            oldValue={selectedZadanie.vZNAG_UwagiGodziny || ""}
             elementId={selectedZadanie.vZNAG_Id}
-            onSave={handleSaveUwagi}
+            initialData={{
+              ZNAG_GodzSwieta: selectedZadanie.vZNAG_GodzSwieta || "",
+              ZNAG_GodzSobNoc: selectedZadanie.vZNAG_GodzSobNoc || "",
+              ZNAG_GodzDojazdu: selectedZadanie.vZNAG_GodzDojazdu || "",
+              ZNAG_GodzNaprawa: selectedZadanie.vZNAG_GodzNaprawa || "",
+              ZNAG_GodzWyjazd: selectedZadanie.vZNAG_GodzWyjazd || "",
+              ZNAG_GodzDieta: selectedZadanie.vZNAG_GodzDieta || "",
+              ZNAG_GodzKm: selectedZadanie.vZNAG_GodzKm || "",
+              ZNAG_UwagiGodziny: selectedZadanie.vZNAG_UwagiGodziny || "",
+            }}
+            onSave={handleSaveHours}
           />
 
-          <SignatureDialog 
-          open={activeModal === 'podpis'} 
-          onClose={handleClose} 
+          <SignatureDialog
+          open={activeModal === 'podpis'}
+          onClose={handleClose}
           onSave={handleSign}
           oldSignature={selectedZadanie ? selectedZadanie.vZNAG_KlientPodpis : null}
            />
+
+          <FailureDetailsModal
+            show={activeModal === 'edit-details'}
+            onHide={handleClose}
+            elementId={selectedZadanie.vZNAG_Id}
+            initialData={{
+              ZNAG_Urzadzenie: selectedZadanie.vZNAG_Urzadzenie || "",
+              ZNAG_Tonaz: selectedZadanie.vZNAG_Tonaz || "",
+              ZNAG_AwariaNumer: selectedZadanie.vZNAG_AwariaNumer || "",
+              ZNAG_OkrGwar: selectedZadanie.vZNAG_OkrGwar || false,
+            }}
+            onSave={handleSaveDetails}
+          />
         </>
       )}
 

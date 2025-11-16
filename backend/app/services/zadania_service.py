@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.domain.requestsDTO import ZadanieUpdateDTO
-from app.models.models import ZadanieNagl, Uzytkownik
+from app.models.models import ZadanieNagl, ZadaniePoz, ZadanieInneOpis, ZadanieInneMaterial, Uzytkownik
 from app.repositories.zadania_repo import ZadaniaRepo
 from app.schemas.user import User
 from typing import Any, Dict, List, Optional
@@ -72,3 +72,19 @@ class ZadaniaService:
 
     def get_naglowek_by_id(self, znag_id) -> type[ZadanieNagl] | None:
         return self.session.get(ZadanieNagl, znag_id)
+
+    def get_pozycje_orm(self, znag_id: int) -> List[ZadaniePoz]:
+        """Pobiera pozycje zadania jako obiekty ORM (nie słowniki)."""
+        return self.repo.get_pozycje_orm(znag_id)
+
+    def get_naglowek_pelny(self, znag_id: int) -> Optional[Dict[str, Any]]:
+        """Pobiera pełne dane zadania (wszystkie kolumny włącznie z godzinami)."""
+        return self.repo.naglowek_pelny(znag_id)
+
+    def get_opis_prac(self, znag_id: int) -> List[ZadanieInneOpis]:
+        """Pobiera opisy prac dla zadania (dla awarii i prac różnych)."""
+        return self.repo.get_opis_prac(znag_id)
+
+    def get_materialy(self, znag_id: int) -> List[Dict[str, Any]]:
+        """Pobiera materiały użyte w zadaniu (dla awarii i prac różnych) używając funkcji SQL."""
+        return self.repo.get_materialy(znag_id)

@@ -97,7 +97,10 @@ class ProtokolyRepo:
         return nagl
 
     def get_protokol_nagl_by_id(self, pnagl_id):
-        return self.session.get(ProtokolNagl, pnagl_id)
+        """Pobiera ProtokolNagl wraz z relacją do ZadaniePoz (potrzebne do generowania PDF)."""
+        stmt = select(ProtokolNagl).where(ProtokolNagl.PNAGL_Id == pnagl_id)
+        stmt = stmt.options(selectinload(ProtokolNagl.ZadaniePoz_))
+        return self.session.scalars(stmt).one_or_none()
 
     def get_poz_by_id(self, ppoz_id):
         return self.session.get(ProtokolPoz, ppoz_id)
