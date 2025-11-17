@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz } from "../api/protokoly";
+import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz, generateProtokolPdf } from "../api/protokoly";
 import { ProtokolNaglowek, ProtokolPozycja, ProtokolResponse, ZdjecieProtokolPoz } from "../types";
 import ProtokolGroup from "../components/ProtokolGroup";
 import PhotoButton from "../components/PhotoButton";
@@ -10,6 +10,7 @@ import Spinner from "../components/Spinner";
 import toast from 'react-hot-toast';
 import TopBar from "../components/TopBar";
 import { Button } from 'react-bootstrap';
+import BackButton from "../components/BackButton";
 
 const USER = "serwisant";
 
@@ -115,7 +116,6 @@ export default function ProtokolPage() {
         const itemIndex = items.findIndex(item => item.PPOZ_Id === ppozId);
         if (itemIndex > -1) {
           const newItems = [...items];
-          // Tworzymy kopię itemu, ale z podmienioną listą zdjęć
           newItems[itemIndex] = { 
             ...newItems[itemIndex], 
             ZdjeciaProtokolPoz: nowaListaZdjec 
@@ -188,7 +188,7 @@ export default function ProtokolPage() {
     <>
     <TopBar title={"Protokół " + naglowekData.PNAGL_Klient + " " + naglowekData.PNAGL_NrUrzadzenia}/>
     <div className="container" style={{ marginTop: '70px' }}>
-      <Link to="/">← Wróć</Link>
+      <BackButton/>
       <div className="w-100 d-flex justify-content-between">
         <div>
           <h2>{naglowekData.PNAGL_Tytul}</h2>
@@ -202,7 +202,7 @@ export default function ProtokolPage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          height: "100%", // lub np. "300px", jeśli ma być konkretna wysokość
+          height: "100%", 
         }}>
           <div>
 
@@ -213,6 +213,12 @@ export default function ProtokolPage() {
               onClick={() => handleShow('podpis')}
             >
               Podpis klienta
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handlePdf} disabled={generatingPdf}
+              >
+              {generatingPdf ? "Generuję…" : "Wydrukuj PDF"}
             </Button>
           </div>
         </div>
@@ -229,11 +235,18 @@ export default function ProtokolPage() {
       ))}
 
       <div style={{ display:"flex", gap:8 }}>
-        {/* <button onClick={handleSave} disabled={Object.keys(dirty).length === 0}>Zapisz zmiany</button> */}
-        <button onClick={() => setSignOpen(true)}>Podpis klienta</button>
-        <button onClick={handlePdf} disabled={generatingPdf}>
-          {generatingPdf ? "Generuję…" : "Wydrukuj PDF"}
-        </button>
+        <Button
+              variant="primary"
+              onClick={() => handleShow('podpis')}
+            >
+              Podpis klienta
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handlePdf} disabled={generatingPdf}
+              >
+              {generatingPdf ? "Generuję…" : "Wydrukuj PDF"}
+            </Button>
       </div>
 
       <SignatureDialog

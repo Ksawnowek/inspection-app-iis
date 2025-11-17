@@ -8,7 +8,7 @@ from app.domain.requestsDTO import LoginRequest, RegisterRequest
 from app.models.models import Uzytkownik
 from app.schemas.user import User
 from app.services.auth_service import AuthService
-from app.dependencies import get_current_user_from_cookie, get_auth_service
+from app.dependencies import get_current_user_from_cookie, get_auth_service, kierownik_only
 
 router = APIRouter(prefix="/api/auth", tags=["authentication"])
 
@@ -72,7 +72,11 @@ async def handle_login(data: LoginRequest, response: Response, service: AuthServ
     }
 """
 @router.post("/register")
-async def handle_register(data: RegisterRequest, service: AuthService = Depends(get_auth_service)):
+async def handle_register(
+        data: RegisterRequest,
+        service: AuthService = Depends(get_auth_service),
+        user: Uzytkownik = Depends(kierownik_only)
+    ):
     result = service.register_user(data.login, data.name, data.surname, data.pwd, data.role)
     if result:
         status = "success"
@@ -91,6 +95,13 @@ async def handle_logout(response: Response):
         key="access_token",
         httponly=True,
         secure=False,  #TODO zmienić na True przy https
+        samesite="lax"
+    )
+
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+        secure=False,  # TODO zmienić na True przy https
         samesite="lax"
     )
 

@@ -1,5 +1,7 @@
+import enum
+
 from fastapi import HTTPException, status, Cookie
-from typing import Annotated
+from typing import Annotated, List
 from sqlalchemy.orm import Session
 from app.models.models import Uzytkownik
 from app.repositories.users_repo import UserRepo
@@ -18,6 +20,11 @@ from app.services.PDF_service import PDFService
 from app.services.protokoly_service import ProtokolyService
 from app.services.pdf_service_old import PdfService
 
+
+"""
+ZALEŻNOŚCI DLA REPOZYTORIÓW
+"""
+
 def get_user_repo(session: Session = Depends(get_session)) -> UserRepo:
     return UserRepo(session)
 
@@ -31,6 +38,10 @@ def get_zdjecia_repo(
     session: Session = Depends(get_session)
 ) -> ZdjeciaRepo:
     return ZdjeciaRepo(session)
+
+"""
+ZALEŻNOŚCI SERWISÓW
+"""
 
 def get_auth_service(
         repo: UserRepo = Depends(get_user_repo)
@@ -74,6 +85,10 @@ def get_user_service(
 ):
     return UserService(repo, auth_service)
 
+"""
+ZALEŻNOŚCI DO ZABEZPIECZEŃ ENDPOINTÓW
+"""
+
 
 async def get_current_user_from_cookie(
     service: AuthService = Depends(get_auth_service),
@@ -93,3 +108,27 @@ async def get_current_user_from_cookie(
         )
 
     return user_data
+
+class Role(str, enum.Enum):
+    SERWISANT = "Serwisant"
+    KIEROWNIK = "Kierownik"
+
+
+def require_role(allowed_roles: List[Role]):
+    """
+    Fabryka zależności, która zwraca zależność sprawdzającą role.
+    """
+    async def role_checker(
+            current_user: Uzytkownik = Depends(get_current_user_from_cookie)
+    ) -> Uzytkownik:
+        if current_user.Role_.ROL_Opis not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Nie masz uprawnień do wykonania tej akcji",
+            )
+
+        return current_user
+    return role_checker
+
+kierownik_only = require_role([Role.KIEROWNIK])
+any_logged_in_user = get_current_user_from_cookie

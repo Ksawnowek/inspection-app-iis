@@ -82,12 +82,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
         // KROK 2: Dodaj 'index' do mapowania
         .map((z, index) => {
 
-          // KROK 3: Ustal klasę na podstawie indeksu
-          // index 0 (parzysty) = brak klasy (biały)
-          // index 1 (nieparzysty) = table-secondary (szary)
-          // index 2 (parzysty) = brak klasy (biały)
-          // ...itd.
-          const rowClass = index % 2 !== 0 ? 'table-secondary' : 'table-active';
+          const rowClass = index % 2 !== 0 ? 'table-secondary' : '';
 
           return (
             <React.Fragment key={z.vZNAG_Id}>

@@ -8,6 +8,7 @@ import TopBar from "../components/TopBar";
 
 // ### KROK 1: Importy
 import { UserEditModal, UserUpdatePayload } from "../components/modals/UserEditModal"; // Załóżmy, że tam jest
+import BackButton from "../components/BackButton";
 //import { patchUser } from "../api/users"; // Zakładamy, że ta funkcja istnieje
 
 // Definicja typów modali
@@ -83,6 +84,7 @@ export default function ManageUsersPage() {
     <>
       <TopBar title="Zarządzanie użytkownikami" />
       <div className="container" style={{ marginTop: '70px' }}>
+        <BackButton/>
         {users.length === 0 && !loading ? ( // Poprawka warunku
           <Alert variant="info">Nie znaleziono żadnych użytkowników.</Alert>
         ) : (

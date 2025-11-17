@@ -3,8 +3,10 @@ from typing import Annotated, Optional, Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.responses import FileResponse
 from starlette import status
-from app.dependencies import get_current_user_from_cookie, get_zadania_service, get_pdf_service
+from app.dependencies import get_current_user_from_cookie, get_zadania_service, get_pdf_service, any_logged_in_user, \
+    kierownik_only
 from app.domain.requestsDTO import ZadanieUpdateDTO
+from app.models.models import Uzytkownik
 from app.schemas.user import User
 from app.services.PDF_service import PDFService
 from app.services.pdf_zadanie_service import render_zadanie_pdf  # Używamy tylko aliasu
@@ -26,6 +28,7 @@ def list_zadania(
         dateFrom: str | None = None,
         dateTo: str | None = None,
         onlyOpen: bool = False,
+        user: Uzytkownik = Depends(any_logged_in_user)
 ) -> List[Dict[str, Any]]:
     """
     Zwraca listę zadań (możesz filtrować datą i tylko otwarte).
@@ -41,7 +44,8 @@ def list_zadania(
 def patch_zadania(
         znag_id: int,
         update_dto: ZadanieUpdateDTO,
-        service: ZadaniaService = Depends(get_zadania_service)
+        service: ZadaniaService = Depends(get_zadania_service),
+        user: Uzytkownik = Depends(any_logged_in_user)
 ):
     try:
         updated_zadanie = service.patch_zadanie(znag_id, update_dto)
@@ -54,7 +58,8 @@ def patch_zadania(
 @router.get("/{znag_id}")
 def get_zadanie(
         znag_id: int,
-        zadania_service: ZadaniaService = Depends(get_zadania_service)
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
+        user: Uzytkownik = Depends(any_logged_in_user)
 ) -> Dict[str, Any]:
     """
     Zwraca pełne dane zadania (wszystkie kolumny włącznie z godzinami).
@@ -69,7 +74,9 @@ def get_zadanie(
 def get_zadanie_pozycje(
         current_user: CurrentUserDep,
         znag_id: int,
-        zadania_service: ZadaniaService = Depends(get_zadania_service)):
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
+        user: Uzytkownik = Depends(any_logged_in_user)
+    ):
     """
     Zwraca pozycje zadania (np. z widoku v_ZadaniePozycje). 
     Używa logiki z Serwisu, aby zastosować filtry zależne od roli użytkownika.
@@ -89,7 +96,8 @@ def get_zadanie_pozycje(
 def set_do_przegladu(
         zpoz_id: int,
         zadania_service: ZadaniaService = Depends(get_zadania_service),
-        payload: Dict[str, Any] = Body(...),  # {"value": true/false, "user": "kto"}
+        payload: Dict[str, Any] = Body(...),
+        user: Uzytkownik = Depends(kierownik_only)
 ):
     """
     Ustawia flagę 'do przeglądu' w wybranej pozycji zadania.
@@ -112,6 +120,7 @@ def generuj_pdf(
         znag_id: int,
         pdf_service: PDFService = Depends(get_pdf_service),
         body: dict | None = Body(None),
+        user: Uzytkownik = Depends(any_logged_in_user)
 ):
     serwisanci = (body or {}).get("serwisanci") or []
     try:
@@ -136,6 +145,7 @@ def generuj_pdf_old(
         znag_id: int,
         zadania_service: ZadaniaService = Depends(get_zadania_service),
         body: dict | None = Body(None),
+        user: Uzytkownik = Depends(any_logged_in_user)
 ):
     """
     Generuje i zwraca plik PDF dla danego zadania.

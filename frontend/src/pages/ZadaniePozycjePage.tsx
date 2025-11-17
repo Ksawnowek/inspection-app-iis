@@ -9,6 +9,7 @@ import DoPrzegladuButton from "../components/DoPrzegladuButton";
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import TopBar from "../components/TopBar";
+import BackButton from "../components/BackButton";
 
 const USER = "koordynator"; // albo z logowania
 
@@ -53,7 +54,7 @@ export default function ZadaniePozycjePage() {
     <>
     <TopBar title={"Zadanie #" + znagId}/>
     <div className="container" style={{ marginTop: '70px' }}>
-      <Link to="/">← Wróć</Link>
+      <BackButton/>
       <div style={{ marginTop: 12 }}>
   {loading === false ? (
     <table style={{ width: "100%", borderCollapse: "collapse" }} className="table table-secondary table-striped table-shadow">
