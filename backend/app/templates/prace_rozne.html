@@ -91,40 +91,39 @@
 
         <div class="row mb-3">
             <div class="col-2">
-                <div class="logo-section">
-                    GH<br>SERWIS
-                </div>
+                <!-- Logo firmy - aby wstawić własne logo, umieść plik w: backend/app/static/logo.png -->
+                <img src="/static/logo.png" alt="Logo" style="width: 100%; max-width: 150px; height: auto;">
             </div>
             <div class="col-10">
                 <div class="header-section">
                     <h4 class="mb-3">PRACE RÓŻNE - ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
 
                     <div class="row mb-2">
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <strong>KLIENT:</strong> <span id="client-id">{{ naglowek.ZNAG_KlientNumer }}</span> <span id="client-name">{{ naglowek.ZNAG_KlientNazwa or '' }}</span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <strong>TELEFON:</strong> <span id="phone">{{ naglowek.ZNAG_KlientTelefon or '' }}</span>
                         </div>
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <strong>ADRES:</strong> <span id="address">{{ naglowek.ZNAG_KlientAdres or '' }}</span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <strong>KONTAKT:</strong> <span id="contact">{{ naglowek.ZNAG_KlientNazwisko or '' }}</span>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-sm-3">
                             <strong>MIASTO:</strong> <span id="city">{{ naglowek.ZNAG_KlientMiasto or '' }}</span>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-sm-3">
                             <strong>POWIAT:</strong> <span id="county">{{ naglowek.ZNAG_KlientPowiat or '' }}</span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <strong>STANOWISKO:</strong> <span id="position">{{ naglowek.ZNAG_KlientDzial or '' }}</span>
                         </div>
                     </div>
@@ -132,27 +131,36 @@
             </div>
         </div>
 
+        <!-- Typ prac -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="checkbox-group border p-3">
+                    <label><input type="checkbox"> AWARIA</label>
+                    <label><input type="checkbox" checked> PRACE RÓŻNE</label>
+                    <label><input type="checkbox"> KONSERWACJA</label>
+                    <label><input type="checkbox"> MONTAŻ I URUCHOMIENIE</label>
+                </div>
+            </div>
+        </div>
+
         <!-- Dane zadania -->
         <div class="row mb-3">
-            <div class="col-md-4">
-                <strong>KONTRAKT:</strong> <span id="contract">{{ naglowek.ZNAG_Kontrakt or '' }}</span>
-            </div>
-            <div class="col-md-4">
+            <div class="col-sm-6">
                 <strong>DATA PLANOWANA:</strong> <span id="planned-date">{{ naglowek.ZNAG_DataPlanowana.strftime('%d-%m-%Y') if naglowek.ZNAG_DataPlanowana else '' }}</span>
             </div>
-            <div class="col-md-4">
+            <div class="col-sm-6">
                 <strong>PRZYPISANE OSOBY</strong>
             </div>
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-4">
+            <div class="col-sm-4">
                 <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
             </div>
-            <div class="col-md-4">
+            <div class="col-sm-4">
                 <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
             </div>
-            <div class="col-md-4">
+            <div class="col-sm-4">
                 <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
             </div>
         </div>
@@ -291,11 +299,6 @@
                     </tr>
                 </tbody>
             </table>
-            {% if naglowek.ZNAG_UwagiGodziny %}
-            <div class="mt-2">
-                <strong>Uwagi do godzin:</strong> {{ naglowek.ZNAG_UwagiGodziny }}
-            </div>
-            {% endif %}
         </div>
 
         <!-- Zgoda klienta -->
