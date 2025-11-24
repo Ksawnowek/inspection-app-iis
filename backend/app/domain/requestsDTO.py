@@ -36,3 +36,6 @@ class ProtokolPozUpdateDTO(BaseModel ):
     PPOZ_OcenaNA: Optional[bool] = None
     PPOZ_CzyZdjecia: Optional[bool] = None
     PPOZ_Uwagi: Optional[str] = None
+
+class ProtokolNaglUpdateDTO(BaseModel):
+    PNAGL_Uwagi: Optional[str] = None

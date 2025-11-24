@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, B
 from fastapi.responses import FileResponse
 from starlette import status
 
-from app.domain.requestsDTO import ProtokolPozUpdateDTO
+from app.domain.requestsDTO import ProtokolPozUpdateDTO, ProtokolNaglUpdateDTO
 from app.schemas.protokoly import ZapisProtokolu
 from app.services.PDF_service import PDFService
 from app.services.protokoly_service import ProtokolyService
@@ -42,6 +42,16 @@ def patch_pozycja(ppoz_id:int, update_dto: ProtokolPozUpdateDTO, service: Protok
     try:
         updated_poz = service.patch_ppoz(ppoz_id, update_dto)
         return updated_poz
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@router.patch("/naglowek/{pnagl_id}")
+def patch_naglowek(pnagl_id: int, update_dto: ProtokolNaglUpdateDTO, service: ProtokolyService = Depends(get_protokoly_service)):
+    try:
+        updated_nagl = service.patch_pnagl(pnagl_id, update_dto)
+        return updated_nagl
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except RuntimeError as e:

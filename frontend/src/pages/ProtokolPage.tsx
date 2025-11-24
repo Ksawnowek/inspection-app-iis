@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz, generateProtokolPdf } from "../api/protokoly";
+import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz, patchProtokolNagl, generateProtokolPdf } from "../api/protokoly";
 import { ProtokolNaglowek, ProtokolPozycja, ProtokolResponse, ZdjecieProtokolPoz } from "../types";
 import ProtokolGroup from "../components/ProtokolGroup";
 import PhotoButton from "../components/PhotoButton";
@@ -106,7 +106,27 @@ export default function ProtokolPage() {
     });
   }, []);
 
+  const patchNagl = useCallback(async (partial: Partial<ProtokolNaglowek>) => {
+    if (!pnaglId) return;
 
+    // Update UI optimistically
+    setNaglowekData(prev => prev ? { ...prev, ...partial } : prev);
+
+    try {
+      await toast.promise(
+        patchProtokolNagl(Number(pnaglId), partial),
+        {
+          loading: 'Zapisywanie uwag',
+          success: 'Uwagi zapisano pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się zapisać uwag!'}`,
+        }
+      );
+    } catch (error) {
+      console.error("Błąd zapisu uwag:", error);
+      // Reload data on error
+      getProtokolNaglowek(Number(pnaglId)).then(setNaglowekData);
+    }
+  }, [pnaglId]);
 
   async function handleSign(dataUrl: string) {
     if (!pnaglId) return;
@@ -146,6 +166,23 @@ export default function ProtokolPage() {
         <div><b>Klient:</b> {naglowekData.PNAGL_Klient}</div>
         <div><b>Miejscowość:</b> {naglowekData.PNAGL_Miejscowosc}</div>
         <div><b>Nr urządzenia:</b> {naglowekData.PNAGL_NrUrzadzenia}</div>
+      </div>
+
+      <div style={{ marginBottom: 12 }}>
+        <label style={{ display: "block", fontWeight: 600, marginBottom: 4 }}>
+          Uwagi do protokołu:
+        </label>
+        <textarea
+          placeholder="Uwagi do protokołu…"
+          value={naglowekData.PNAGL_Uwagi || ""}
+          onChange={(e) => setNaglowekData(prev => prev ? { ...prev, PNAGL_Uwagi: e.target.value } : prev)}
+          onBlur={(e) => {
+            if (e.target.value !== (naglowekData.PNAGL_Uwagi || "")) {
+              patchNagl({ PNAGL_Uwagi: e.target.value });
+            }
+          }}
+          style={{ width: "100%", minHeight: "60px", padding: "8px" }}
+        />
       </div>
 
       {data && Object.entries(data).map(([grp, items]) => (

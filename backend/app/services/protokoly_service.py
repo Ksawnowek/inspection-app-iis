@@ -95,3 +95,14 @@ class ProtokolyService:
         for key, value in update_data.items():
             setattr(ppoz, key, value)
         return ppoz
+
+    def patch_pnagl(self, pnagl_id: int, update_dto) -> ProtokolNagl:
+        pnagl = self.repo.get_protokol_nagl_by_id(pnagl_id)
+        if pnagl is None:
+            raise ValueError(f"Protokół o id {pnagl_id} nie istnieje")
+        update_data = update_dto.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(pnagl, key, value)
+        self.repo.session.commit()
+        self.repo.session.refresh(pnagl)
+        return pnagl

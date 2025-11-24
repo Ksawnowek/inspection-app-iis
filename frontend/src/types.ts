@@ -39,6 +39,7 @@ export type ProtokolNaglowek = {
   PNAGL_Klient: string;
   PNAGL_Miejscowosc: string;
   PNAGL_NrUrzadzenia: string;
+  PNAGL_Uwagi?: string | null;
 };
 
 // export type ProtokolPozycja = {
