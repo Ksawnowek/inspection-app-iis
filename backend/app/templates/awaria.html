@@ -99,31 +99,31 @@
                     <h4 class="mb-3">AWARIA - ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
 
                     <div class="row mb-2">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <strong>KLIENT:</strong> <span id="client-id">{{ naglowek.ZNAG_KlientNumer }}</span> <span id="client-name">{{ naglowek.ZNAG_KlientNazwa or '' }}</span>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <strong>TELEFON:</strong> <span id="phone">{{ naglowek.ZNAG_KlientTelefon or '' }}</span>
                         </div>
-                    </div>
-
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
+                        <div class="col-sm-4">
                             <strong>ADRES:</strong> <span id="address">{{ naglowek.ZNAG_KlientAdres or '' }}</span>
-                        </div>
-                        <div class="col-sm-6">
-                            <strong>KONTAKT:</strong> <span id="contact">{{ naglowek.ZNAG_KlientNazwisko or '' }}</span>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
+                            <strong>KONTAKT:</strong> <span id="contact">{{ naglowek.ZNAG_KlientNazwisko or '' }}</span>
+                        </div>
+                        <div class="col-sm-4">
                             <strong>MIASTO:</strong> <span id="city">{{ naglowek.ZNAG_KlientMiasto or '' }}</span>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-4">
                             <strong>POWIAT:</strong> <span id="county">{{ naglowek.ZNAG_KlientPowiat or '' }}</span>
                         </div>
-                        <div class="col-sm-6">
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-sm-4">
                             <strong>STANOWISKO:</strong> <span id="position">{{ naglowek.ZNAG_KlientDzial or '' }}</span>
                         </div>
                     </div>
@@ -145,28 +145,28 @@
 
         <!-- Dane awarii -->
         <div class="row mb-3">
-            <div class="col-sm-3">
+            <div class="col-sm-4">
                 <strong>URZĄDZENIE:</strong> <span id="urzadzenie">{{ naglowek.ZNAG_Urzadzenie or '' }}</span>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-4">
                 <strong>TONAŻ:</strong> <span id="tonaz">{{ naglowek.ZNAG_Tonaz or '' }}</span>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-4">
                 <strong>AWARIA NR:</strong> <span id="awaria-numer">{{ naglowek.ZNAG_AwariaNumer or '' }}</span>
-            </div>
-            <div class="col-sm-3">
-                <strong>OKR.GWAR.:</strong>
-                <label><input type="checkbox" {% if naglowek.ZNAG_OkrGwar %}checked{% endif %}> TAK</label>
-                <label><input type="checkbox" {% if not naglowek.ZNAG_OkrGwar %}checked{% endif %}> NIE</label>
             </div>
         </div>
 
         <div class="row mb-3">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
+                <strong>OKR.GWAR.:</strong>
+                <label><input type="checkbox" {% if naglowek.ZNAG_OkrGwar %}checked{% endif %}> TAK</label>
+                <label><input type="checkbox" {% if not naglowek.ZNAG_OkrGwar %}checked{% endif %}> NIE</label>
+            </div>
+            <div class="col-sm-4">
                 <strong>DATA PLANOWANA:</strong> <span id="planned-date">{{ naglowek.ZNAG_DataPlanowana.strftime('%d-%m-%Y') if naglowek.ZNAG_DataPlanowana else '' }}</span>
             </div>
-            <div class="col-sm-6">
-                <strong>PRZYPISANE OSOBY</strong>
+            <div class="col-sm-4">
+                <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
             </div>
         </div>
 
@@ -175,10 +175,7 @@
                 <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
             </div>
             <div class="col-sm-4">
-                <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
-            </div>
-            <div class="col-sm-4">
-                <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
+                <strong>PRZYPISANE OSOBY:</strong> <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
             </div>
         </div>
 
