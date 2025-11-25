@@ -100,31 +100,31 @@
                     <h4 class="mb-3">PRACE RÓŻNE - ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
 
                     <div class="row mb-2">
-                        <div class="col-md-6">
+                        <div class="col-6">
                             <strong>KLIENT:</strong> <span id="client-id">{{ naglowek.ZNAG_KlientNumer }}</span> <span id="client-name">{{ naglowek.ZNAG_KlientNazwa or '' }}</span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-6">
                             <strong>TELEFON:</strong> <span id="phone">{{ naglowek.ZNAG_KlientTelefon or '' }}</span>
                         </div>
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-md-6">
+                        <div class="col-6">
                             <strong>ADRES:</strong> <span id="address">{{ naglowek.ZNAG_KlientAdres or '' }}</span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-6">
                             <strong>KONTAKT:</strong> <span id="contact">{{ naglowek.ZNAG_KlientNazwisko or '' }}</span>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-4">
                             <strong>MIASTO:</strong> <span id="city">{{ naglowek.ZNAG_KlientMiasto or '' }}</span>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-4">
                             <strong>POWIAT:</strong> <span id="county">{{ naglowek.ZNAG_KlientPowiat or '' }}</span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-4">
                             <strong>STANOWISKO:</strong> <span id="position">{{ naglowek.ZNAG_KlientDzial or '' }}</span>
                         </div>
                     </div>
@@ -132,27 +132,39 @@
             </div>
         </div>
 
+        <!-- Typ prac -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="checkbox-group border p-3">
+                    <label><input type="checkbox" id="awaria"> AWARIA</label>
+                    <label><input type="checkbox" id="prace-rozne" checked> PRACE RÓŻNE</label>
+                    <label><input type="checkbox" id="konserwacja"> KONSERWACJA</label>
+                    <label><input type="checkbox" id="montaz"> MONTAŻ I URUCHOMIENIE</label>
+                </div>
+            </div>
+        </div>
+
         <!-- Dane zadania -->
         <div class="row mb-3">
-            <div class="col-md-4">
-                <strong>KONTRAKT:</strong> <span id="contract">{{ naglowek.ZNAG_Kontrakt or '' }}</span>
+            <div class="col-4">
+                <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
             </div>
-            <div class="col-md-4">
+            <div class="col-4">
                 <strong>DATA PLANOWANA:</strong> <span id="planned-date">{{ naglowek.ZNAG_DataPlanowana.strftime('%d-%m-%Y') if naglowek.ZNAG_DataPlanowana else '' }}</span>
             </div>
-            <div class="col-md-4">
+            <div class="col-4">
                 <strong>PRZYPISANE OSOBY</strong>
             </div>
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-4">
-                <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
+            <div class="col-4">
+                &nbsp;
             </div>
-            <div class="col-md-4">
+            <div class="col-4">
                 <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
             </div>
-            <div class="col-md-4">
+            <div class="col-4">
                 <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
             </div>
         </div>
@@ -212,6 +224,12 @@
             </tbody>
         </table>
 
+        <!-- Obserwacje serwisantów -->
+        <div class="section-title">OBSERWACJE SERWISANTÓW</div>
+        <div class="border p-3 mb-3" style="min-height: 100px;">
+            <span id="observations">{{ naglowek.ZNAG_Uwagi or '' }}</span>
+        </div>
+
         <!-- Materiały -->
         <div class="section-title">ZUŻYTE MATERIAŁY</div>
         <table class="form-table mb-3">
@@ -256,7 +274,7 @@
             </tbody>
         </table>
 
-        <!-- Wykorzystane godziny -->
+        <!-- Wykorzystane godziny - usunięto uwagi do godzin -->
         <div class="section-title">WYKORZYSTANE GODZINY</div>
         <div class="dynamic-content" id="hours-content">
             <table class="table table-sm table-bordered">
@@ -291,11 +309,6 @@
                     </tr>
                 </tbody>
             </table>
-            {% if naglowek.ZNAG_UwagiGodziny %}
-            <div class="mt-2">
-                <strong>Uwagi do godzin:</strong> {{ naglowek.ZNAG_UwagiGodziny }}
-            </div>
-            {% endif %}
         </div>
 
         <!-- Zgoda klienta -->
@@ -332,10 +345,8 @@
 
         <!-- Stopka -->
         <div class="text-center mt-4 small">
-            <p class="mb-0">GH CRANES SP. Z O.O Tel.: +48 34 3597317 - Fax: +48 34 3598410 E-MAIL: serwis@ghsa.pl</p>
+            <p class="mb-0">GH CRANES SP. Z O.O Tel.: +48 34 3597317 - Fax: +48 34 3598410 E-MAIL: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="86f5e3f4f1eff5c6e1eef5e7a8f6ea">[email&#160;protected]</a></p>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    

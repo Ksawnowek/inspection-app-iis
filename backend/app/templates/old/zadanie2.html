@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raport Awarii - GH CRANES - Zadanie {{ naglowek.ZNAG_Id }}</title>
+    <title>Raport Serwisowy - GH CRANES - Zadanie {{ naglowek.ZNAG_Id }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         @page {
@@ -30,7 +30,7 @@
         .logo-section {
             background-color: #4CAF50;
             color: white;
-            padding: 20px 5px;
+            padding: 20px;
             font-size: 2rem;
             font-weight: bold;
             text-align: center;
@@ -90,41 +90,40 @@
         </div>
 
         <div class="row mb-3">
-            <div class="col-3">
-                <div class="logo-section">
-                    GH<br>SERWIS
-                </div>
+            <div class="col-2">
+                <!-- Logo firmy - aby wstawić własne logo, umieść plik w: backend/app/static/logo.png -->
+                <img src="/static/logo.png" alt="Logo" style="width: 100%; max-width: 150px; height: auto;">
             </div>
-            <div class="col-9">
+            <div class="col-10">
                 <div class="header-section">
-                    <h4 class="mb-3">AWARIA - ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
+                    <h4 class="mb-3">ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
 
                     <div class="row mb-2">
-                        <div class="col-6">
+                        <div class="col-sm-4">
                             <strong>KLIENT:</strong> <span id="client-id">{{ naglowek.ZNAG_KlientNumer }}</span> <span id="client-name">{{ naglowek.ZNAG_KlientNazwa or '' }}</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-sm-4">
                             <strong>TELEFON:</strong> <span id="phone">{{ naglowek.ZNAG_KlientTelefon or '' }}</span>
                         </div>
-                    </div>
-
-                    <div class="row mb-2">
-                        <div class="col-6">
+                        <div class="col-sm-4">
                             <strong>ADRES:</strong> <span id="address">{{ naglowek.ZNAG_KlientAdres or '' }}</span>
-                        </div>
-                        <div class="col-6">
-                            <strong>KONTAKT:</strong> <span id="contact">{{ naglowek.ZNAG_KlientNazwisko or '' }}</span>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-sm-4">
+                            <strong>KONTAKT:</strong> <span id="contact">{{ naglowek.ZNAG_KlientNazwisko or '' }}</span>
+                        </div>
+                        <div class="col-sm-4">
                             <strong>MIASTO:</strong> <span id="city">{{ naglowek.ZNAG_KlientMiasto or '' }}</span>
                         </div>
-                        <div class="col-4">
+                        <div class="col-sm-4">
                             <strong>POWIAT:</strong> <span id="county">{{ naglowek.ZNAG_KlientPowiat or '' }}</span>
                         </div>
-                        <div class="col-4">
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-sm-4">
                             <strong>STANOWISKO:</strong> <span id="position">{{ naglowek.ZNAG_KlientDzial or '' }}</span>
                         </div>
                     </div>
@@ -136,119 +135,78 @@
         <div class="row mb-3">
             <div class="col-12">
                 <div class="checkbox-group border p-3">
-                    <label><input type="checkbox" id="awaria" checked> AWARIA</label>
+                    <label><input type="checkbox" id="awaria" {% if naglowek.ZNAG_TypPrzegladu == 'W' %}checked{% endif %}> AWARIA</label>
                     <label><input type="checkbox" id="prace-rozne"> PRACE RÓŻNE</label>
-                    <label><input type="checkbox" id="konserwacja"> KONSERWACJA</label>
+                    <label><input type="checkbox" id="konserwacja" {% if naglowek.ZNAG_TypPrzegladu in ['A','B'] %}checked{% endif %}> KONSERWACJA</label>
                     <label><input type="checkbox" id="montaz"> MONTAŻ I URUCHOMIENIE</label>
                 </div>
             </div>
         </div>
 
-        <!-- Dane awarii - rozbicie na kolumny -->
+        <!-- Dane zadania -->
         <div class="row mb-3">
-            <div class="col-3">
-                <strong>URZĄDZENIE:</strong> <span id="urzadzenie">{{ naglowek.ZNAG_Urzadzenie or '' }}</span>
+            <div class="col-sm-4">
+                <strong>KONTRAKT:</strong> <span id="contract">{{ naglowek.ZNAG_Kontrakt or '' }}</span>
             </div>
-            <div class="col-3">
-                <strong>TONAŻ:</strong> <span id="tonaz">{{ naglowek.ZNAG_Tonaz or '' }}</span>
-            </div>
-            <div class="col-3">
-                <strong>AWARIA NR:</strong> <span id="awaria-numer">{{ naglowek.ZNAG_AwariaNumer or '' }}</span>
-            </div>
-            <div class="col-3">
-                <strong>OKR.GWAR.:</strong>
-                <label><input type="checkbox" {% if naglowek.ZNAG_OkrGwar %}checked{% endif %}> TAK</label>
-                <label><input type="checkbox" {% if not naglowek.ZNAG_OkrGwar %}checked{% endif %}> NIE</label>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-4">
-                <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
-            </div>
-            <div class="col-4">
+            <div class="col-sm-4">
                 <strong>DATA PLANOWANA:</strong> <span id="planned-date">{{ naglowek.ZNAG_DataPlanowana.strftime('%d-%m-%Y') if naglowek.ZNAG_DataPlanowana else '' }}</span>
             </div>
-            <div class="col-4">
-                <strong>PRZYPISANE OSOBY</strong>
+            <div class="col-sm-4">
+                <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
             </div>
         </div>
 
         <div class="row mb-3">
-            <div class="col-4">
-                &nbsp;
+            <div class="col-sm-4">
+                <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
             </div>
-            <div class="col-4">
-                <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
+            <div class="col-sm-4">
+                <strong>CZĘSTOTLIWOŚĆ:</strong> <span id="frequency">{{ naglowek.ZNAG_Czestotliwosc or '' }}</span>
             </div>
-            <div class="col-4">
-                <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
+            <div class="col-sm-4">
+                <strong>PRZYPISANE OSOBY:</strong> <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
             </div>
         </div>
 
         <!-- Opis prac -->
-        <div class="section-title">OPIS PRAC / SPRAWOZDANIE</div>
-        <div class="border p-3 mb-3" style="min-height: 200px;">
-            {% if opis_prac %}
-                {% for opis in opis_prac %}
-                    <p>{{ opis.ZOP_OpisPrac or '' }}</p>
+        <div class="section-title">OPIS PRAC</div>
+        <table class="form-table mb-3">
+            <thead>
+                <tr>
+                    <th width="20%">urządzenie</th>
+                    <th width="25%">opis</th>
+                    <th width="5%">ok</th>
+                    <th width="20%">urządzenie</th>
+                    <th width="25%">opis</th>
+                    <th width="5%">ok</th>
+                </tr>
+            </thead>
+            <tbody id="work-description">
+                {% for pair in pozycje|batch(2, fill_with=None) %}
+                <tr>
+                    {% for p in pair %}
+                        {% if p %}
+                            <td>{{ p.ZPOZ_UrzadzenieNumer }}</td>
+                            <td>{{ p.ZPOZ_UrzadzenieOpis }}</td>
+                            <td><input type="checkbox" {% if p.ZPOZ_UrzadzenieDoPrzegladu %}checked{% endif %}></td>
+                        {% else %}
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
                 {% endfor %}
-            {% else %}
-                <span id="work-description">{{ naglowek.ZNAG_Uwagi or '' }}</span>
-            {% endif %}
-        </div>
+            </tbody>
+        </table>
 
-        <!-- Obserwacje serwisantów -->
+        <!-- Obserwacje -->
         <div class="section-title">OBSERWACJE SERWISANTÓW</div>
         <div class="border p-3 mb-3" style="min-height: 100px;">
             <span id="observations">{{ naglowek.ZNAG_Uwagi or '' }}</span>
         </div>
 
-        <!-- Materiały -->
-        <div class="section-title">ZUŻYTE MATERIAŁY</div>
-        <table class="form-table mb-3">
-            <thead>
-                <tr>
-                    <th width="20%">KOD</th>
-                    <th width="40%">OPIS</th>
-                    <th width="15%">ILOŚĆ</th>
-                    <th width="25%">ZWR</th>
-                </tr>
-            </thead>
-            <tbody id="materials">
-                {% if materialy %}
-                    {% for mat in materialy %}
-                    <tr>
-                        <td>{{ mat.ZMAT_Kod or '' }}</td>
-                        <td>{{ mat.ZMAT_Opis or '' }}</td>
-                        <td>{{ mat.ZMAT_Ilosc or '' }}</td>
-                        <td></td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
-
-        <!-- Wykorzystane godziny - usunięto uwagi do godzin -->
+        <!-- Wykorzystane godziny -->
         <div class="section-title">WYKORZYSTANE GODZINY</div>
         <div class="dynamic-content" id="hours-content">
             <table class="table table-sm table-bordered">
@@ -319,8 +277,10 @@
 
         <!-- Stopka -->
         <div class="text-center mt-4 small">
-            <p class="mb-0">GH CRANES SP. Z O.O Tel.: +48 34 3597317 - Fax: +48 34 3598410 E-MAIL: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a7d4c2d5d0ced4e7c0cfd4c689d7cb">[email&#160;protected]</a></p>
+            <p class="mb-0">GH CRANES SP. Z O.O Tel.: +48 34 3597317 - Fax: +48 34 3598410 E-MAIL: serwis@ghsa.pl</p>
         </div>
     </div>
 
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

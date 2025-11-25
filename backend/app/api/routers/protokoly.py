@@ -50,6 +50,17 @@ def patch_pozycja(
     except RuntimeError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
+@router.patch("/naglowek/{pnagl_id}")
+def patch_naglowek(pnagl_id: int, update_dto: ProtokolNaglUpdateDTO, service: ProtokolyService = Depends(get_protokoly_service)):
+    try:
+        updated_nagl = service.patch_pnagl(pnagl_id, update_dto)
+        return updated_nagl
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
 @router.put("/{pnagl_id}")
 def zapisz(
         payload: ZapisProtokolu,
