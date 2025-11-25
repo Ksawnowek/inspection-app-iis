@@ -7,11 +7,18 @@ import subprocess
 from app.models.models import ProtokolPoz, ProtokolNagl, ZadanieNagl, ZadaniePoz, ZadanieInneOpis, ZadanieInneMaterial
 
 TEMPL_DIR = Path(__file__).resolve().parent.parent / "templates"
+LOGO_PATH = Path(__file__).resolve().parent.parent / "static" / "images" / "logo.png"
 
 env = Environment(
     loader=FileSystemLoader(str(TEMPL_DIR)),
     autoescape=select_autoescape(["html", "xml"])
 )
+
+def get_logo_url():
+    """Zwraca URL do logo lub None jeśli logo nie istnieje"""
+    if LOGO_PATH.exists():
+        return f"file://{LOGO_PATH}"
+    return None
 
 def render_zadanie_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycje: list[ZadaniePoz], serwisanci: list[str] | None = None):
     """Wyrenderuj HTML z Jinja2 i zapisz jako PDF przez wkhtmltopdf."""
@@ -21,7 +28,8 @@ def render_zadanie_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycj
         naglowek=naglowek,
         podpis_klient=podpis,
         pozycje=pozycje,
-        serwisanci=serwisanci
+        serwisanci=serwisanci,
+        logo_url=get_logo_url()
     )
 
     out = Path(out_path)
@@ -53,7 +61,8 @@ def render_awaria_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, pozycje
         pozycje=pozycje,
         serwisanci=serwisanci,
         opis_prac=opis_prac,
-        materialy=materialy
+        materialy=materialy,
+        logo_url=get_logo_url()
     )
 
     out = Path(out_path)
@@ -85,7 +94,8 @@ def render_prace_rozne_pdf(out_path: str, naglowek: ZadanieNagl, podpis: str, po
         pozycje=pozycje,
         serwisanci=serwisanci,
         opis_prac=opis_prac,
-        materialy=materialy
+        materialy=materialy,
+        logo_url=get_logo_url()
     )
 
     out = Path(out_path)
@@ -123,7 +133,8 @@ def render_protokol_pdf(out_path: str, protokol_nagl: ProtokolNagl, zadanie_nagl
         today=datetime.now().strftime("%d-%m-%Y"),
         naglowek_zadanie=zadanie_nagl,
         naglowek_protokol = protokol_nagl,
-        protokol_grupy=protokol_grupy
+        protokol_grupy=protokol_grupy,
+        logo_url=get_logo_url()
     )
 
     out = Path(out_path)
