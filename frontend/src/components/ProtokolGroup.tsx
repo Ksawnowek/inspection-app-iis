@@ -38,7 +38,7 @@ export default function ProtokolGroup({ group, items, onChange, onSyncZdjecia }:
     onChange(ppozId, partial);
   }
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <fieldset className="border rounded" style={{ marginBottom: 12 }}>
