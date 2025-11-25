@@ -88,6 +88,22 @@
             page-break-inside: avoid;
             break-inside: avoid;
         }
+        /* Sekcja z nagłówkiem i zawartością razem */
+        .section-block {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 10px;
+        }
+        .section-block .section-title {
+            margin-bottom: 0;
+        }
+        /* Zmniejszony padding dla pól tekstowych */
+        .text-field {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            min-height: 60px;
+            background-color: #f8f9fa;
+        }
         @media print {
             body {
                 background-color: white;
@@ -207,26 +223,29 @@
         </div>
 
         <!-- Opis prac -->
-        <div class="section-title no-break">OPIS PRAC / SPRAWOZDANIE</div>
-        <div class="border p-3 mb-3 auto-expand no-break" style="min-height: 200px;">
-            {% if opis_prac %}
-                {% for opis in opis_prac %}
-                    <p>{{ opis.ZOP_OpisPrac or '' }}</p>
-                {% endfor %}
-            {% else %}
-                <span id="work-description">{{ naglowek.ZNAG_Uwagi or '' }}</span>
-            {% endif %}
+        <div class="section-block">
+            <div class="section-title">OPIS PRAC / SPRAWOZDANIE</div>
+            <div class="text-field auto-expand">
+                {% if opis_prac %}
+                    {% for opis in opis_prac %}
+                        <p style="margin: 0 0 5px 0;">{{ opis.ZOP_OpisPrac or '' }}</p>
+                    {% endfor %}
+                {% else %}
+                    {{ naglowek.ZNAG_Uwagi or '' }}
+                {% endif %}
+            </div>
         </div>
 
         <!-- Obserwacje serwisantów -->
-        <div class="section-title no-break">OBSERWACJE SERWISANTÓW</div>
-        <div class="border p-3 mb-3 auto-expand no-break" style="min-height: 100px;">
-            <span id="observations">{{ naglowek.ZNAG_Uwagi or '' }}</span>
+        <div class="section-block">
+            <div class="section-title">OBSERWACJE SERWISANTÓW</div>
+            <div class="text-field auto-expand">{{ naglowek.ZNAG_Uwagi or '' }}</div>
         </div>
 
         <!-- Materiały -->
-        <div class="section-title no-break">ZUŻYTE MATERIAŁY</div>
-        <table class="form-table mb-3 no-break">
+        <div class="section-block">
+            <div class="section-title">ZUŻYTE MATERIAŁY</div>
+            <table class="form-table">
             <thead>
                 <tr>
                     <th width="20%">KOD</th>
@@ -267,10 +286,12 @@
                 {% endif %}
             </tbody>
         </table>
+        </div>
 
-        <!-- Wykorzystane godziny - usunięto uwagi do godzin -->
-        <div class="section-title no-break">WYKORZYSTANE GODZINY</div>
-        <div class="dynamic-content no-break" id="hours-content">
+        <!-- Wykorzystane godziny -->
+        <div class="section-block">
+            <div class="section-title">WYKORZYSTANE GODZINY</div>
+            <div class="dynamic-content">
             <table class="table table-sm table-bordered">
                 <tbody>
                     <tr>
@@ -303,6 +324,7 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
         </div>
 
         <!-- Zgoda klienta -->
