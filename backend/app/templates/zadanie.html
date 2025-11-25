@@ -223,13 +223,13 @@
                 </tr>
             </thead>
             <tbody id="work-description">
-                {% for pair in pozycje|selectattr('ZPOZ_UrzadzenieDoPrzegladu')|batch(2, fill_with=None) %}
+                {% for pair in pozycje|rejectattr('ZPOZ_UrzadzenieDoPrzegladu')|batch(2, fill_with=None) %}
                 <tr>
                     {% for p in pair %}
                         {% if p %}
                             <td>{{ p.ZPOZ_UrzadzenieNumer }}</td>
                             <td>{{ p.ZPOZ_UrzadzenieOpis }}</td>
-                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox"></td>
                         {% else %}
                             <td></td>
                             <td></td>
