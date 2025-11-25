@@ -37,6 +37,17 @@ class ProtokolPozUpdateDTO(BaseModel ):
     PPOZ_CzyZdjecia: Optional[bool] = None
     PPOZ_Uwagi: Optional[str] = None
 
+class ProtokolNaglUpdateDTO(BaseModel):
+    PNAGL_Klient: Optional[str] = None
+    PNAGL_Miejscowosc: Optional[str] = None
+    PNAGL_Producent: Optional[str] = None
+    PNAGL_Udzwig: Optional[str] = None
+    PNAGL_NrUrzadzenia: Optional[str] = None
+    PNAGL_ModelWciagnika: Optional[str] = None
+    PNAGL_Uwagi: Optional[str] = None
+    PNAGL_CzyZaakceptowany: Optional[bool] = None
+    PNAGL_Zaakceptowal: Optional[str] = None
+
 class ProtokolPodpisDTO(BaseModel):
     Klient: str
     Podpis: str
