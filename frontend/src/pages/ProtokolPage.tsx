@@ -25,8 +25,6 @@ export default function ProtokolPage() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [uwagiValue, setUwagiValue] = useState<string>('');
-  const [savingUwagi, setSavingUwagi] = useState(false);
-  const uwagiTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   /*
   Funcje otwierające/zamykające modala
   */
@@ -54,9 +52,9 @@ export default function ProtokolPage() {
   }, [pnaglId]);
 
   /*
-    Funkcja patchująca nagłówek protokołu (bez toastów, cicha)
+    Funkcja patchująca nagłówek protokołu
   */
-  const patchNaglSilent = useCallback(async (partial: Partial<ProtokolNaglowek>) => {
+  const patchNagl = useCallback(async (partial: Partial<ProtokolNaglowek>) => {
     if (!pnaglId) return;
 
     // Zapisanie zmian w UI
@@ -66,61 +64,33 @@ export default function ProtokolPage() {
     });
 
     try {
-      setSavingUwagi(true);
-      await patchProtokolNagl(Number(pnaglId), partial);
+      await toast.promise(
+        patchProtokolNagl(Number(pnaglId), partial),
+        {
+          loading: 'Zapisywanie uwag',
+          success: 'Uwagi zapisano pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się zapisać uwag!'}`,
+        }
+      );
     } catch (error) {
       console.error("Błąd zapisu uwag:", error);
-      toast.error('Nie udało się zapisać uwag!');
       // Przywrócenie starego stanu w razie błędu
       getProtokolNaglowek(Number(pnaglId)).then((nagl) => {
         setNaglowekData(nagl);
         setUwagiValue(nagl.PNAGL_Uwagi || '');
       });
-    } finally {
-      setSavingUwagi(false);
     }
   }, [pnaglId]);
 
   /*
-    Obsługa zmiany uwag z debounce
-  */
-  const handleUwagiChange = useCallback((value: string) => {
-    setUwagiValue(value);
-
-    // Wyczyść poprzedni timeout
-    if (uwagiTimeoutRef.current) {
-      clearTimeout(uwagiTimeoutRef.current);
-    }
-
-    // Ustaw nowy timeout do zapisu (1 sekunda po ostatniej zmianie)
-    uwagiTimeoutRef.current = setTimeout(() => {
-      patchNaglSilent({ PNAGL_Uwagi: value });
-    }, 1000);
-  }, [patchNaglSilent]);
-
-  /*
-    Zapisz uwagi natychmiast po opuszczeniu pola
+    Zapisz uwagi po opuszczeniu pola (analogicznie jak UwagiInput dla pozycji)
   */
   const handleUwagiBlur = useCallback(() => {
-    if (uwagiTimeoutRef.current) {
-      clearTimeout(uwagiTimeoutRef.current);
-    }
     // Sprawdź czy wartość się zmieniła
     if (uwagiValue !== (naglowekData?.PNAGL_Uwagi || '')) {
-      patchNaglSilent({ PNAGL_Uwagi: uwagiValue });
+      patchNagl({ PNAGL_Uwagi: uwagiValue });
     }
-  }, [uwagiValue, naglowekData?.PNAGL_Uwagi, patchNaglSilent]);
-
-  /*
-    Cleanup timeout przy unmount
-  */
-  useEffect(() => {
-    return () => {
-      if (uwagiTimeoutRef.current) {
-        clearTimeout(uwagiTimeoutRef.current);
-      }
-    };
-  }, []);
+  }, [uwagiValue, naglowekData?.PNAGL_Uwagi, patchNagl]);
 
   /*
     Funkcja patchująca pozycje, wywoływana podczas każdej zmiany na pozycji
@@ -274,13 +244,13 @@ export default function ProtokolPage() {
           </div>
           <div style={{ marginBottom:12 }}>
             <label htmlFor="pnagl-uwagi" style={{ display: 'block', fontWeight: 'bold', marginBottom: 4 }}>
-              Uwagi do protokołu: {savingUwagi && <span style={{ fontSize: '0.85em', color: '#666' }}>(zapisywanie...)</span>}
+              Uwagi do protokołu:
             </label>
             <textarea
               id="pnagl-uwagi"
               className="form-control"
               value={uwagiValue}
-              onChange={(e) => handleUwagiChange(e.target.value)}
+              onChange={(e) => setUwagiValue(e.target.value)}
               onBlur={handleUwagiBlur}
               rows={3}
               placeholder="Wpisz uwagi do protokołu..."
