@@ -69,6 +69,25 @@
             max-height: 60px;
             display: block;
         }
+        /* Automatyczne rozszerzanie tekstu */
+        .auto-expand {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        /* Zapobieganie przecinaniu między stronami */
+        .no-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .row.no-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .form-table tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
         @media print {
             body {
                 background-color: white;
@@ -148,34 +167,34 @@
             </div>
         </div>
 
-        <!-- Dane zadania -->
-        <div class="row mb-3">
-            <div class="col-4">
-                <strong>TYP PRZEGLĄDU:</strong> <span id="review-type">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
+        <!-- Dane zadania - lepszy układ -->
+        <div class="row mb-2 no-break">
+            <div class="col-6">
+                <strong>TYP PRZEGLĄDU:</strong> <span class="auto-expand">{{ naglowek.ZNAG_TypPrzegladu or '' }}</span>
             </div>
-            <div class="col-4">
-                <strong>DATA PLANOWANA:</strong> <span id="planned-date">{{ naglowek.ZNAG_DataPlanowana.strftime('%d-%m-%Y') if naglowek.ZNAG_DataPlanowana else '' }}</span>
-            </div>
-            <div class="col-4">
-                <strong>PRZYPISANE OSOBY</strong>
+            <div class="col-6">
+                <strong>DATA PLANOWANA:</strong> <span class="auto-expand">{{ naglowek.ZNAG_DataPlanowana.strftime('%d-%m-%Y') if naglowek.ZNAG_DataPlanowana else '' }}</span>
             </div>
         </div>
 
-        <div class="row mb-3">
-            <div class="col-4">
+        <div class="row mb-2 no-break">
+            <div class="col-6">
+                <strong>DATA WYKONANIA:</strong> <span class="auto-expand">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
+            </div>
+            <div class="col-6">
                 &nbsp;
             </div>
-            <div class="col-4">
-                <strong>DATA WYKONANIA:</strong> <span id="execution-date">{{ naglowek.ZNAG_DataWykonania.strftime('%d-%m-%Y') if naglowek.ZNAG_DataWykonania else '' }}</span>
-            </div>
-            <div class="col-4">
-                <span id="assigned-persons">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
+        </div>
+
+        <div class="row mb-3 no-break">
+            <div class="col-12">
+                <strong>PRZYPISANE OSOBY:</strong> <span class="auto-expand">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
             </div>
         </div>
 
         <!-- Zakres prac z oferty -->
-        <div class="section-title">ZAKRES PRAC Z OFERTY</div>
-        <div class="border p-3 mb-3" style="min-height: 200px;">
+        <div class="section-title no-break">ZAKRES PRAC Z OFERTY</div>
+        <div class="border p-3 mb-3 auto-expand no-break" style="min-height: 200px;">
             {% if opis_prac %}
                 {% for opis in opis_prac %}
                     <p>{{ opis.ZOP_OpisPrac or '' }}</p>
@@ -186,8 +205,8 @@
         </div>
 
         <!-- Opis wykonanych prac -->
-        <div class="section-title">OPIS WYKONANYCH PRAC</div>
-        <table class="form-table mb-3">
+        <div class="section-title no-break">OPIS WYKONANYCH PRAC</div>
+        <table class="form-table mb-3 no-break">
             <thead>
                 <tr>
                     <th width="20%">urządzenie</th>
@@ -229,14 +248,14 @@
         </table>
 
         <!-- Obserwacje serwisantów -->
-        <div class="section-title">OBSERWACJE SERWISANTÓW</div>
-        <div class="border p-3 mb-3" style="min-height: 100px;">
+        <div class="section-title no-break">OBSERWACJE SERWISANTÓW</div>
+        <div class="border p-3 mb-3 auto-expand no-break" style="min-height: 100px;">
             <span id="observations">{{ naglowek.ZNAG_Uwagi or '' }}</span>
         </div>
 
         <!-- Materiały -->
-        <div class="section-title">ZUŻYTE MATERIAŁY</div>
-        <table class="form-table mb-3">
+        <div class="section-title no-break">ZUŻYTE MATERIAŁY</div>
+        <table class="form-table mb-3 no-break">
             <thead>
                 <tr>
                     <th width="20%">KOD</th>
@@ -279,8 +298,8 @@
         </table>
 
         <!-- Wykorzystane godziny - usunięto uwagi do godzin -->
-        <div class="section-title">WYKORZYSTANE GODZINY</div>
-        <div class="dynamic-content" id="hours-content">
+        <div class="section-title no-break">WYKORZYSTANE GODZINY</div>
+        <div class="dynamic-content no-break" id="hours-content">
             <table class="table table-sm table-bordered">
                 <tbody>
                     <tr>
@@ -316,7 +335,7 @@
         </div>
 
         <!-- Zgoda klienta -->
-        <div class="signature-box">
+        <div class="signature-box no-break">
             <div class="row">
                 <div class="col-6">
                     <strong>Zgoda Klienta</strong>
