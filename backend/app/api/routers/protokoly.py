@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, B
 from fastapi.responses import FileResponse
 from starlette import status
 
-from app.domain.requestsDTO import ProtokolPozUpdateDTO, ProtokolPodpisDTO
+from app.domain.requestsDTO import ProtokolPozUpdateDTO, ProtokolPodpisDTO, ProtokolNaglUpdateDTO
 from app.models.models import Uzytkownik
 from app.schemas.protokoly import ZapisProtokolu
 from app.services.PDF_service import PDFService
