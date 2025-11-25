@@ -119,6 +119,27 @@
             break-inside: avoid;
             page-break-inside: avoid;
         }
+        /* Sekcje nie rozcinane między stronami */
+        .section-block {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 10px;
+        }
+        .section-block .section-title {
+            margin-bottom: 0;
+        }
+        .header-box {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .legend-box {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        .signature-section {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
     </style>
 </head>
 <body>
@@ -156,36 +177,38 @@
         <!-- Grupy operacji z pozycjami -->
         {% if protokol_grupy %}
             {% for grupa_nazwa, pozycje in protokol_grupy.items() %}
-                <div class="section-title">{{ grupa_nazwa }}</div>
-                <table class="checklist-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 52%;">OPIS</th>
-                            <th style="width: 12%;">NP</th>
-                            <th style="width: 12%;">D</th>
-                            <th style="width: 12%;">NR</th>
-                            <th style="width: 12%;">NA</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for poz in pozycje %}
-                        <tr>
-                            <td>{{ poz.PPOZ_Operacja }}</td>
-                            <td>{% if poz.PPOZ_OcenaNP %}<span class="checkbox-mark">✓</span>{% endif %}</td>
-                            <td>{% if poz.PPOZ_OcenaO %}<span class="checkbox-mark">✓</span>{% endif %}</td>
-                            <td>{% if poz.PPOZ_OcenaNR %}<span class="checkbox-mark">✓</span>{% endif %}</td>
-                            <td>{% if poz.PPOZ_OcenaNA %}<span class="checkbox-mark">✓</span>{% endif %}</td>
-                        </tr>
-                        {% if poz.PPOZ_Uwagi %}
-                        <tr>
-                            <td colspan="5" style="background-color: #fff3cd; padding: 4px;">
-                                <strong>Uwagi:</strong> {{ poz.PPOZ_Uwagi }}
-                            </td>
-                        </tr>
-                        {% endif %}
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="section-block">
+                    <div class="section-title">{{ grupa_nazwa }}</div>
+                    <table class="checklist-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 52%;">OPIS</th>
+                                <th style="width: 12%;">NP</th>
+                                <th style="width: 12%;">D</th>
+                                <th style="width: 12%;">NR</th>
+                                <th style="width: 12%;">NA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for poz in pozycje %}
+                            <tr>
+                                <td>{{ poz.PPOZ_Operacja }}</td>
+                                <td>{% if poz.PPOZ_OcenaNP %}<span class="checkbox-mark">✓</span>{% endif %}</td>
+                                <td>{% if poz.PPOZ_OcenaO %}<span class="checkbox-mark">✓</span>{% endif %}</td>
+                                <td>{% if poz.PPOZ_OcenaNR %}<span class="checkbox-mark">✓</span>{% endif %}</td>
+                                <td>{% if poz.PPOZ_OcenaNA %}<span class="checkbox-mark">✓</span>{% endif %}</td>
+                            </tr>
+                            {% if poz.PPOZ_Uwagi %}
+                            <tr>
+                                <td colspan="5" style="background-color: #fff3cd; padding: 4px;">
+                                    <strong>Uwagi:</strong> {{ poz.PPOZ_Uwagi }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             {% endfor %}
         {% else %}
             <div class="section-title">BRAK POZYCJI</div>
@@ -196,21 +219,25 @@
 
         <!-- Uwagi protokołu -->
         {% if naglowek_protokol.PNAGL_Uwagi %}
-        <div class="section-title">UWAGI</div>
-        <div style="border: 1px solid #000; padding: 8px; margin-bottom: 8px; min-height: 40px;">
-            {{ naglowek_protokol.PNAGL_Uwagi }}
+        <div class="section-block">
+            <div class="section-title">UWAGI</div>
+            <div style="border: 1px solid #000; padding: 8px; margin-bottom: 8px; min-height: 40px;">
+                {{ naglowek_protokol.PNAGL_Uwagi }}
+            </div>
         </div>
         {% endif %}
 
         <!-- Urządzenie nadaje się do dalszej eksploatacji -->
-        <div class="section-title">URZĄDZENIE NADAJE SIĘ DO DALSZEJ EKSPLOATACJI</div>
-        <div class="checkbox-section">
-            <label>
-                <span style="font-size: 1.5rem;">{% if naglowek_protokol.PNAGL_CzyZaakceptowany == False %}☑{% else %}☐{% endif %}</span> NIE
-            </label>
-            <label>
-                <span style="font-size: 1.5rem;">{% if naglowek_protokol.PNAGL_CzyZaakceptowany == True %}☑{% else %}☐{% endif %}</span> TAK
-            </label>
+        <div class="section-block">
+            <div class="section-title">URZĄDZENIE NADAJE SIĘ DO DALSZEJ EKSPLOATACJI</div>
+            <div class="checkbox-section">
+                <label>
+                    <span style="font-size: 1.5rem;">{% if naglowek_protokol.PNAGL_CzyZaakceptowany == False %}☑{% else %}☐{% endif %}</span> NIE
+                </label>
+                <label>
+                    <span style="font-size: 1.5rem;">{% if naglowek_protokol.PNAGL_CzyZaakceptowany == True %}☑{% else %}☐{% endif %}</span> TAK
+                </label>
+            </div>
         </div>
 
         <!-- Legenda -->
