@@ -88,6 +88,22 @@
             page-break-inside: avoid;
             break-inside: avoid;
         }
+        /* Sekcja z nagłówkiem i zawartością razem */
+        .section-block {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 10px;
+        }
+        .section-block .section-title {
+            margin-bottom: 0;
+        }
+        /* Zmniejszony padding dla pól tekstowych */
+        .text-field {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            min-height: 60px;
+            background-color: #f8f9fa;
+        }
         @media print {
             body {
                 background-color: white;
@@ -193,8 +209,9 @@
         </div>
 
         <!-- Opis prac - tylko urządzenia zakwalifikowane do przeglądu -->
-        <div class="section-title no-break">OPIS PRAC</div>
-        <table class="form-table mb-3 no-break">
+        <div class="section-block">
+            <div class="section-title">OPIS PRAC</div>
+            <table class="form-table">
             <thead>
                 <tr>
                     <th width="20%">urządzenie</th>
@@ -223,16 +240,18 @@
                 {% endfor %}
             </tbody>
         </table>
-
-        <!-- Obserwacje -->
-        <div class="section-title no-break">OBSERWACJE SERWISANTÓW</div>
-        <div class="border p-3 mb-3 auto-expand no-break" style="min-height: 100px;">
-            <span id="observations">{{ naglowek.ZNAG_Uwagi or '' }}</span>
         </div>
 
-        <!-- Wykorzystane godziny - usunięto uwagi do godzin -->
-        <div class="section-title no-break">WYKORZYSTANE GODZINY</div>
-        <div class="dynamic-content no-break" id="hours-content">
+        <!-- Obserwacje -->
+        <div class="section-block">
+            <div class="section-title">OBSERWACJE SERWISANTÓW</div>
+            <div class="text-field auto-expand">{{ naglowek.ZNAG_Uwagi or '' }}</div>
+        </div>
+
+        <!-- Wykorzystane godziny -->
+        <div class="section-block">
+            <div class="section-title">WYKORZYSTANE GODZINY</div>
+            <div class="dynamic-content">
             <table class="table table-sm table-bordered">
                 <tbody>
                     <tr>
@@ -265,6 +284,7 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
         </div>
 
         <!-- Zgoda klienta -->
