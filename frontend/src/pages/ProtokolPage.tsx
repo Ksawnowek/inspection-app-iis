@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz, generateProtokolPdf } from "../api/protokoly";
+import { getProtokolPoz, saveProtokol, podpiszProtokol, getProtokolNaglowek, patchProtokolPoz, generateProtokolPdf, patchProtokolNagl } from "../api/protokoly";
 import { ProtokolNaglowek, ProtokolPozycja, ProtokolResponse, ZdjecieProtokolPoz } from "../types";
 import ProtokolGroup from "../components/ProtokolGroup";
 import PhotoButton from "../components/PhotoButton";
@@ -45,6 +45,34 @@ export default function ProtokolPage() {
     if (!pnaglId) return;
     getProtokolNaglowek(Number(pnaglId)).then(setNaglowekData);
     getProtokolPoz(Number(pnaglId)).then(setData);
+  }, [pnaglId]);
+
+  /*
+    Funkcja patchująca nagłówek protokołu
+  */
+  const patchNagl = useCallback(async (partial: Partial<ProtokolNaglowek>) => {
+    if (!pnaglId) return;
+
+    // Zapisanie zmian w UI
+    setNaglowekData(prev => {
+      if (!prev) return prev;
+      return { ...prev, ...partial };
+    });
+
+    try {
+      await toast.promise(
+        patchProtokolNagl(Number(pnaglId), partial),
+        {
+          loading: 'Zapisywanie uwag',
+          success: 'Uwagi zapisano pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się zapisać uwag!'}`,
+        }
+      );
+    } catch (error) {
+      console.error("Błąd zapisu uwag:", error);
+      // Przywrócenie starego stanu w razie błędu
+      getProtokolNaglowek(Number(pnaglId)).then(setNaglowekData);
+    }
   }, [pnaglId]);
 
   /*
@@ -196,6 +224,19 @@ export default function ProtokolPage() {
             <div><b>Klient:</b> {naglowekData.PNAGL_Klient}</div>
             <div><b>Miejscowość:</b> {naglowekData.PNAGL_Miejscowosc}</div>
             <div><b>Nr urządzenia:</b> {naglowekData.PNAGL_NrUrzadzenia}</div>
+          </div>
+          <div style={{ marginBottom:12 }}>
+            <label htmlFor="pnagl-uwagi" style={{ display: 'block', fontWeight: 'bold', marginBottom: 4 }}>
+              Uwagi do protokołu:
+            </label>
+            <textarea
+              id="pnagl-uwagi"
+              className="form-control"
+              value={naglowekData.PNAGL_Uwagi || ''}
+              onChange={(e) => patchNagl({ PNAGL_Uwagi: e.target.value })}
+              rows={3}
+              placeholder="Wpisz uwagi do protokołu..."
+            />
           </div>
         </div>
         <div style={{

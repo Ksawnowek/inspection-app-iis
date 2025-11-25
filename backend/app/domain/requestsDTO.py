@@ -41,6 +41,8 @@ class ProtokolPodpisDTO(BaseModel):
     Klient: str
     Podpis: str
 
+class ProtokolNaglUpdateDTO(BaseModel):
+    PNAGL_Uwagi: Optional[str] = None
 
 class UzytkownikUpdateDTO(BaseModel):
     UZT_Imie: Optional[str] = None

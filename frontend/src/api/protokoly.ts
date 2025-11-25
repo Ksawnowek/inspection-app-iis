@@ -25,6 +25,14 @@ export async function getProtokolNaglowek(pnaglId: number): Promise<ProtokolNagl
   return data;
 }
 
+export async function patchProtokolNagl(pnaglId: number, partial: Partial<ProtokolNaglowek>): Promise<ProtokolNaglowek> {
+  const { data } = await api.patch(
+    `/protokoly/naglowek/${pnaglId}`,
+    {...partial}
+  );
+  return data;
+}
+
 
 
 
