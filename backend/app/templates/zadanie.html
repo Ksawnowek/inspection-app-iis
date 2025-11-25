@@ -29,11 +29,18 @@
         }
         .logo-section {
             background-color: #4CAF50;
-            color: white;
-            padding: 20px 5px;
-            font-size: 2rem;
-            font-weight: bold;
+            padding: 10px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+        }
+        .logo-section img {
+            max-width: 100%;
+            max-height: 100px;
+            width: auto;
+            height: auto;
         }
         .section-title {
             background-color: #000;
@@ -92,7 +99,16 @@
         <div class="row mb-3">
             <div class="col-3">
                 <div class="logo-section">
-                    GH<br>SERWIS
+                    <svg width="140" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#e0e0e0;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <text x="70" y="45" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="url(#grad1)" text-anchor="middle">GH</text>
+                        <text x="70" y="80" font-family="Arial, sans-serif" font-size="24" font-weight="600" fill="url(#grad1)" text-anchor="middle">SERWIS</text>
+                    </svg>
                 </div>
             </div>
             <div class="col-9">
