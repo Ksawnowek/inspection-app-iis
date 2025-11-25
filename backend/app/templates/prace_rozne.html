@@ -127,11 +127,13 @@
         <div class="row mb-3">
             <div class="col-3">
                 <div class="logo-section" style="display: flex; align-items: center; justify-content: center;">
-                    <img src="/backend/app/static/images/logo.png"
-                         alt="GH SERWIS"
-                         style="max-height: 80px; max-width: 100%;"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <span style="display: none;">GH<br>SERWIS</span>
+
+                    {% if logo_url %}
+                        <img src="{{ logo_url }}" alt="GH SERWIS" style="max-height: 80px; max-width: 100%;">
+                    {% else %}
+                        <span>GH<br>SERWIS</span>
+                    {% endif %}
+
                 </div>
             </div>
             <div class="col-9">
