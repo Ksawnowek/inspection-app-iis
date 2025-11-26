@@ -142,7 +142,14 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
                         <tbody>
                           <tr>
                             <td><strong>Uwagi</strong></td>
-                            <td>{z.vZNAG_Uwagi || "Brak uwag"}</td>
+                            <td style={{
+                              wordWrap: 'break-word',
+                              overflowWrap: 'break-word',
+                              wordBreak: 'break-word',
+                              maxWidth: '400px'
+                            }}>
+                              {z.vZNAG_Uwagi || "Brak uwag"}
+                            </td>
                             <td style={{ textAlign: 'right' }}>
                               <button
                                 className="btn btn-sm btn-outline-primary"
@@ -155,7 +162,14 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
 
                           <tr>
                             <td><strong>Godziny</strong></td>
-                            <td>{z.vZNAG_UwagiGodziny || "Nie zaraportowano"}</td>
+                            <td style={{
+                              wordWrap: 'break-word',
+                              overflowWrap: 'break-word',
+                              wordBreak: 'break-word',
+                              maxWidth: '400px'
+                            }}>
+                              {z.vZNAG_UwagiGodziny || "Nie zaraportowano"}
+                            </td>
                             <td style={{ textAlign: 'right' }}>
                               <button
                                 className="btn btn-sm btn-outline-primary"
@@ -182,7 +196,12 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
                       {(z.vZNAG_KategoriaKod === 'R' || z.vZNAG_KategoriaKod === 'T') && (
                         <tr>
                           <td><strong>{z.vZNAG_KategoriaKod === 'R' ? 'Dane awarii' : 'Dane prac różnych'}</strong></td>
-                          <td>
+                          <td style={{
+                            wordWrap: 'break-word',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            maxWidth: '400px'
+                          }}>
                             {z.vZNAG_Urzadzenie || z.vZNAG_Tonaz || z.vZNAG_AwariaNumer
                               ? `${z.vZNAG_Urzadzenie || '-'} / ${z.vZNAG_Tonaz || '-'} / ${z.vZNAG_AwariaNumer || '-'} / ${z.vZNAG_OkrGwar ? 'Gwarancja: TAK' : 'Gwarancja: NIE'}`
                               : "Brak danych"
