@@ -168,7 +168,17 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
                               wordBreak: 'break-word',
                               maxWidth: '400px'
                             }}>
-                              {z.vZNAG_UwagiGodziny || "Nie zaraportowano"}
+                              {(() => {
+                                const godziny = [];
+                                if (z.vZNAG_GodzSwieta) godziny.push(`Święta: ${z.vZNAG_GodzSwieta}`);
+                                if (z.vZNAG_GodzSobNoc) godziny.push(`Sob/Noc: ${z.vZNAG_GodzSobNoc}`);
+                                if (z.vZNAG_GodzDojazdu) godziny.push(`Dojazd: ${z.vZNAG_GodzDojazdu}`);
+                                if (z.vZNAG_GodzNaprawa) godziny.push(`Naprawa: ${z.vZNAG_GodzNaprawa}`);
+                                if (z.vZNAG_GodzWyjazd) godziny.push(`Wyjazd: ${z.vZNAG_GodzWyjazd}`);
+                                if (z.vZNAG_GodzDieta) godziny.push(`Dieta: ${z.vZNAG_GodzDieta}`);
+                                if (z.vZNAG_GodzKm) godziny.push(`Km: ${z.vZNAG_GodzKm}`);
+                                return godziny.length > 0 ? godziny.join(', ') : "Nie zaraportowano";
+                              })()}
                             </td>
                             <td style={{ textAlign: 'right' }}>
                               <button
