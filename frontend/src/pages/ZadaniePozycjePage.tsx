@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getZadanie, getZadaniePozycje, setDoPrzegladu, patchZadanieMultiple } from "../api/zadania";
+import { getZadanie, getZadaniePozycje, setDoPrzegladu, patchZadanieMultiple, podpiszZadanie, podpiszWszystkieProtokoly } from "../api/zadania";
 import { Zadanie, ZadaniePozycja } from "../types";
 import { Button, Form, Row, Col, Card } from 'react-bootstrap';
 import Spinner from "../components/Spinner";
 import DoPrzegladuButton from "../components/DoPrzegladuButton";
+import SignatureDialog from "../components/SignatureDialog";
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
 import TopBar from "../components/TopBar";
@@ -28,6 +29,18 @@ export default function ZadaniePozycjePage() {
   const [klientDzial, setKlientDzial] = useState("");
   const [klientDataZatw, setKlientDataZatw] = useState("");
 
+  // Pola godzin
+  const [godzSwieta, setGodzSwieta] = useState("");
+  const [godzSobNoc, setGodzSobNoc] = useState("");
+  const [godzDojazdu, setGodzDojazdu] = useState("");
+  const [godzNaprawa, setGodzNaprawa] = useState("");
+  const [godzWyjazd, setGodzWyjazd] = useState("");
+  const [godzDieta, setGodzDieta] = useState("");
+  const [godzKm, setGodzKm] = useState("");
+
+  // Modal podpisu
+  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
+
   const showDoPrzegladu = user.role === "Kierownik";
   const isSerwisant = user.role === "Serwisant";
 
@@ -42,6 +55,15 @@ export default function ZadaniePozycjePage() {
         setOpisPrac(data.vZNAG_UwagiGodziny || "");
         setKlientNazwisko(data.vZNAG_KlientNazwisko || "");
         setKlientDzial(data.vZNAG_KlientDzial || "");
+
+        // Godziny
+        setGodzSwieta(data.vZNAG_GodzSwieta || "");
+        setGodzSobNoc(data.vZNAG_GodzSobNoc || "");
+        setGodzDojazdu(data.vZNAG_GodzDojazdu || "");
+        setGodzNaprawa(data.vZNAG_GodzNaprawa || "");
+        setGodzWyjazd(data.vZNAG_GodzWyjazd || "");
+        setGodzDieta(data.vZNAG_GodzDieta || "");
+        setGodzKm(data.vZNAG_GodzKm || "");
 
         if (data.vZNAG_DataWykonania) {
           const date = new Date(data.vZNAG_DataWykonania);
@@ -84,6 +106,13 @@ export default function ZadaniePozycjePage() {
       const updateData: any = {
         ZNAG_Uwagi: obserwacje,
         ZNAG_UwagiGodziny: opisPrac,
+        ZNAG_GodzSwieta: godzSwieta,
+        ZNAG_GodzSobNoc: godzSobNoc,
+        ZNAG_GodzDojazdu: godzDojazdu,
+        ZNAG_GodzNaprawa: godzNaprawa,
+        ZNAG_GodzWyjazd: godzWyjazd,
+        ZNAG_GodzDieta: godzDieta,
+        ZNAG_GodzKm: godzKm,
       };
 
       if (dataWykonania) {
@@ -108,6 +137,29 @@ export default function ZadaniePozycjePage() {
       console.error("Błąd zapisu:", error);
     }
   };
+
+  async function handleSign(dataUrl: string, applyToAll: boolean = false) {
+    if (!znagId) return;
+
+    try {
+      await podpiszZadanie(Number(znagId), dataUrl);
+
+      // Jeśli checkbox "zastosuj do wszystkich protokołów" był zaznaczony
+      if (applyToAll) {
+        const result = await podpiszWszystkieProtokoly(Number(znagId), dataUrl, "Klient");
+        if (result.signed_count > 0) {
+          toast.success(`Podpisano ${result.signed_count} protokołów`);
+        }
+      }
+
+      // Odśwież zadanie
+      const updatedZadanie = await getZadanie(Number(znagId));
+      setZadanie(updatedZadanie);
+      setShowSignatureDialog(false);
+    } catch (error) {
+      console.error("Błąd podpisu:", error);
+    }
+  }
 
   async function toggle(zpoz: ZadaniePozycja, value: boolean) {
     try {
@@ -230,6 +282,118 @@ export default function ZadaniePozycjePage() {
           </Card.Body>
         </Card>
 
+        {/* Sekcja Godziny */}
+        <Card className="mt-3 mb-4">
+          <Card.Header>
+            <h5 className="mb-0">Godziny</h5>
+          </Card.Header>
+          <Card.Body>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Święta</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={godzSwieta}
+                    onChange={(e) => setGodzSwieta(e.target.value)}
+                    placeholder="np. 2h"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Sob/Noc</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={godzSobNoc}
+                    onChange={(e) => setGodzSobNoc(e.target.value)}
+                    placeholder="np. 3h"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Dojazd</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={godzDojazdu}
+                    onChange={(e) => setGodzDojazdu(e.target.value)}
+                    placeholder="np. 1h"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Naprawa</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={godzNaprawa}
+                    onChange={(e) => setGodzNaprawa(e.target.value)}
+                    placeholder="np. 4h"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Wyjazd</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={godzWyjazd}
+                    onChange={(e) => setGodzWyjazd(e.target.value)}
+                    placeholder="np. 2h"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Dieta</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={godzDieta}
+                    onChange={(e) => setGodzDieta(e.target.value)}
+                    placeholder="np. 50 zl"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Km</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={godzKm}
+                    onChange={(e) => setGodzKm(e.target.value)}
+                    placeholder="np. 100km"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+
+        {/* Sekcja Podpis klienta */}
+        <Card className="mt-3 mb-4">
+          <Card.Header>
+            <h5 className="mb-0">Podpis klienta</h5>
+          </Card.Header>
+          <Card.Body>
+            <div className="d-flex align-items-center justify-content-between">
+              <div>
+                <strong>Status podpisu:</strong> {zadanie?.vZNAG_KlientPodpis ? "Złożony" : "Brak podpisu"}
+              </div>
+              <Button
+                variant="primary"
+                onClick={() => setShowSignatureDialog(true)}
+              >
+                {zadanie?.vZNAG_KlientPodpis ? "Pokaż / Zmień podpis" : "Złóż podpis"}
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
+
         {/* Tabela urządzeń */}
         <h5 className="mb-3">Lista urządzeń</h5>
         <table style={{ width: "100%", borderCollapse: "collapse" }} className="table table-secondary table-striped table-shadow">
@@ -288,6 +452,14 @@ export default function ZadaniePozycjePage() {
               : "Brak urządzeń w zadaniu."}
           </div>
         )}
+
+        {/* Dialog podpisu */}
+        <SignatureDialog
+          open={showSignatureDialog}
+          onClose={() => setShowSignatureDialog(false)}
+          onSave={handleSign}
+          oldSignature={zadanie?.vZNAG_KlientPodpis || null}
+        />
       </div>
     </>
   );

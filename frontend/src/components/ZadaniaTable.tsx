@@ -50,13 +50,13 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
 
   const filteredRows = getFilteredRows();
 
-  // Podział zadań na otwarte i zamknięte (archiwalne)
-  // Archiwalne = zadanie z podpisem klienta I datą wykonania
-  const otwarte = filteredRows.filter(z => !(z.vZNAG_KlientPodpis && z.vZNAG_DataWykonania));
+  // Podział zadań na otwarte i zamknięte
+  // Zamknięte = zadanie z podpisem klienta
+  const otwarte = filteredRows.filter(z => !z.vZNAG_KlientPodpis);
   const zamkniete = filteredRows
-    .filter(z => !!(z.vZNAG_KlientPodpis && z.vZNAG_DataWykonania))
+    .filter(z => !!z.vZNAG_KlientPodpis)
     .sort((a, b) => {
-      // Sortowanie od najnowszych (malejąco)
+      // Sortowanie od najnowszych (malejąco) - jeśli jest data wykonania
       const dateA = a.vZNAG_DataWykonania ? new Date(a.vZNAG_DataWykonania).getTime() : 0;
       const dateB = b.vZNAG_DataWykonania ? new Date(b.vZNAG_DataWykonania).getTime() : 0;
       return dateB - dateA;
@@ -85,173 +85,45 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
 
   const renderTaskRow = (z: Zadanie, index: number, showDataWykonania: boolean = false) => {
     const rowClass = index % 2 !== 0 ? 'table-secondary' : '';
-    // Zadanie jest archiwalne jeśli ma podpis klienta
-    const isArchival = !!z.vZNAG_KlientPodpis;
-
-    // Dla awarii (R) i prac różnych (T) nie rozwijamy szczegółów
-    const isAwariaOrPraceRozne = z.vZNAG_KategoriaKod?.toUpperCase() === 'R' || z.vZNAG_KategoriaKod?.toUpperCase() === 'T';
 
     // Określ ścieżkę do której ma przekierować przycisk "Otwórz"
+    const isAwariaOrPraceRozne = z.vZNAG_KategoriaKod?.toUpperCase() === 'R' || z.vZNAG_KategoriaKod?.toUpperCase() === 'T';
     const openPath = isAwariaOrPraceRozne ? `/awaria/${z.vZNAG_Id}` : `/zadania/${z.vZNAG_Id}`;
 
     return (
-      <React.Fragment key={z.vZNAG_Id}>
-        <tr
-          onClick={() => !isAwariaOrPraceRozne && onRowClick(z.vZNAG_Id)}
-          style={{
-            cursor: isAwariaOrPraceRozne ? 'default' : 'pointer',
-            color: isArchival ? '#dc3545' : 'inherit',
-            fontWeight: isArchival ? 'bold' : 'normal'
-          }}
-          className={rowClass}
-        >
-          <td>
-            {z.vZNAG_Id}
-            {isArchival && <span style={{ marginLeft: '8px', fontSize: '0.8em' }}>(ARCHIWALNE)</span>}
-          </td>
-          <td>{z.vZNAG_TypPrzegladu}</td>
-          <td>{z.vZNAG_KlientNazwa}</td>
-          <td>{z.vZNAG_KlientMiasto ?? z.vZNAG_Miejscowosc ?? "-"}</td>
-          <td>{fmtDate(z.vZNAG_DataPlanowana)}</td>
-          {showDataWykonania && <td>{fmtDate(z.vZNAG_DataWykonania)}</td>}
-          <td>
-            <Button
-              variant="primary"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(openPath);
-              }}
-            >
-              Otwórz
-            </Button>
-          </td>
-          <td>
-            <Button
-              variant="primary"
-              onClick={(e) => {
-                e.stopPropagation();
-                onPdfClick(z.vZNAG_Id);
-              }}
-              disabled={busyId === z.vZNAG_Id}
-            >
-              {busyId === z.vZNAG_Id ? "Generuję…" : "PDF"}
-            </Button>
-          </td>
-          <td>
-            {!isAwariaOrPraceRozne && (expandedId === z.vZNAG_Id ? "▾" : "▸")}
-          </td>
-        </tr>
-
-        {/* Wiersz ze szczegółami - tylko dla przeglądów (kategoria P) */}
-        {!isAwariaOrPraceRozne && (
-        <tr className={`details-pane ${rowClass}`}>
-          <td colSpan={showDataWykonania ? 9 : 8} style={{ padding: 0 }}>
-            <Collapse in={expandedId === z.vZNAG_Id}>
-              <div>
-                <table className="table table-light table-striped w-100 mb-0 details-table">
-                  <thead>
-                    <tr>
-                      <th style={{ width: '30%' }}>Element</th>
-                      <th>Status / Dane</th>
-                      <th style={{ textAlign: 'right' }}>Akcja</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><strong>Uwagi</strong></td>
-                      <td style={{
-                        wordWrap: 'break-word',
-                        overflowWrap: 'break-word',
-                        wordBreak: 'break-word',
-                        maxWidth: '400px'
-                      }}>
-                        {z.vZNAG_Uwagi || "Brak uwag"}
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={(e) => { e.stopPropagation(); onShowUwagiModal(z); }}
-                        >
-                          Zarządzaj uwagami
-                        </button>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><strong>Godziny</strong></td>
-                      <td style={{
-                        wordWrap: 'break-word',
-                        overflowWrap: 'break-word',
-                        wordBreak: 'break-word',
-                        maxWidth: '400px'
-                      }}>
-                        {(() => {
-                          const godziny = [];
-                          if (z.vZNAG_GodzSwieta) godziny.push(`Święta: ${z.vZNAG_GodzSwieta}`);
-                          if (z.vZNAG_GodzSobNoc) godziny.push(`Sob/Noc: ${z.vZNAG_GodzSobNoc}`);
-                          if (z.vZNAG_GodzDojazdu) godziny.push(`Dojazd: ${z.vZNAG_GodzDojazdu}`);
-                          if (z.vZNAG_GodzNaprawa) godziny.push(`Naprawa: ${z.vZNAG_GodzNaprawa}`);
-                          if (z.vZNAG_GodzWyjazd) godziny.push(`Wyjazd: ${z.vZNAG_GodzWyjazd}`);
-                          if (z.vZNAG_GodzDieta) godziny.push(`Dieta: ${z.vZNAG_GodzDieta}`);
-                          if (z.vZNAG_GodzKm) godziny.push(`Km: ${z.vZNAG_GodzKm}`);
-                          return godziny.length > 0 ? godziny.join(', ') : "Nie zaraportowano";
-                        })()}
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={(e) => { e.stopPropagation(); onShowGodzinyModal(z); }}
-                        >
-                          Zarządzaj godzinami
-                        </button>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><strong>Podpis klienta</strong></td>
-                      <td>{z.vZNAG_KlientPodpis ? "Złożony" : "Brak podpisu"}</td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={(e) => { e.stopPropagation(); onShowPodpisModal(z); }}
-                        >
-                          Pokaż / Złóż podpis
-                        </button>
-                      </td>
-                    </tr>
-
-                    {(z.vZNAG_KategoriaKod === 'R' || z.vZNAG_KategoriaKod === 'T') && (
-                      <tr>
-                        <td><strong>{z.vZNAG_KategoriaKod === 'R' ? 'Dane awarii' : 'Dane prac różnych'}</strong></td>
-                        <td style={{
-                          wordWrap: 'break-word',
-                          overflowWrap: 'break-word',
-                          wordBreak: 'break-word',
-                          maxWidth: '400px'
-                        }}>
-                          {z.vZNAG_Urzadzenie || z.vZNAG_Tonaz || z.vZNAG_AwariaNumer
-                            ? `${z.vZNAG_Urzadzenie || '-'} / ${z.vZNAG_Tonaz || '-'} / ${z.vZNAG_AwariaNumer || '-'} / ${z.vZNAG_OkrGwar ? 'Gwarancja: TAK' : 'Gwarancja: NIE'}`
-                            : "Brak danych"
-                          }
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={(e) => { e.stopPropagation(); onShowDetailsModal(z); }}
-                          >
-                            Zarządzaj danymi
-                          </button>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </Collapse>
-          </td>
-        </tr>
-        )}
-      </React.Fragment>
+      <tr key={z.vZNAG_Id} className={rowClass}>
+        <td>
+          {z.vZNAG_Id}
+        </td>
+        <td>{z.vZNAG_TypPrzegladu}</td>
+        <td>{z.vZNAG_KlientNazwa}</td>
+        <td>{z.vZNAG_KlientMiasto ?? z.vZNAG_Miejscowosc ?? "-"}</td>
+        <td>{fmtDate(z.vZNAG_DataPlanowana)}</td>
+        {showDataWykonania && <td>{fmtDate(z.vZNAG_DataWykonania)}</td>}
+        <td>
+          <Button
+            variant="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(openPath);
+            }}
+          >
+            Otwórz
+          </Button>
+        </td>
+        <td>
+          <Button
+            variant="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPdfClick(z.vZNAG_Id);
+            }}
+            disabled={busyId === z.vZNAG_Id}
+          >
+            {busyId === z.vZNAG_Id ? "Generuję…" : "PDF"}
+          </Button>
+        </td>
+      </tr>
     );
   };
 
@@ -271,7 +143,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
               <th>Klient</th>
               <th>Miejscowość</th>
               <th>Plan</th>
-              <th colSpan={3}>Akcje</th>
+              <th colSpan={2}>Akcje</th>
             </tr>
           </thead>
           <tbody>
@@ -329,7 +201,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
                   <th>Miejscowość</th>
                   <th>Plan</th>
                   <th>Data przeglądu</th>
-                  <th colSpan={3}>Akcje</th>
+                  <th colSpan={2}>Akcje</th>
                 </tr>
               </thead>
               <tbody>
