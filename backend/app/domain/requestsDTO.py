@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
 
 class LoginRequest(BaseModel):
     login: str
@@ -27,6 +28,10 @@ class ZadanieUpdateDTO(BaseModel):
     ZNAG_Tonaz: Optional[str] = None
     ZNAG_AwariaNumer: Optional[str] = None
     ZNAG_OkrGwar: Optional[bool] = None
+    ZNAG_DataWykonania: Optional[datetime] = None
+    ZNAG_KlientNazwisko: Optional[str] = None
+    ZNAG_KlientDzial: Optional[str] = None
+    ZNAG_KlientDataZatw: Optional[datetime] = None
 
 
 class ProtokolPozUpdateDTO(BaseModel ):

@@ -50,10 +50,11 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
 
   const filteredRows = getFilteredRows();
 
-  // Podział zadań na otwarte i zamknięte
-  const otwarte = filteredRows.filter(z => !z.vZNAG_DataWykonania);
+  // Podział zadań na otwarte i zamknięte (archiwalne)
+  // Archiwalne = zadanie z podpisem klienta I datą wykonania
+  const otwarte = filteredRows.filter(z => !(z.vZNAG_KlientPodpis && z.vZNAG_DataWykonania));
   const zamkniete = filteredRows
-    .filter(z => !!z.vZNAG_DataWykonania)
+    .filter(z => !!(z.vZNAG_KlientPodpis && z.vZNAG_DataWykonania))
     .sort((a, b) => {
       // Sortowanie od najnowszych (malejąco)
       const dateA = a.vZNAG_DataWykonania ? new Date(a.vZNAG_DataWykonania).getTime() : 0;
@@ -74,8 +75,9 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
   };
 
   const konserwacja = otwarte.filter(z => z.vZNAG_KategoriaKod?.toUpperCase() === 'P');
-  const awarie = otwarte.filter(z => z.vZNAG_KategoriaKod?.toUpperCase() === 'R');
-  const praceRozne = otwarte.filter(z => z.vZNAG_KategoriaKod?.toUpperCase() === 'T');
+  const awarieIPraceRozne = otwarte.filter(z =>
+    z.vZNAG_KategoriaKod?.toUpperCase() === 'R' || z.vZNAG_KategoriaKod?.toUpperCase() === 'T'
+  );
   const inne = otwarte.filter(z => {
     const kod = z.vZNAG_KategoriaKod?.toUpperCase();
     return !kod || !['P', 'R', 'T'].includes(kod);
@@ -300,8 +302,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
       {activeTab === 'otwarte' && (
         <div>
           {renderCategorySection('Konserwacja (przeglądy)', konserwacja)}
-          {renderCategorySection('Awarie', awarie)}
-          {renderCategorySection('Prace różne', praceRozne)}
+          {renderCategorySection('Awarie i prace różne', awarieIPraceRozne)}
           {inne.length > 0 && renderCategorySection('Inne', inne)}
 
           {otwarte.length === 0 && (
