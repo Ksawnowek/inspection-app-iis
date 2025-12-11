@@ -64,13 +64,13 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
 
   // Kategoryzacja zadań otwartych
   const getCategoryName = (kategoriaKod?: string | null): string => {
-    if (!kategoriaKod) return 'Inne';
+    if (!kategoriaKod) return 'Konserwacja';
     // P = Przeglądy/Konserwacja, R = Awarie, T = Prace różne
     switch (kategoriaKod.toUpperCase()) {
       case 'P': return 'Konserwacja (przeglądy)';
       case 'R': return 'Awarie';
       case 'T': return 'Prace różne';
-      default: return 'Inne';
+      default: return 'Konserwacja';
     }
   };
 
@@ -303,7 +303,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
         <div>
           {renderCategorySection('Konserwacja (przeglądy)', konserwacja)}
           {renderCategorySection('Awarie i prace różne', awarieIPraceRozne)}
-          {inne.length > 0 && renderCategorySection('Inne', inne)}
+          {inne.length > 0 && renderCategorySection('Konserwacja', inne)}
 
           {otwarte.length === 0 && (
             <div className="alert alert-info">

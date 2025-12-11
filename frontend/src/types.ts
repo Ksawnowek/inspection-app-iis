@@ -24,6 +24,9 @@ export type Zadanie = {
   vZNAG_Tonaz?: string | null;
   vZNAG_AwariaNumer?: string | null;
   vZNAG_OkrGwar?: boolean | null;
+  vZNAG_KlientNazwisko?: string | null;
+  vZNAG_KlientDzial?: string | null;
+  vZNAG_KlientDataZatw?: string | null;
 };
 
 

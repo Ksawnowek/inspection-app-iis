@@ -75,7 +75,10 @@ export default function ZadaniaPage() {
 
       // Jeśli checkbox "zastosuj do wszystkich protokołów" był zaznaczony
       if (applyToAll) {
-        await podpiszWszystkieProtokoly(zadanieId, dataUrl, "Klient");
+        const result = await podpiszWszystkieProtokoly(zadanieId, dataUrl, "Klient");
+        if (result.signed_count > 0) {
+          toast.success(`Podpisano ${result.signed_count} protokołów`);
+        }
       }
 
       handleClose();

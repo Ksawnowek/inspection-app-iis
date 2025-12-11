@@ -165,6 +165,7 @@ class ZadaniaRepo:
             "vZNAG_KlientNazwa": zadanie.ZNAG_KlientNazwa,
             "vZNAG_KlientMiasto": zadanie.ZNAG_KlientMiasto,
             "vZNAG_DataPlanowana": zadanie.ZNAG_DataPlanowana,
+            "vZNAG_DataWykonania": zadanie.ZNAG_DataWykonania,
             "vZNAG_Uwagi": zadanie.ZNAG_Uwagi,
             "vZNAG_UwagiGodziny": zadanie.ZNAG_UwagiGodziny,
             "vZNAG_KlientPodpis": zadanie.ZNAG_KlientPodpis,
@@ -175,6 +176,9 @@ class ZadaniaRepo:
             "vZNAG_GodzWyjazd": zadanie.ZNAG_GodzWyjazd,
             "vZNAG_GodzDieta": zadanie.ZNAG_GodzDieta,
             "vZNAG_GodzKm": zadanie.ZNAG_GodzKm,
+            "vZNAG_KlientNazwisko": zadanie.ZNAG_KlientNazwisko,
+            "vZNAG_KlientDzial": zadanie.ZNAG_KlientDzial,
+            "vZNAG_KlientDataZatw": zadanie.ZNAG_KlientDataZatw,
         }
 
     def get_opis_prac(self, znag_id: int) -> List[ZadanieInneOpis]:

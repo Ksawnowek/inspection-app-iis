@@ -39,11 +39,18 @@ export default function ZadaniePozycjePage() {
       .then((data) => {
         setZadanie(data);
         setObserwacje(data.vZNAG_Uwagi || "");
-        setOpisPrac(data.vZNAG_UwagiGodziny || ""); // Tymczasowo używamy tego pola
+        setOpisPrac(data.vZNAG_UwagiGodziny || "");
+        setKlientNazwisko(data.vZNAG_KlientNazwisko || "");
+        setKlientDzial(data.vZNAG_KlientDzial || "");
 
         if (data.vZNAG_DataWykonania) {
           const date = new Date(data.vZNAG_DataWykonania);
           setDataWykonania(formatDateTimeLocal(date));
+        }
+
+        if (data.vZNAG_KlientDataZatw) {
+          const date = new Date(data.vZNAG_KlientDataZatw);
+          setKlientDataZatw(formatDateTimeLocal(date));
         }
       })
       .catch(err => console.error("Błąd pobierania zadania:", err));
