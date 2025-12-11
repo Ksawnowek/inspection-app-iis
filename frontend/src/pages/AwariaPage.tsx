@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getZadanie, patchZadanieMultiple } from "../api/zadania";
+import { getZadanie, patchZadanieMultiple, podpiszZadanie } from "../api/zadania";
 import { Zadanie } from "../types";
 import Spinner from "../components/Spinner";
+import SignatureDialog from "../components/SignatureDialog";
 import TopBar from "../components/TopBar";
 import BackButton from "../components/BackButton";
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, Row, Col, Card } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 
 export default function AwariaPage() {
@@ -28,6 +29,9 @@ export default function AwariaPage() {
   const [klientDzial, setKlientDzial] = useState("");
   const [klientDataZatw, setKlientDataZatw] = useState("");
 
+  // Modal podpisu
+  const [showSignatureDialog, setShowSignatureDialog] = useState(false);
+
   useEffect(() => {
     if (!znagId) return;
     getZadanie(Number(znagId))
@@ -42,6 +46,8 @@ export default function AwariaPage() {
         setGodzWyjazd(data.vZNAG_GodzWyjazd || "");
         setGodzDieta(data.vZNAG_GodzDieta || "");
         setGodzKm(data.vZNAG_GodzKm || "");
+        setKlientNazwisko(data.vZNAG_KlientNazwisko || "");
+        setKlientDzial(data.vZNAG_KlientDzial || "");
 
         // Formatuj datę dla input type="datetime-local"
         if (data.vZNAG_DataWykonania) {
@@ -49,8 +55,10 @@ export default function AwariaPage() {
           setDataWykonania(formatDateTimeLocal(date));
         }
 
-        // Pole klienta (z widoku v_Zadania mogą nie być dostępne, trzeba je pobrać z naglowek_pelny)
-        // TODO: sprawdzić czy te pola są w odpowiedzi API
+        if (data.vZNAG_KlientDataZatw) {
+          const date = new Date(data.vZNAG_KlientDataZatw);
+          setKlientDataZatw(formatDateTimeLocal(date));
+        }
       })
       .finally(() => setLoading(false));
   }, [znagId]);
@@ -63,6 +71,23 @@ export default function AwariaPage() {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
+
+  async function handleSign(dataUrl: string, applyToAll: boolean = false) {
+    if (!znagId) return;
+
+    try {
+      await podpiszZadanie(Number(znagId), dataUrl);
+
+      // Odśwież zadanie
+      const updatedZadanie = await getZadanie(Number(znagId));
+      setZadanie(updatedZadanie);
+      setShowSignatureDialog(false);
+      toast.success('Podpis zapisany pomyślnie!');
+    } catch (error) {
+      console.error("Błąd podpisu:", error);
+      toast.error('Błąd zapisu podpisu');
+    }
+  }
 
   const handleSave = async () => {
     if (!znagId) return;
@@ -277,6 +302,24 @@ export default function AwariaPage() {
                 </Col>
               </Row>
 
+              {/* Podpis klienta */}
+              <h6 className="mt-4 mb-3">Podpis klienta</h6>
+              <Card className="mb-3">
+                <Card.Body>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <div>
+                      <strong>Status podpisu:</strong> {zadanie?.vZNAG_KlientPodpis ? "Złożony" : "Brak podpisu"}
+                    </div>
+                    <Button
+                      variant="primary"
+                      onClick={() => setShowSignatureDialog(true)}
+                    >
+                      {zadanie?.vZNAG_KlientPodpis ? "Pokaż / Zmień podpis" : "Złóż podpis"}
+                    </Button>
+                  </div>
+                </Card.Body>
+              </Card>
+
               {/* Przyciski akcji */}
               <div className="d-flex gap-2 mt-4">
                 <Button
@@ -290,6 +333,14 @@ export default function AwariaPage() {
             </Form>
           </div>
         </div>
+
+        {/* Dialog podpisu */}
+        <SignatureDialog
+          open={showSignatureDialog}
+          onClose={() => setShowSignatureDialog(false)}
+          onSave={handleSign}
+          oldSignature={zadanie?.vZNAG_KlientPodpis || null}
+        />
       </div>
     </>
   );
