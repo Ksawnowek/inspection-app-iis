@@ -1,23 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import SignatureCanvas from "react-signature-canvas";
 import toast from 'react-hot-toast';
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSave: (dataUrl: string) => void;
+  onSave: (dataUrl: string, applyToAll?: boolean) => void;
   oldSignature?: string | null;
 };
 
-export default function SignatureDialog({ 
-  open, 
-  onClose, 
-  onSave, 
-  oldSignature 
+export default function SignatureDialog({
+  open,
+  onClose,
+  onSave,
+  oldSignature
 }: Props) {
   const ref = useRef<SignatureCanvas>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [applyToAll, setApplyToAll] = useState(false);
+
   useEffect(() => {
     if (open && ref.current && oldSignature) {
       ref.current.fromDataURL(oldSignature);
@@ -25,17 +27,17 @@ export default function SignatureDialog({
   }, [open, oldSignature]);
 
   const handleSave = async (data: string) => {
-      setIsSaving(true); 
+      setIsSaving(true);
       try {
         await toast.promise(
-          onSave(data), 
+          onSave(data, applyToAll),
           {
             loading: 'Zapisywanie...',
             success: 'Zapisano pomyślnie!',
             error: (err) => `Błąd: ${err.message || 'Nie udało się zapisać'}`,
           }
         );
-        onClose(); 
+        onClose();
       } catch (error) {
         console.error("Błąd zapisu:", error);
       } finally {
@@ -55,6 +57,18 @@ export default function SignatureDialog({
           penColor="black"
           canvasProps={{ width: 380, height: 200, style: { border: "1px solid #ccc" } }}
         />
+
+        {/* Checkbox do zastosowania podpisu do wszystkich protokołów */}
+        <Form.Group className="mt-3 mb-2">
+          <Form.Check
+            type="checkbox"
+            id="apply-to-all-checkbox"
+            label="Zastosuj do wszystkich protokołów"
+            checked={applyToAll}
+            onChange={(e) => setApplyToAll(e.target.checked)}
+          />
+        </Form.Group>
+
         <div style={{ display:"flex", gap:8, marginTop:8 }}>
           <Button
             variant = "primary"
@@ -71,16 +85,16 @@ export default function SignatureDialog({
           >
             {isSaving ? "Zapisywanie..." : "Zapisz"}
           </Button>
-          
+
           <Button
-          variant="secondary" 
+          variant="secondary"
           onClick={() => ref.current?.clear()}
           >
             Wyczyść
           </Button>
-          
+
           <Button
-            variant="secondary" 
+            variant="secondary"
             onClick={onClose}
             >
             Anuluj

@@ -104,3 +104,14 @@ class ProtokolyRepo:
 
     def get_poz_by_id(self, ppoz_id):
         return self.session.get(ProtokolPoz, ppoz_id)
+
+    def get_all_protokol_ids_for_zadanie(self, znag_id: int) -> List[int]:
+        """Pobiera wszystkie ID protokołów dla danego zadania."""
+        stmt = text("""
+            SELECT PNAGL_Id
+            FROM dbo.ProtokolNagl pn
+            INNER JOIN dbo.ZadaniePoz zp ON pn.PNAGL_ZPOZ_Id = zp.ZPOZ_Id
+            WHERE zp.ZPOZ_ZNAG_Id = :znag_id
+        """)
+        result = self.session.execute(stmt, {"znag_id": znag_id})
+        return [row[0] for row in result.fetchall()]

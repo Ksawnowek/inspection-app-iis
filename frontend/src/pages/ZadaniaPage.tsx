@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getZadania, generateZadaniePdf, patchZadanie, patchZadanieMultiple, podpiszZadanie } from "../api/zadania";
+import { getZadania, generateZadaniePdf, patchZadanie, patchZadanieMultiple, podpiszZadanie, podpiszWszystkieProtokoly } from "../api/zadania";
 import { Zadanie } from "../types";
 import Spinner from "../components/Spinner";
 import ZadaniaTable from "../components/ZadaniaTable"; 
@@ -68,10 +68,16 @@ export default function ZadaniaPage() {
     );
   };
 
-  async function handleSign(dataUrl: string) {
+  async function handleSign(dataUrl: string, applyToAll: boolean = false) {
       if (!selectedZadanie) throw new Error("Nie wybrano zadania");
       const zadanieId = selectedZadanie.vZNAG_Id;
       await podpiszZadanie(zadanieId, dataUrl);
+
+      // Jeśli checkbox "zastosuj do wszystkich protokołów" był zaznaczony
+      if (applyToAll) {
+        await podpiszWszystkieProtokoly(zadanieId, dataUrl, "Klient");
+      }
+
       handleClose();
       setRows(prevRows =>
       prevRows.map(row =>

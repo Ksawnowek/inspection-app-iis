@@ -101,3 +101,15 @@ export async function patchZadanieMultiple(
   );
   return data;
 }
+
+export async function podpiszWszystkieProtokoly(
+  znagId: number,
+  podpisKlienta: string,
+  klient: string = "Klient"
+): Promise<{ ok: boolean; signed_count: number }> {
+  const { data } = await api.post(
+    `/zadania/${znagId}/podpis-wszystkie-protokoly`,
+    { Podpis: podpisKlienta, Klient: klient }
+  );
+  return data;
+}

@@ -4,9 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.responses import FileResponse
 from starlette import status
 from app.dependencies import get_current_user_from_cookie, get_zadania_service, get_pdf_service, any_logged_in_user, \
-    kierownik_only
-from app.domain.requestsDTO import ZadanieUpdateDTO
+    kierownik_only, get_protokoly_service
+from app.domain.requestsDTO import ZadanieUpdateDTO, ProtokolPodpisDTO
 from app.models.models import Uzytkownik
+from app.services.protokoly_service import ProtokolyService
+from app.errors import SaveError
 from app.schemas.user import User
 from app.services.PDF_service import PDFService
 from app.services.pdf_zadanie_service import render_zadanie_pdf  # Używamy tylko aliasu
@@ -54,6 +56,24 @@ def patch_zadania(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@router.post("/{znag_id}/podpis-wszystkie-protokoly")
+def podpisz_wszystkie_protokoly(
+        znag_id: int,
+        podpis_dto: ProtokolPodpisDTO,
+        protokoly_service: ProtokolyService = Depends(get_protokoly_service),
+        user: Uzytkownik = Depends(any_logged_in_user)
+):
+    """Podpisuje wszystkie protokoły powiązane z danym zadaniem."""
+    try:
+        result = protokoly_service.zapisz_podpis_dla_wszystkich_protokolow_zadania(
+            znag_id,
+            podpis_dto.Podpis,
+            podpis_dto.Klient
+        )
+        return result
+    except SaveError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/{znag_id}")
 def get_zadanie(
