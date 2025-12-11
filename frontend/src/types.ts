@@ -4,13 +4,15 @@ export type Zadanie = {
   vZNAG_Id: number;
   vZNAG_TypPrzegladu: string;
   vZNAG_KategoriaKod?: string | null;
+  vZNAG_KategoriaOpis?: string | null;
   vZNAG_KlientNazwa: string;
   vZNAG_KlientMiasto?: string;   // w widoku
   vZNAG_Miejscowosc?: string;    // jeśli gdzieś indziej używasz
   vZNAG_DataPlanowana?: string | null;
+  vZNAG_DataWykonania?: string | null;  // data przeglądu dla zamkniętych
   vZNAG_Uwagi?: string | null;
   vZNAG_UwagiGodziny?: string | null;
-  vZNAG_KlientPodpis?: string | null;
+  vZNAG_KlientPodpis?: string | null;  // zadanie z podpisem = archiwalne
   vZNAG_GodzSwieta?: string | null;
   vZNAG_GodzSobNoc?: string | null;
   vZNAG_GodzDojazdu?: string | null;

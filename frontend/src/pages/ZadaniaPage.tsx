@@ -107,7 +107,10 @@ export default function ZadaniaPage() {
   const handleSearchSubmit = () => {
     let visibleRows = rows.filter(z => {
       const idAsString = String(z.vZNAG_Id);
-      return idAsString.startsWith(searchPhrase);
+      const klientNazwa = (z.vZNAG_KlientNazwa || '').toLowerCase();
+      const searchLower = searchPhrase.toLowerCase();
+
+      return idAsString.startsWith(searchPhrase) || klientNazwa.includes(searchLower);
     });
     if (visibleRows.length === 1) { // Poprawione porównanie
       let href = '/zadania/' + visibleRows[0].vZNAG_Id;
@@ -139,7 +142,7 @@ export default function ZadaniaPage() {
               handleSearchSubmit();
             }
           }}
-          placeholder="Wyszukaj ID..."
+          placeholder="Wyszukaj ID lub nazwę kontrahenta..."
         />
       </div>
 
