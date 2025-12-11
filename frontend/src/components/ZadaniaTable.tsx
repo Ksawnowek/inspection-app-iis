@@ -86,12 +86,18 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
     // Zadanie jest archiwalne jeśli ma podpis klienta
     const isArchival = !!z.vZNAG_KlientPodpis;
 
+    // Dla awarii (R) i prac różnych (T) nie rozwijamy szczegółów
+    const isAwariaOrPraceRozne = z.vZNAG_KategoriaKod?.toUpperCase() === 'R' || z.vZNAG_KategoriaKod?.toUpperCase() === 'T';
+
+    // Określ ścieżkę do której ma przekierować przycisk "Otwórz"
+    const openPath = isAwariaOrPraceRozne ? `/awaria/${z.vZNAG_Id}` : `/zadania/${z.vZNAG_Id}`;
+
     return (
       <React.Fragment key={z.vZNAG_Id}>
         <tr
-          onClick={() => onRowClick(z.vZNAG_Id)}
+          onClick={() => !isAwariaOrPraceRozne && onRowClick(z.vZNAG_Id)}
           style={{
-            cursor: 'pointer',
+            cursor: isAwariaOrPraceRozne ? 'default' : 'pointer',
             color: isArchival ? '#dc3545' : 'inherit',
             fontWeight: isArchival ? 'bold' : 'normal'
           }}
@@ -111,7 +117,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
               variant="primary"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/zadania/${z.vZNAG_Id}`);
+                navigate(openPath);
               }}
             >
               Otwórz
@@ -130,10 +136,12 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
             </Button>
           </td>
           <td>
-            {expandedId === z.vZNAG_Id ? "▾" : "▸"}
+            {!isAwariaOrPraceRozne && (expandedId === z.vZNAG_Id ? "▾" : "▸")}
           </td>
         </tr>
 
+        {/* Wiersz ze szczegółami - tylko dla przeglądów (kategoria P) */}
+        {!isAwariaOrPraceRozne && (
         <tr className={`details-pane ${rowClass}`}>
           <td colSpan={showDataWykonania ? 9 : 8} style={{ padding: 0 }}>
             <Collapse in={expandedId === z.vZNAG_Id}>
@@ -240,6 +248,7 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
             </Collapse>
           </td>
         </tr>
+        )}
       </React.Fragment>
     );
   };
