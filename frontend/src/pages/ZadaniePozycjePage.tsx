@@ -43,6 +43,7 @@ export default function ZadaniePozycjePage() {
 
   const showDoPrzegladu = user.role === "Kierownik";
   const isSerwisant = user.role === "Serwisant";
+  const isPodpisany = zadanie?.vZNAG_KlientPodpis ? true : false;
 
   useEffect(() => {
     if (!znagId) return;
@@ -138,6 +139,33 @@ export default function ZadaniePozycjePage() {
     }
   };
 
+  const handleSaveHours = async () => {
+    if (!znagId) return;
+
+    try {
+      const updateData: any = {
+        ZNAG_GodzSwieta: godzSwieta,
+        ZNAG_GodzSobNoc: godzSobNoc,
+        ZNAG_GodzDojazdu: godzDojazdu,
+        ZNAG_GodzNaprawa: godzNaprawa,
+        ZNAG_GodzWyjazd: godzWyjazd,
+        ZNAG_GodzDieta: godzDieta,
+        ZNAG_GodzKm: godzKm,
+      };
+
+      await toast.promise(
+        patchZadanieMultiple(Number(znagId), updateData),
+        {
+          loading: 'Zapisuję godziny...',
+          success: 'Godziny zapisane pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się zapisać'}`,
+        }
+      );
+    } catch (error) {
+      console.error("Błąd zapisu godzin:", error);
+    }
+  };
+
   const handlePrint = async () => {
     if (!znagId) return;
 
@@ -228,6 +256,7 @@ export default function ZadaniePozycjePage() {
                   value={obserwacje}
                   onChange={(e) => setObserwacje(e.target.value)}
                   placeholder="Wprowadź obserwacje..."
+                  disabled={isPodpisany}
                 />
               </Form.Group>
 
@@ -240,6 +269,7 @@ export default function ZadaniePozycjePage() {
                   value={opisPrac}
                   onChange={(e) => setOpisPrac(e.target.value)}
                   placeholder="Wprowadź opis prac..."
+                  disabled={isPodpisany}
                 />
               </Form.Group>
 
@@ -251,6 +281,7 @@ export default function ZadaniePozycjePage() {
                   type="datetime-local"
                   value={dataWykonania}
                   onChange={(e) => setDataWykonania(e.target.value)}
+                  disabled={isPodpisany}
                 />
               </Form.Group>
 
@@ -265,6 +296,7 @@ export default function ZadaniePozycjePage() {
                       value={klientNazwisko}
                       onChange={(e) => setKlientNazwisko(e.target.value)}
                       placeholder="Nazwisko klienta"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -276,6 +308,7 @@ export default function ZadaniePozycjePage() {
                       value={klientDzial}
                       onChange={(e) => setKlientDzial(e.target.value)}
                       placeholder="Dział klienta"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -286,20 +319,30 @@ export default function ZadaniePozycjePage() {
                       type="datetime-local"
                       value={klientDataZatw}
                       onChange={(e) => setKlientDataZatw(e.target.value)}
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
               </Row>
 
               {/* Przyciski akcji */}
-              <div className="d-flex gap-2">
-                <Button variant="primary" onClick={handleSave}>
-                  Zapisz zmiany
-                </Button>
-                <Button variant="secondary" onClick={handlePrint}>
-                  Drukuj zadanie
-                </Button>
-              </div>
+              {!isPodpisany && (
+                <div className="d-flex gap-2">
+                  <Button variant="primary" onClick={handleSave}>
+                    Zapisz zmiany
+                  </Button>
+                  <Button variant="secondary" onClick={handlePrint}>
+                    Drukuj zadanie
+                  </Button>
+                </div>
+              )}
+              {isPodpisany && (
+                <div className="d-flex gap-2">
+                  <Button variant="secondary" onClick={handlePrint}>
+                    Drukuj zadanie
+                  </Button>
+                </div>
+              )}
             </Form>
           </Card.Body>
         </Card>
@@ -319,6 +362,7 @@ export default function ZadaniePozycjePage() {
                     value={godzSwieta}
                     onChange={(e) => setGodzSwieta(e.target.value)}
                     placeholder="np. 2h"
+                    disabled={isPodpisany}
                   />
                 </Form.Group>
               </Col>
@@ -330,6 +374,7 @@ export default function ZadaniePozycjePage() {
                     value={godzSobNoc}
                     onChange={(e) => setGodzSobNoc(e.target.value)}
                     placeholder="np. 3h"
+                    disabled={isPodpisany}
                   />
                 </Form.Group>
               </Col>
@@ -341,6 +386,7 @@ export default function ZadaniePozycjePage() {
                     value={godzDojazdu}
                     onChange={(e) => setGodzDojazdu(e.target.value)}
                     placeholder="np. 1h"
+                    disabled={isPodpisany}
                   />
                 </Form.Group>
               </Col>
@@ -354,6 +400,7 @@ export default function ZadaniePozycjePage() {
                     value={godzNaprawa}
                     onChange={(e) => setGodzNaprawa(e.target.value)}
                     placeholder="np. 4h"
+                    disabled={isPodpisany}
                   />
                 </Form.Group>
               </Col>
@@ -365,6 +412,7 @@ export default function ZadaniePozycjePage() {
                     value={godzWyjazd}
                     onChange={(e) => setGodzWyjazd(e.target.value)}
                     placeholder="np. 2h"
+                    disabled={isPodpisany}
                   />
                 </Form.Group>
               </Col>
@@ -376,6 +424,7 @@ export default function ZadaniePozycjePage() {
                     value={godzDieta}
                     onChange={(e) => setGodzDieta(e.target.value)}
                     placeholder="np. 50 zl"
+                    disabled={isPodpisany}
                   />
                 </Form.Group>
               </Col>
@@ -389,10 +438,20 @@ export default function ZadaniePozycjePage() {
                     value={godzKm}
                     onChange={(e) => setGodzKm(e.target.value)}
                     placeholder="np. 100km"
+                    disabled={isPodpisany}
                   />
                 </Form.Group>
               </Col>
             </Row>
+
+            {/* Przycisk Zapisz dla godzin */}
+            {!isPodpisany && (
+              <div className="d-flex gap-2">
+                <Button variant="primary" onClick={handleSaveHours}>
+                  Zapisz
+                </Button>
+              </div>
+            )}
           </Card.Body>
         </Card>
 
@@ -406,12 +465,19 @@ export default function ZadaniePozycjePage() {
               <div>
                 <strong>Status podpisu:</strong> {zadanie?.vZNAG_KlientPodpis ? "Złożony" : "Brak podpisu"}
               </div>
-              <Button
-                variant="primary"
-                onClick={() => setShowSignatureDialog(true)}
-              >
-                {zadanie?.vZNAG_KlientPodpis ? "Pokaż / Zmień podpis" : "Złóż podpis"}
-              </Button>
+              {!isPodpisany && (
+                <Button
+                  variant="primary"
+                  onClick={() => setShowSignatureDialog(true)}
+                >
+                  Złóż podpis
+                </Button>
+              )}
+              {isPodpisany && zadanie?.vZNAG_KlientPodpis && (
+                <div style={{ maxWidth: '200px', border: '1px solid #ccc', padding: '5px' }}>
+                  <img src={zadanie.vZNAG_KlientPodpis} alt="Podpis klienta" style={{ width: '100%' }} />
+                </div>
+              )}
             </div>
           </Card.Body>
         </Card>

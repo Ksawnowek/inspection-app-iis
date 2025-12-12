@@ -31,6 +31,7 @@ export default function AwariaPage() {
 
   // Modal podpisu
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
+  const isPodpisany = zadanie?.vZNAG_KlientPodpis ? true : false;
 
   useEffect(() => {
     if (!znagId) return;
@@ -130,6 +131,33 @@ export default function AwariaPage() {
     }
   };
 
+  const handleSaveHours = async () => {
+    if (!znagId) return;
+
+    try {
+      const updateData: any = {
+        ZNAG_GodzSwieta: godzSwieta,
+        ZNAG_GodzSobNoc: godzSobNoc,
+        ZNAG_GodzDojazdu: godzDojazdu,
+        ZNAG_GodzNaprawa: godzNaprawa,
+        ZNAG_GodzWyjazd: godzWyjazd,
+        ZNAG_GodzDieta: godzDieta,
+        ZNAG_GodzKm: godzKm,
+      };
+
+      await toast.promise(
+        patchZadanieMultiple(Number(znagId), updateData),
+        {
+          loading: 'Zapisuję godziny...',
+          success: 'Godziny zapisane pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się zapisać'}`,
+        }
+      );
+    } catch (error) {
+      console.error("Błąd zapisu godzin:", error);
+    }
+  };
+
   if (loading) return <Spinner />;
   if (!zadanie) return <div className="alert alert-danger">Nie znaleziono zadania</div>;
 
@@ -163,6 +191,7 @@ export default function AwariaPage() {
                   value={uwagi}
                   onChange={(e) => setUwagi(e.target.value)}
                   placeholder="Wprowadź uwagi..."
+                  disabled={isPodpisany}
                 />
               </Form.Group>
 
@@ -177,6 +206,7 @@ export default function AwariaPage() {
                       value={godzSwieta}
                       onChange={(e) => setGodzSwieta(e.target.value)}
                       placeholder="0"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -188,6 +218,7 @@ export default function AwariaPage() {
                       value={godzSobNoc}
                       onChange={(e) => setGodzSobNoc(e.target.value)}
                       placeholder="0"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -202,6 +233,7 @@ export default function AwariaPage() {
                       value={godzDojazdu}
                       onChange={(e) => setGodzDojazdu(e.target.value)}
                       placeholder="0"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -213,6 +245,7 @@ export default function AwariaPage() {
                       value={godzNaprawa}
                       onChange={(e) => setGodzNaprawa(e.target.value)}
                       placeholder="0"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -227,6 +260,7 @@ export default function AwariaPage() {
                       value={godzWyjazd}
                       onChange={(e) => setGodzWyjazd(e.target.value)}
                       placeholder="0"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -238,6 +272,7 @@ export default function AwariaPage() {
                       value={godzDieta}
                       onChange={(e) => setGodzDieta(e.target.value)}
                       placeholder="0"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -249,10 +284,20 @@ export default function AwariaPage() {
                       value={godzKm}
                       onChange={(e) => setGodzKm(e.target.value)}
                       placeholder="0"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
               </Row>
+
+              {/* Przycisk Zapisz dla godzin */}
+              {!isPodpisany && (
+                <div className="d-flex gap-2 mb-3">
+                  <Button variant="primary" onClick={handleSaveHours}>
+                    Zapisz
+                  </Button>
+                </div>
+              )}
 
               {/* Data wykonania */}
               <h6 className="mt-4 mb-3">Data realizacji przeglądu</h6>
@@ -262,6 +307,7 @@ export default function AwariaPage() {
                   type="datetime-local"
                   value={dataWykonania}
                   onChange={(e) => setDataWykonania(e.target.value)}
+                  disabled={isPodpisany}
                 />
               </Form.Group>
 
@@ -276,6 +322,7 @@ export default function AwariaPage() {
                       value={klientNazwisko}
                       onChange={(e) => setKlientNazwisko(e.target.value)}
                       placeholder="Nazwisko klienta"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -287,6 +334,7 @@ export default function AwariaPage() {
                       value={klientDzial}
                       onChange={(e) => setKlientDzial(e.target.value)}
                       placeholder="Dział klienta"
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -297,6 +345,7 @@ export default function AwariaPage() {
                       type="datetime-local"
                       value={klientDataZatw}
                       onChange={(e) => setKlientDataZatw(e.target.value)}
+                      disabled={isPodpisany}
                     />
                   </Form.Group>
                 </Col>
@@ -310,26 +359,35 @@ export default function AwariaPage() {
                     <div>
                       <strong>Status podpisu:</strong> {zadanie?.vZNAG_KlientPodpis ? "Złożony" : "Brak podpisu"}
                     </div>
-                    <Button
-                      variant="primary"
-                      onClick={() => setShowSignatureDialog(true)}
-                    >
-                      {zadanie?.vZNAG_KlientPodpis ? "Pokaż / Zmień podpis" : "Złóż podpis"}
-                    </Button>
+                    {!isPodpisany && (
+                      <Button
+                        variant="primary"
+                        onClick={() => setShowSignatureDialog(true)}
+                      >
+                        Złóż podpis
+                      </Button>
+                    )}
+                    {isPodpisany && zadanie?.vZNAG_KlientPodpis && (
+                      <div style={{ maxWidth: '200px', border: '1px solid #ccc', padding: '5px' }}>
+                        <img src={zadanie.vZNAG_KlientPodpis} alt="Podpis klienta" style={{ width: '100%' }} />
+                      </div>
+                    )}
                   </div>
                 </Card.Body>
               </Card>
 
               {/* Przyciski akcji */}
-              <div className="d-flex gap-2 mt-4">
-                <Button
-                  variant="primary"
-                  onClick={handleSave}
-                  disabled={saving}
-                >
-                  {saving ? 'Zapisuję...' : 'Zapisz zmiany'}
-                </Button>
-              </div>
+              {!isPodpisany && (
+                <div className="d-flex gap-2 mt-4">
+                  <Button
+                    variant="primary"
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? 'Zapisuję...' : 'Zapisz zmiany'}
+                  </Button>
+                </div>
+              )}
             </Form>
           </div>
         </div>

@@ -90,6 +90,9 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
     const isAwariaOrPraceRozne = z.vZNAG_KategoriaKod?.toUpperCase() === 'R' || z.vZNAG_KategoriaKod?.toUpperCase() === 'T';
     const openPath = isAwariaOrPraceRozne ? `/awaria/${z.vZNAG_Id}` : `/zadania/${z.vZNAG_Id}`;
 
+    // Zamknięte zadania to te z podpisem (showDataWykonania wskazuje na zamknięte)
+    const isZamkniete = showDataWykonania;
+
     return (
       <tr key={z.vZNAG_Id} className={rowClass}>
         <td>
@@ -101,15 +104,17 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
         <td>{fmtDate(z.vZNAG_DataPlanowana)}</td>
         {showDataWykonania && <td>{fmtDate(z.vZNAG_DataWykonania)}</td>}
         <td>
-          <Button
-            variant="primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(openPath);
-            }}
-          >
-            Otwórz
-          </Button>
+          {!isZamkniete && (
+            <Button
+              variant="primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(openPath);
+              }}
+            >
+              Otwórz
+            </Button>
+          )}
         </td>
         <td>
           <Button
