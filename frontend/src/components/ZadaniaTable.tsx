@@ -78,10 +78,15 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
 
     // Określ ścieżkę do której ma przekierować przycisk "Otwórz"
     const isAwariaOrPraceRozne = z.vZNAG_KategoriaKod?.toUpperCase() === 'R' || z.vZNAG_KategoriaKod?.toUpperCase() === 'T';
+    const isKonserwacja = z.vZNAG_KategoriaKod?.toUpperCase() === 'P';
     const openPath = isAwariaOrPraceRozne ? `/awaria/${z.vZNAG_Id}` : `/zadania/${z.vZNAG_Id}`;
 
     // Zamknięte zadania to te z podpisem (showDataWykonania wskazuje na zamknięte)
     const isZamkniete = showDataWykonania;
+
+    // Dla konserwacji pozwalamy wejść nawet w archiwum (do wydruku protokołów)
+    // Dla awarii i prac różnych ukrywamy przycisk w archiwum
+    const showOpenButton = !isZamkniete || isKonserwacja;
 
     return (
       <tr key={z.vZNAG_Id} className={rowClass}>
@@ -94,15 +99,15 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
         <td>{fmtDate(z.vZNAG_DataPlanowana)}</td>
         {showDataWykonania && <td>{fmtDate(z.vZNAG_DataWykonania)}</td>}
         <td>
-          {!isZamkniete && (
+          {showOpenButton && (
             <Button
-              variant="primary"
+              variant={isZamkniete ? "secondary" : "primary"}
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(openPath);
               }}
             >
-              Otwórz
+              {isZamkniete ? "Podgląd" : "Otwórz"}
             </Button>
           )}
         </td>
