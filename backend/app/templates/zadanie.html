@@ -214,12 +214,10 @@
             <table class="form-table">
             <thead>
                 <tr>
-                    <th width="20%">urządzenie</th>
+                    <th width="25%">urządzenie</th>
                     <th width="25%">opis</th>
-                    <th width="5%">ok</th>
-                    <th width="20%">urządzenie</th>
+                    <th width="25%">urządzenie</th>
                     <th width="25%">opis</th>
-                    <th width="5%">ok</th>
                 </tr>
             </thead>
             <tbody id="work-description">
@@ -229,9 +227,7 @@
                         {% if p %}
                             <td>{{ p.ZPOZ_UrzadzenieNumer }}</td>
                             <td>{{ p.ZPOZ_UrzadzenieOpis }}</td>
-                            <td><input type="checkbox"></td>
                         {% else %}
-                            <td></td>
                             <td></td>
                             <td></td>
                         {% endif %}
@@ -244,7 +240,7 @@
 
         <!-- Obserwacje -->
         <div class="section-block">
-            <div class="section-title">OBSERWACJE SERWISANTÓW</div>
+            <div class="section-title">OBSERWACJE SERWISANTÓW / WNIOSKI</div>
             <div class="text-field auto-expand">{{ naglowek.ZNAG_Uwagi or '' }}</div>
         </div>
 

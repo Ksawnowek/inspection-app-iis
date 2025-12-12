@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getZadanie, getZadaniePozycje, setDoPrzegladu, patchZadanieMultiple, podpiszZadanie, podpiszWszystkieProtokoly } from "../api/zadania";
+import { getZadanie, getZadaniePozycje, setDoPrzegladu, patchZadanieMultiple, podpiszZadanie, podpiszWszystkieProtokoly, downloadZadaniePdf } from "../api/zadania";
 import { Zadanie, ZadaniePozycja } from "../types";
 import { Button, Form, Row, Col, Card } from 'react-bootstrap';
 import Spinner from "../components/Spinner";
@@ -135,6 +135,23 @@ export default function ZadaniePozycjePage() {
       );
     } catch (error) {
       console.error("Błąd zapisu:", error);
+    }
+  };
+
+  const handlePrint = async () => {
+    if (!znagId) return;
+
+    try {
+      await toast.promise(
+        downloadZadaniePdf(Number(znagId)),
+        {
+          loading: 'Generuję PDF...',
+          success: 'PDF został pobrany!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się wygenerować PDF'}`,
+        }
+      );
+    } catch (error) {
+      console.error("Błąd generowania PDF:", error);
     }
   };
 
@@ -274,10 +291,15 @@ export default function ZadaniePozycjePage() {
                 </Col>
               </Row>
 
-              {/* Przycisk zapisu */}
-              <Button variant="primary" onClick={handleSave}>
-                Zapisz zmiany
-              </Button>
+              {/* Przyciski akcji */}
+              <div className="d-flex gap-2">
+                <Button variant="primary" onClick={handleSave}>
+                  Zapisz zmiany
+                </Button>
+                <Button variant="secondary" onClick={handlePrint}>
+                  Drukuj zadanie
+                </Button>
+              </div>
             </Form>
           </Card.Body>
         </Card>

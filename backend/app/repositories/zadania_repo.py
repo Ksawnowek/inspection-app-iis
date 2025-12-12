@@ -179,6 +179,7 @@ class ZadaniaRepo:
             "vZNAG_KlientNazwisko": zadanie.ZNAG_KlientNazwisko,
             "vZNAG_KlientDzial": zadanie.ZNAG_KlientDzial,
             "vZNAG_KlientDataZatw": zadanie.ZNAG_KlientDataZatw,
+            "vZNAG_Osoby": zadanie.ZNAG_Osoby,
         }
 
     def get_opis_prac(self, znag_id: int) -> List[ZadanieInneOpis]:

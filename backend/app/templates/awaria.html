@@ -175,7 +175,7 @@
         <div class="row mb-3">
             <div class="col-12">
                 <div class="checkbox-group border p-3">
-                    <label><input type="checkbox" id="awaria" checked> AWARIA</label>
+                    <label>AWARIA</label>
                     <label><input type="checkbox" id="prace-rozne"> PRACE RÓŻNE</label>
                     <label><input type="checkbox" id="konserwacja"> KONSERWACJA</label>
                     <label><input type="checkbox" id="montaz"> MONTAŻ I URUCHOMIENIE</label>
@@ -224,7 +224,7 @@
 
         <!-- Opis prac -->
         <div class="section-block">
-            <div class="section-title">OPIS PRAC / SPRAWOZDANIE</div>
+            <div class="section-title">OPIS PRAC / ZGŁOSZENIE</div>
             <div class="text-field auto-expand">
                 {% if opis_prac %}
                     {% for opis in opis_prac %}
@@ -238,7 +238,7 @@
 
         <!-- Obserwacje serwisantów -->
         <div class="section-block">
-            <div class="section-title">OBSERWACJE SERWISANTÓW</div>
+            <div class="section-title">OBSERWACJE SERWISANTÓW / WNIOSKI</div>
             <div class="text-field auto-expand">{{ naglowek.ZNAG_Uwagi or '' }}</div>
         </div>
 
@@ -248,10 +248,9 @@
             <table class="form-table">
             <thead>
                 <tr>
-                    <th width="20%">KOD</th>
-                    <th width="40%">OPIS</th>
+                    <th width="25%">KOD</th>
+                    <th width="60%">OPIS</th>
                     <th width="15%">ILOŚĆ</th>
-                    <th width="25%">ZWR</th>
                 </tr>
             </thead>
             <tbody id="materials">
@@ -261,7 +260,6 @@
                         <td>{{ mat.ZMAT_Kod or '' }}</td>
                         <td>{{ mat.ZMAT_Opis or '' }}</td>
                         <td>{{ mat.ZMAT_Ilosc or '' }}</td>
-                        <td></td>
                     </tr>
                     {% endfor %}
                 {% else %}
@@ -269,16 +267,13 @@
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
-                        <td>&nbsp;</td>
                     </tr>
                     <tr>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
-                        <td>&nbsp;</td>
                     </tr>
                     <tr>
-                        <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>
                         <td>&nbsp;</td>

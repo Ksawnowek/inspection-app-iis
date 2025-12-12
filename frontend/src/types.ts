@@ -27,6 +27,7 @@ export type Zadanie = {
   vZNAG_KlientNazwisko?: string | null;
   vZNAG_KlientDzial?: string | null;
   vZNAG_KlientDataZatw?: string | null;
+  vZNAG_Osoby?: string | null;
 };
 
 
