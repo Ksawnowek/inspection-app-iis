@@ -68,9 +68,10 @@ class ZadaniaRepo:
             # Sprawdzamy czy search jest liczbą (ID)
             if search.isdigit():
                 # Wyszukiwanie po ID (dokładne dopasowanie na początku lub zawierające)
+                # Dla SQL Server używamy CONVERT zamiast CAST
                 stmt = stmt.where(
-                    func.cast(t_v_Zadania.c.vZNAG_Id, text('VARCHAR')).like(f'{search}%')
-                )
+                    text(f"CONVERT(VARCHAR, vZNAG_Id) LIKE :search_pattern")
+                ).params(search_pattern=f'{search}%')
             else:
                 # Wyszukiwanie po nazwie klienta (case-insensitive)
                 stmt = stmt.where(

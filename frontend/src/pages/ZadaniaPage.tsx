@@ -147,7 +147,7 @@ export default function ZadaniaPage() {
     <TopBar title="Zadania"/>
     <div className="container" style={{ marginTop: '70px' }}>
       
-      <div className="search-bar p-2 d-flex w-100">
+      <div className="search-bar p-2 d-flex gap-2 w-100">
         <Form.Control
           type="text"
           name="searchPhrase"
@@ -161,6 +161,14 @@ export default function ZadaniaPage() {
           }}
           placeholder="Wyszukaj ID lub nazwę kontrahenta..."
         />
+        <Button
+          variant="primary"
+          onClick={handleSearchSubmit}
+          disabled={loading}
+          style={{ minWidth: '100px' }}
+        >
+          Szukaj
+        </Button>
       </div>
 
       {/* Informacja o wynikach wyszukiwania */}
