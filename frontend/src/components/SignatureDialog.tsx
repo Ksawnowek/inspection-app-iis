@@ -77,12 +77,12 @@ export default function SignatureDialog({
         }
 
         if (!czyWszystkieWypelnione) {
-          niekompletneProtokoly.push(`Protokół ${protokol.PNAGL_NrUrzadzenia}`);
+          niekompletneProtokoly.push(protokol.PNAGL_NrUrzadzenia);
         }
       }
 
       if (niekompletneProtokoly.length > 0) {
-        const message = `Nie wszystkie parametry przy protokołach są wypełnione:\n\n${niekompletneProtokoly.join('\n')}\n\nCzy na pewno chcesz kontynuować?`;
+        const message = `Nie wszystkie parametry przy protokołach są wypełnione.\n\nNiekompletne protokoły: ${niekompletneProtokoly.join(', ')}\n\nCzy na pewno chcesz kontynuować?`;
         return { isValid: false, message };
       }
 

@@ -528,9 +528,38 @@ export default function ZadaniePozycjePage() {
                     </Button>
                   )}
                   {r.ZPOZ_UrzadzenieDoPrzegladu === true && isPodpisany && (
-                    <span style={{ color: '#6c757d', fontStyle: 'italic' }}>
-                      Zablokowany
-                    </span>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <Button
+                        variant="secondary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/protokol/${r.ZPOZ_Id}`);
+                        }}
+                      >
+                        Podgląd
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            const { generateProtokolPdf } = await import("../api/protokoly");
+                            const blob = await generateProtokolPdf(r.ZPOZ_Id);
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = `protokol_${r.ZPOZ_Id}.pdf`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          } catch (err: any) {
+                            console.error("Błąd generowania PDF:", err);
+                            toast.error("Nie udało się wygenerować PDF");
+                          }
+                        }}
+                      >
+                        PDF
+                      </Button>
+                    </div>
                   )}
                 </td>
               </tr>

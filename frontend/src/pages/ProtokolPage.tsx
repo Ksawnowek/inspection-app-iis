@@ -203,7 +203,7 @@ export default function ProtokolPage() {
     }
 
     if (niekompletneGrupy.length > 0) {
-      const message = `Nie wszystkie parametry przy protokole są wypełnione:\n\nGrupy z brakującymi danymi:\n${niekompletneGrupy.join('\n')}\n\nCzy na pewno chcesz kontynuować?`;
+      const message = `Nie wszystkie parametry przy protokole są wypełnione.\n\nGrupy z brakującymi danymi: ${niekompletneGrupy.join(', ')}\n\nCzy na pewno chcesz kontynuować?`;
       return { isValid: false, message };
     }
 
@@ -243,13 +243,10 @@ export default function ProtokolPage() {
             }
         );
 
-        setNaglowekData(poprzedniNaglowek => {
-            if (!poprzedniNaglowek) return null;
-            return {
-                ...poprzedniNaglowek,
-                PNAGL_PodpisKlienta: dataUrl
-            };
-        });
+        // Odśwież dane protokołu po podpisaniu
+        const updatedNaglowek = await getProtokolNaglowek(Number(pnaglId));
+        setNaglowekData(updatedNaglowek);
+        setUwagiValue(updatedNaglowek.PNAGL_Uwagi || '');
 
         handleClose();
         setPendingSignature(null);
