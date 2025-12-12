@@ -393,6 +393,11 @@ export default function ZadaniePozycjePage() {
                 </Form.Group>
               </Col>
             </Row>
+
+            {/* Przycisk zapisu */}
+            <Button variant="primary" onClick={handleSave}>
+              Zapisz
+            </Button>
           </Card.Body>
         </Card>
 
