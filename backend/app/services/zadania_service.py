@@ -41,8 +41,11 @@ class ZadaniaService:
                   date_from: str | None = None,
                   date_to: str | None = None,
                   only_open: bool = False,
-                  kontrakt: str | None = None) -> List[Dict[str, Any]]:
-        return self.repo.lista(date_from, date_to, only_open, kontrakt)
+                  kontrakt: str | None = None,
+                  search: str | None = None,
+                  page: int = 1,
+                  page_size: int = 25) -> Dict[str, Any]:
+        return self.repo.lista(date_from, date_to, only_open, kontrakt, search, page, page_size)
 
     def get_pozycje(self, znag_id: int) -> List[Dict[str, Any]]:
         return self.repo.pozycje(znag_id)

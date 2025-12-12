@@ -12,9 +12,21 @@ class ZadaniaRepo:
     def lista_zadan(self,
                     kontrakt: str | None = None,
                     date_from: str | None = None,
-                    date_to: str | None = None) -> List[Dict[str, Any]]:
+                    date_to: str | None = None,
+                    search: str | None = None,
+                    page: int = 1,
+                    page_size: int = 25) -> Dict[str, Any]:
         """
         Pobiera listę zadań łącząc widok v_Zadania z tabelą ZadanieNagl (aby uzyskać pola godzin).
+        Obsługuje paginację i wyszukiwanie.
+
+        Returns:
+            Dict z kluczami:
+            - items: List[Dict[str, Any]] - lista zadań na bieżącej stronie
+            - total: int - całkowita liczba zadań (po filtrowaniu)
+            - page: int - bieżąca strona
+            - page_size: int - rozmiar strony
+            - total_pages: int - całkowita liczba stron
         """
         # JOIN widoku v_Zadania z tabelą ZadanieNagl
         stmt = (
@@ -50,10 +62,34 @@ class ZadaniaRepo:
                 t_v_Zadania.c.vZNAG_DataDokumentu < func.dateadd('day', 1, date_to)
             )
 
+        # Wyszukiwanie po ID lub nazwie klienta
+        if search:
+            search_lower = search.lower()
+            # Sprawdzamy czy search jest liczbą (ID)
+            if search.isdigit():
+                # Wyszukiwanie po ID (dokładne dopasowanie na początku lub zawierające)
+                stmt = stmt.where(
+                    func.cast(t_v_Zadania.c.vZNAG_Id, text('VARCHAR')).like(f'{search}%')
+                )
+            else:
+                # Wyszukiwanie po nazwie klienta (case-insensitive)
+                stmt = stmt.where(
+                    func.lower(t_v_Zadania.c.vZNAG_KlientNazwa).like(f'%{search_lower}%')
+                )
+
+        # Zliczamy całkowitą liczbę rekordów (po filtrowaniu)
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total = self.session.execute(count_stmt).scalar()
+
+        # Sortowanie
         stmt = stmt.order_by(
             t_v_Zadania.c.vZNAG_DataDokumentu.desc(),
             t_v_Zadania.c.vZNAG_Id.desc()
         )
+
+        # Paginacja
+        offset = (page - 1) * page_size
+        stmt = stmt.offset(offset).limit(page_size)
 
         result = self.session.execute(stmt).mappings().all()
 
@@ -77,7 +113,16 @@ class ZadaniaRepo:
             row_dict['vZNAG_OkrGwar'] = row_dict.pop('ZNAG_OkrGwar', None)
             mapped_result.append(row_dict)
 
-        return mapped_result
+        # Obliczamy całkowitą liczbę stron
+        total_pages = (total + page_size - 1) // page_size if total > 0 else 0
+
+        return {
+            "items": mapped_result,
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": total_pages
+        }
 
     # 4. Usunąłem metodę `lista_zadan_sqlalchemy`, bo jej kod jest teraz w `lista_zadan`
 
@@ -133,9 +178,19 @@ class ZadaniaRepo:
               date_from: str | None = None,
               date_to: str | None = None,
               only_open: bool = False,
-              kontrakt: str | None = None) -> List[Dict[str, Any]]:
-        # Ta metoda (alias) jest OK
-        return self.lista_zadan(kontrakt=kontrakt, date_from=date_from, date_to=date_to)
+              kontrakt: str | None = None,
+              search: str | None = None,
+              page: int = 1,
+              page_size: int = 25) -> Dict[str, Any]:
+        # Ta metoda (alias) deleguje do lista_zadan z paginacją
+        return self.lista_zadan(
+            kontrakt=kontrakt,
+            date_from=date_from,
+            date_to=date_to,
+            search=search,
+            page=page,
+            page_size=page_size
+        )
 
     def get_zadanie_by_id(self, znagl_id: int) -> ZadanieNagl | None:
         # Ta metoda (ORM) jest OK

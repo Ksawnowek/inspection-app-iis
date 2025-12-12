@@ -30,16 +30,37 @@ def list_zadania(
         dateFrom: str | None = None,
         dateTo: str | None = None,
         onlyOpen: bool = False,
+        search: str | None = None,
+        page: int = 1,
+        page_size: int = 25,
         user: Uzytkownik = Depends(any_logged_in_user)
-) -> List[Dict[str, Any]]:
+) -> Dict[str, Any]:
     """
-    Zwraca listę zadań (możesz filtrować datą i tylko otwarte).
+    Zwraca listę zadań z paginacją i wyszukiwaniem.
     Korzysta z ZadaniaService, który deleguje wywołanie do Repo.
+
+    Query params:
+    - dateFrom: filtruj od daty
+    - dateTo: filtruj do daty
+    - onlyOpen: tylko otwarte zadania
+    - search: wyszukaj po ID lub nazwie klienta
+    - page: numer strony (domyślnie 1)
+    - page_size: liczba elementów na stronę (domyślnie 25)
+
+    Returns:
+    - items: lista zadań na bieżącej stronie
+    - total: całkowita liczba zadań (po filtrowaniu)
+    - page: bieżąca strona
+    - page_size: rozmiar strony
+    - total_pages: całkowita liczba stron
     """
     return zadania_service.get_lista(
         date_from=dateFrom,
         date_to=dateTo,
-        only_open=onlyOpen
+        only_open=onlyOpen,
+        search=search,
+        page=page,
+        page_size=page_size
     )
 
 @router.patch("/patch/{znag_id}")

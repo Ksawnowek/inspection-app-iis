@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { getZadania, generateZadaniePdf, patchZadanie, patchZadanieMultiple, podpiszZadanie, podpiszWszystkieProtokoly } from "../api/zadania";
 import { Zadanie } from "../types";
 import Spinner from "../components/Spinner";
-import ZadaniaTable from "../components/ZadaniaTable"; 
+import ZadaniaTable from "../components/ZadaniaTable";
 import { TextEditModal } from "../components/modals/TextEditModal";
 import { HoursEditModal } from "../components/modals/HoursEditModal";
 import { FailureDetailsModal } from "../components/modals/FailureDetailsModal";
 import SignatureDialog from "../components/SignatureDialog";
 import TopBar from "../components/TopBar";
-import { Form } from 'react-bootstrap';
+import { Form, Button, Pagination } from 'react-bootstrap';
+import toast from 'react-hot-toast';
 
 type ModalType = 'edit-uwagi' | 'edit-godziny' | 'podpis' | 'edit-details' | null;
 
@@ -17,9 +18,14 @@ export default function ZadaniaPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [searchPhrase, setSearchPhrase] = useState('');
-  const [expandedId, setExpandedId] = useState<number | null>(null); 
+  const [searchQuery, setSearchQuery] = useState(''); // Faktyczne zapytanie wysyłane do API
+  const [expandedId, setExpandedId] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [selectedZadanie, setSelectedZadanie] = useState<Zadanie | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [total, setTotal] = useState(0);
+  const pageSize = 25;
 
   const handleClose = () => {
     setActiveModal(null);
@@ -90,8 +96,19 @@ export default function ZadaniaPage() {
   }
 
   useEffect(() => {
-    getZadania().then(setRows).finally(() => setLoading(false));
-  }, []);
+    setLoading(true);
+    getZadania({
+      search: searchQuery || undefined,
+      page: currentPage,
+      page_size: pageSize
+    })
+      .then((response) => {
+        setRows(response.items);
+        setTotalPages(response.total_pages);
+        setTotal(response.total);
+      })
+      .finally(() => setLoading(false));
+  }, [searchQuery, currentPage]);
 
   // Ta funkcja zostaje tutaj, ponieważ zarządza stanem (busyId) i logiką API
   const handlePdf = async (id: number) => {
@@ -114,17 +131,8 @@ export default function ZadaniaPage() {
 
   // Ta funkcja zostaje tutaj, zarządza filtrowaniem i nawigacją
   const handleSearchSubmit = () => {
-    let visibleRows = rows.filter(z => {
-      const idAsString = String(z.vZNAG_Id);
-      const klientNazwa = (z.vZNAG_KlientNazwa || '').toLowerCase();
-      const searchLower = searchPhrase.toLowerCase();
-
-      return idAsString.startsWith(searchPhrase) || klientNazwa.includes(searchLower);
-    });
-    if (visibleRows.length === 1) { // Poprawione porównanie
-      let href = '/zadania/' + visibleRows[0].vZNAG_Id;
-      window.location.href = href;
-    }
+    setSearchQuery(searchPhrase);
+    setCurrentPage(1); // Resetuj do pierwszej strony przy nowym wyszukiwaniu
   };
 
   // Ta funkcja zostaje tutaj, zarządza stanem (expandedId)
@@ -155,10 +163,28 @@ export default function ZadaniaPage() {
         />
       </div>
 
+      {/* Informacja o wynikach wyszukiwania */}
+      {searchQuery && (
+        <div className="alert alert-info mb-3">
+          Wyniki wyszukiwania dla: <strong>{searchQuery}</strong> (znaleziono: {total})
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() => {
+              setSearchPhrase('');
+              setSearchQuery('');
+              setCurrentPage(1);
+            }}
+          >
+            Wyczyść
+          </Button>
+        </div>
+      )}
+
       {/* Tabela została zastąpiona nowym komponentem */}
       <ZadaniaTable
         rows={rows}
-        searchPhrase={searchPhrase}
+        searchPhrase=""
         expandedId={expandedId}
         busyId={busyId}
         onRowClick={handleRowClick}
@@ -169,6 +195,66 @@ export default function ZadaniaPage() {
         onShowPodpisModal={(zadanie) => handleShow('podpis', zadanie)}
         onShowDetailsModal={(zadanie) => handleShow('edit-details', zadanie)}
       />
+
+      {/* Paginacja */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center align-items-center mt-4 mb-4">
+          <Pagination>
+            <Pagination.First
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            />
+            <Pagination.Prev
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            />
+
+            {/* Pierwsza strona */}
+            {currentPage > 3 && (
+              <>
+                <Pagination.Item onClick={() => setCurrentPage(1)}>1</Pagination.Item>
+                {currentPage > 4 && <Pagination.Ellipsis disabled />}
+              </>
+            )}
+
+            {/* Strony wokół aktualnej */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(page => Math.abs(page - currentPage) <= 2)
+              .map(page => (
+                <Pagination.Item
+                  key={page}
+                  active={page === currentPage}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </Pagination.Item>
+              ))}
+
+            {/* Ostatnia strona */}
+            {currentPage < totalPages - 2 && (
+              <>
+                {currentPage < totalPages - 3 && <Pagination.Ellipsis disabled />}
+                <Pagination.Item onClick={() => setCurrentPage(totalPages)}>
+                  {totalPages}
+                </Pagination.Item>
+              </>
+            )}
+
+            <Pagination.Next
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            />
+            <Pagination.Last
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            />
+          </Pagination>
+
+          <div className="ms-3 text-muted">
+            Strona {currentPage} z {totalPages} (łącznie: {total} zadań)
+          </div>
+        </div>
+      )}
 
       {selectedZadanie && (
         <>

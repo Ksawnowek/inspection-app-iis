@@ -2,9 +2,19 @@
 import { api } from "./client";
 import { Zadanie, ZadaniePozycja } from "../types";
 
-/** Lista zadań (widok v_Zadania) */
-export async function getZadania(): Promise<Zadanie[]> {
-  const { data } = await api.get<Zadanie[]>("/zadania");
+/** Lista zadań (widok v_Zadania) z paginacją i wyszukiwaniem */
+export async function getZadania(params?: {
+  search?: string;
+  page?: number;
+  page_size?: number;
+}): Promise<{
+  items: Zadanie[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}> {
+  const { data } = await api.get("/zadania", { params });
   return data;
 }
 

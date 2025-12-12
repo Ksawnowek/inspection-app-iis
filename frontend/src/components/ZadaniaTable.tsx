@@ -37,18 +37,8 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
     return isNaN(+dt) ? d : dt.toLocaleDateString("pl-PL");
   };
 
-  // Filtrowanie zadań na podstawie wyszukiwania
-  const getFilteredRows = () => {
-    return rows.filter(z => {
-      const idAsString = String(z.vZNAG_Id);
-      const klientNazwa = (z.vZNAG_KlientNazwa || '').toLowerCase();
-      const searchLower = searchPhrase.toLowerCase();
-
-      return idAsString.startsWith(searchPhrase) || klientNazwa.includes(searchLower);
-    });
-  };
-
-  const filteredRows = getFilteredRows();
+  // Nie filtrujemy tutaj, bo filtrowanie jest wykonywane po stronie serwera
+  const filteredRows = rows;
 
   // Podział zadań na otwarte i zamknięte
   // Zamknięte = zadanie z podpisem klienta
