@@ -204,7 +204,7 @@
 
         <div class="row mb-3 no-break">
             <div class="col-12">
-                <strong>PRZYPISANE OSOBY:</strong> <span class="auto-expand">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
+                <strong>PRZYPISANE OSOBY:</strong> <span class="auto-expand">{{ naglowek.ZNAG_Osoby or '' }}</span>
             </div>
         </div>
 
@@ -240,7 +240,7 @@
 
         <!-- Obserwacje -->
         <div class="section-block">
-            <div class="section-title">OBSERWACJE SERWISANTÓW / WNIOSKI</div>
+            <div class="section-title">OBSERWACJE SERWISANTÓW</div>
             <div class="text-field auto-expand">{{ naglowek.ZNAG_Uwagi or '' }}</div>
         </div>
 

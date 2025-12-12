@@ -136,7 +136,7 @@
             </div>
             <div class="col-9">
                 <div class="header-section">
-                    <h4 class="mb-3">AWARIA - ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
+                    <h4 class="mb-3">ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
 
                     <div class="row mb-2">
                         <div class="col-6">
@@ -175,7 +175,7 @@
         <div class="row mb-3">
             <div class="col-12">
                 <div class="checkbox-group border p-3">
-                    <label>AWARIA</label>
+                <label><input type="checkbox" id="awaria" checked> AWARIA</label>
                     <label><input type="checkbox" id="prace-rozne"> PRACE RÓŻNE</label>
                     <label><input type="checkbox" id="konserwacja"> KONSERWACJA</label>
                     <label><input type="checkbox" id="montaz"> MONTAŻ I URUCHOMIENIE</label>
@@ -218,7 +218,7 @@
 
         <div class="row mb-3 no-break">
             <div class="col-12">
-                <strong>PRZYPISANE OSOBY:</strong> <span class="auto-expand">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
+                <strong>PRZYPISANE OSOBY:</strong> <span class="auto-expand">{{ naglowek.ZNAG_Osoby or '' }}</span>
             </div>
         </div>
 
@@ -238,7 +238,7 @@
 
         <!-- Obserwacje serwisantów -->
         <div class="section-block">
-            <div class="section-title">OBSERWACJE SERWISANTÓW / WNIOSKI</div>
+            <div class="section-title">OBSERWACJE SERWISANTÓW</div>
             <div class="text-field auto-expand">{{ naglowek.ZNAG_Uwagi or '' }}</div>
         </div>
 

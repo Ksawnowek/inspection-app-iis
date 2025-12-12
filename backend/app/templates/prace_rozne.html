@@ -138,7 +138,7 @@
             </div>
             <div class="col-9">
                 <div class="header-section">
-                    <h4 class="mb-3">PRACE RÓŻNE - ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
+                    <h4 class="mb-3">ZADANIE NR: <span id="task-number">{{ naglowek.ZNAG_Id }}</span></h4>
 
                     <div class="row mb-2">
                         <div class="col-6">
@@ -206,7 +206,7 @@
 
         <div class="row mb-3 no-break">
             <div class="col-12">
-                <strong>PRZYPISANE OSOBY:</strong> <span class="auto-expand">{{ serwisanci|join(', ') if serwisanci else naglowek.ZNAG_Osoby or '' }}</span>
+                <strong>PRZYPISANE OSOBY:</strong> <span class="auto-expand">{{ naglowek.ZNAG_Osoby or '' }}</span>
             </div>
         </div>
 

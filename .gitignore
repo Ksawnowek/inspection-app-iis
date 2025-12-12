@@ -10,3 +10,4 @@ node_modules/
 storage/**
 .idea/
 frontend/.devcontainer/
+docker_komendy.txt
