@@ -78,7 +78,9 @@ const ZadaniaTable: React.FC<ZadaniaTableProps> = ({
 
     // Określ ścieżkę do której ma przekierować przycisk "Otwórz"
     const isAwariaOrPraceRozne = z.vZNAG_KategoriaKod?.toUpperCase() === 'R' || z.vZNAG_KategoriaKod?.toUpperCase() === 'T';
-    const isKonserwacja = z.vZNAG_KategoriaKod?.toUpperCase() === 'P';
+    // Konserwacja to zadania z kodem 'P' LUB bez kodu (domyślnie konserwacja)
+    const kategoriaKod = z.vZNAG_KategoriaKod?.toUpperCase();
+    const isKonserwacja = kategoriaKod === 'P' || !kategoriaKod || !['R', 'T'].includes(kategoriaKod);
     const openPath = isAwariaOrPraceRozne ? `/awaria/${z.vZNAG_Id}` : `/zadania/${z.vZNAG_Id}`;
 
     // Zamknięte zadania to te z podpisem (showDataWykonania wskazuje na zamknięte)
