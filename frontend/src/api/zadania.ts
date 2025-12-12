@@ -113,3 +113,10 @@ export async function podpiszWszystkieProtokoly(
   );
   return data;
 }
+
+export async function getProtokolyZadania(
+  znagId: number
+): Promise<any[]> {
+  const { data } = await api.get(`/zadania/${znagId}/protokoly`);
+  return data;
+}

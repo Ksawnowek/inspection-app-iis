@@ -5,6 +5,7 @@ import { ProtokolNaglowek, ProtokolPozycja, ProtokolResponse, ZdjecieProtokolPoz
 import ProtokolGroup from "../components/ProtokolGroup";
 import PhotoButton from "../components/PhotoButton";
 import SignatureDialog from "../components/SignatureDialog";
+import ValidationDialog from "../components/ValidationDialog";
 import { dodajZdjecie } from "../api/zdjecia";
 import Spinner from "../components/Spinner";
 import toast from 'react-hot-toast';
@@ -25,6 +26,10 @@ export default function ProtokolPage() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [uwagiValue, setUwagiValue] = useState<string>('');
+  const isPodpisany = naglowekData?.PNAGL_PodpisKlienta ? true : false;
+  const [showValidationDialog, setShowValidationDialog] = useState(false);
+  const [validationMessage, setValidationMessage] = useState<string>('');
+  const [pendingSignature, setPendingSignature] = useState<string | null>(null);
   /*
   Funcje otwierające/zamykające modala
   */
@@ -175,7 +180,51 @@ export default function ProtokolPage() {
 
 
 
+  const validateProtokol = (): { isValid: boolean; message: string } => {
+    if (!data) {
+      return { isValid: true, message: '' };
+    }
+
+    const niekompletneGrupy: string[] = [];
+
+    for (const grupa in data) {
+      const pozycje = data[grupa];
+
+      for (const poz of pozycje) {
+        // Sprawdź czy przynajmniej jeden checkbox jest zaznaczony
+        const czyMaZaznaczony = poz.PPOZ_OcenaNP || poz.PPOZ_OcenaNR || poz.PPOZ_OcenaO || poz.PPOZ_OcenaNA;
+
+        if (!czyMaZaznaczony) {
+          if (!niekompletneGrupy.includes(grupa)) {
+            niekompletneGrupy.push(grupa);
+          }
+        }
+      }
+    }
+
+    if (niekompletneGrupy.length > 0) {
+      const message = `Nie wszystkie parametry przy protokole są wypełnione:\n\nGrupy z brakującymi danymi:\n${niekompletneGrupy.join('\n')}\n\nCzy na pewno chcesz kontynuować?`;
+      return { isValid: false, message };
+    }
+
+    return { isValid: true, message: '' };
+  };
+
   async function handleSign(dataUrl: string) {
+    // Walidacja protokołu
+    const validation = validateProtokol();
+
+    if (!validation.isValid) {
+      setPendingSignature(dataUrl);
+      setValidationMessage(validation.message);
+      setShowValidationDialog(true);
+      return;
+    }
+
+    await saveSignature(dataUrl);
+  }
+
+  async function saveSignature(dataUrl: string) {
     // Upewnij się, że nagłówek istnieje, zanim spróbujesz go użyć
     if (!naglowekData) {
         toast.error("Błąd: Nie załadowano danych nagłówka!");
@@ -203,11 +252,24 @@ export default function ProtokolPage() {
         });
 
         handleClose();
+        setPendingSignature(null);
 
     } catch (error) {
         console.error("Błąd przy zapisie podpisu:", error);
     }
-}
+  }
+
+  const handleValidationConfirm = async () => {
+    setShowValidationDialog(false);
+    if (pendingSignature) {
+      await saveSignature(pendingSignature);
+    }
+  };
+
+  const handleValidationCancel = () => {
+    setShowValidationDialog(false);
+    setPendingSignature(null);
+  };
  const handlePdf = async () => {
     if (!pnaglId) return;
     try {
@@ -254,8 +316,25 @@ export default function ProtokolPage() {
               onBlur={handleUwagiBlur}
               rows={3}
               placeholder="Wpisz uwagi do protokołu..."
+              disabled={isPodpisany}
             />
           </div>
+
+          {/* Podpis klienta */}
+          {isPodpisany && naglowekData.PNAGL_PodpisKlienta && (
+            <div style={{ marginBottom:12 }}>
+              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: 4 }}>
+                Podpis klienta:
+              </label>
+              <div style={{ border: '1px solid #ccc', padding: '10px', borderRadius: 4, backgroundColor: '#f8f9fa', display: 'inline-block' }}>
+                <img
+                  src={naglowekData.PNAGL_PodpisKlienta}
+                  alt="Podpis klienta"
+                  style={{ maxWidth: '300px', height: 'auto' }}
+                />
+              </div>
+            </div>
+          )}
         </div>
         <div style={{
           display: "flex",
@@ -267,12 +346,14 @@ export default function ProtokolPage() {
 
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <Button
-              variant="primary"
-              onClick={() => handleShow('podpis')}
-            >
-              Podpis klienta
-            </Button>
+            {!isPodpisany && (
+              <Button
+                variant="primary"
+                onClick={() => handleShow('podpis')}
+              >
+                Podpis klienta
+              </Button>
+            )}
             <Button
               variant="primary"
               onClick={handlePdf} disabled={generatingPdf}
@@ -290,23 +371,34 @@ export default function ProtokolPage() {
           items={items}
           onChange={patchPoz}
           onSyncZdjecia={syncZdjeciaPozycji}
+          disabled={isPodpisany}
         />
       ))}
 
       <div style={{ display:"flex", gap:8 }}>
-        <Button
-              variant="primary"
-              onClick={() => handleShow('podpis')}
-            >
-              Podpis klienta
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handlePdf} disabled={generatingPdf}
+        {!isPodpisany && (
+          <Button
+                variant="primary"
+                onClick={() => handleShow('podpis')}
               >
-              {generatingPdf ? "Generuję…" : "Wydrukuj PDF"}
-            </Button>
+                Podpis klienta
+              </Button>
+        )}
+        <Button
+          variant="primary"
+          onClick={handlePdf} disabled={generatingPdf}
+          >
+          {generatingPdf ? "Generuję…" : "Wydrukuj PDF"}
+        </Button>
       </div>
+
+      <ValidationDialog
+        open={showValidationDialog}
+        onClose={handleValidationCancel}
+        onConfirm={handleValidationConfirm}
+        message={validationMessage}
+        countdown={5}
+      />
 
       <SignatureDialog
                 open={activeModal === 'podpis'}

@@ -16,28 +16,32 @@ interface PhotoManagerProps {
   ppozId: number;
   initialZdjecia: ZdjecieProtokolPoz[];
   onSyncZdjecia: (ppozId: number, nowaListaZdjec: ZdjecieProtokolPoz[]) => void;
+  disabled?: boolean;
 }
 
-function PhotoManager({ ppozId, initialZdjecia, onSyncZdjecia }: PhotoManagerProps) {
+function PhotoManager({ ppozId, initialZdjecia, onSyncZdjecia, disabled = false }: PhotoManagerProps) {
   // Stan ładowania, aby pokazać spinner podczas uploadu/usuwania
   const [loading, setLoading] = useState(false);
-  
+
   // Własny komponent przycisku do uploadu (używa <input type="file">)
-  const PhotoButton = ({ onPick }) => {  
+  const PhotoButton = ({ onPick }) => {
     const handleChange = (e) => {
       if (e.target.files && e.target.files[0]) {
         onPick(e.target.files[0]);
       }
       // Resetuj input, aby móc wybrać ten sam plik ponownie
-      e.target.value = null; 
+      e.target.value = null;
     };
+
+    if (disabled) return null;
+
     return (
       <label>
-        <CameraFill 
+        <CameraFill
           className="icon-hover-lift"
-          size={50} 
+          size={50}
         />
-        <input type="file" accept="image/*" capture="environment" 
+        <input type="file" accept="image/*" capture="environment"
                onChange={handleChange} style={{ display: 'none' }} />
       </label>
     );
@@ -89,16 +93,18 @@ function PhotoManager({ ppozId, initialZdjecia, onSyncZdjecia }: PhotoManagerPro
         {initialZdjecia && initialZdjecia.map(zdjecie => (
           <div key={zdjecie.ZDJP_Id} style={{ position: 'relative' }}>
             <img src={"http://localhost:8080" + zdjecie.ZDJP_Sciezka} alt="miniaturka" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4 }} />
-            <Button 
-              variant="danger"
-              onClick={() => handleDelete(zdjecie.ZDJP_Id)}
-              style={{ position: 'absolute', top: 2, right: 2, cursor: 'pointer'}}
-            >
-              X
-            </Button>
+            {!disabled && (
+              <Button
+                variant="danger"
+                onClick={() => handleDelete(zdjecie.ZDJP_Id)}
+                style={{ position: 'absolute', top: 2, right: 2, cursor: 'pointer'}}
+              >
+                X
+              </Button>
+            )}
           </div>
         ))}
-        
+
         {/* Przycisk dodawania lub spinner */}
         {loading ? (
           <Spinner />

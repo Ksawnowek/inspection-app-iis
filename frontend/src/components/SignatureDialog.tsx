@@ -2,24 +2,31 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button, Form } from 'react-bootstrap';
 import SignatureCanvas from "react-signature-canvas";
 import toast from 'react-hot-toast';
+import ValidationDialog from './ValidationDialog';
+import { getProtokolyZadania } from '../api/zadania';
+import { getProtokolPoz } from '../api/protokoly';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onSave: (dataUrl: string, applyToAll?: boolean) => void;
   oldSignature?: string | null;
+  znagId?: number | null;
 };
 
 export default function SignatureDialog({
   open,
   onClose,
   onSave,
-  oldSignature
+  oldSignature,
+  znagId
 }: Props) {
   const ref = useRef<SignatureCanvas>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [applyToAll, setApplyToAll] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showValidationDialog, setShowValidationDialog] = useState(false);
+  const [validationMessage, setValidationMessage] = useState<string>('');
   const [pendingSignature, setPendingSignature] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,6 +34,64 @@ export default function SignatureDialog({
       ref.current.fromDataURL(oldSignature);
     }
   }, [open, oldSignature]);
+
+  const validateProtokoly = async (): Promise<{ isValid: boolean; message: string }> => {
+    if (!znagId || !applyToAll) {
+      return { isValid: true, message: '' };
+    }
+
+    try {
+      // Pobierz listę protokołów dla zadania
+      const protokoly = await getProtokolyZadania(znagId);
+
+      // Filtruj tylko aktywne protokoły (bez podpisu)
+      const aktywneProtokoly = protokoly.filter((p: any) => !p.PNAGL_PodpisKlienta);
+
+      if (aktywneProtokoly.length === 0) {
+        return { isValid: true, message: '' };
+      }
+
+      // Sprawdź każdy protokół
+      const niekompletneProtokoly: string[] = [];
+
+      for (const protokol of aktywneProtokoly) {
+        const pozycje = await getProtokolPoz(protokol.PNAGL_Id);
+
+        // Sprawdź wszystkie pozycje w protokole
+        let czyWszystkieWypelnione = true;
+
+        for (const grupa in pozycje) {
+          const pozycjeGrupy = pozycje[grupa];
+
+          for (const poz of pozycjeGrupy) {
+            // Sprawdź czy przynajmniej jeden checkbox jest zaznaczony
+            const czyMaZaznaczony = poz.PPOZ_OcenaNP || poz.PPOZ_OcenaNR || poz.PPOZ_OcenaO || poz.PPOZ_OcenaNA;
+
+            if (!czyMaZaznaczony) {
+              czyWszystkieWypelnione = false;
+              break;
+            }
+          }
+
+          if (!czyWszystkieWypelnione) break;
+        }
+
+        if (!czyWszystkieWypelnione) {
+          niekompletneProtokoly.push(`Protokół ${protokol.PNAGL_NrUrzadzenia}`);
+        }
+      }
+
+      if (niekompletneProtokoly.length > 0) {
+        const message = `Nie wszystkie parametry przy protokołach są wypełnione:\n\n${niekompletneProtokoly.join('\n')}\n\nCzy na pewno chcesz kontynuować?`;
+        return { isValid: false, message };
+      }
+
+      return { isValid: true, message: '' };
+    } catch (error) {
+      console.error("Błąd walidacji protokołów:", error);
+      return { isValid: true, message: '' }; // W przypadku błędu pozwalamy kontynuować
+    }
+  };
 
   const handleConfirmSave = async () => {
     if (!pendingSignature) return;
@@ -56,9 +121,28 @@ export default function SignatureDialog({
     setPendingSignature(null);
   };
 
-  const handleSave = (data: string) => {
-    setPendingSignature(data);
+  const handleValidationConfirm = () => {
+    setShowValidationDialog(false);
     setShowConfirmDialog(true);
+  };
+
+  const handleValidationCancel = () => {
+    setShowValidationDialog(false);
+    setPendingSignature(null);
+  };
+
+  const handleSave = async (data: string) => {
+    setPendingSignature(data);
+
+    // Walidacja protokołów jeśli applyToAll jest zaznaczone
+    const validation = await validateProtokoly();
+
+    if (!validation.isValid) {
+      setValidationMessage(validation.message);
+      setShowValidationDialog(true);
+    } else {
+      setShowConfirmDialog(true);
+    }
   };
 
 
@@ -119,6 +203,15 @@ export default function SignatureDialog({
           </div>
         </div>
       </div>
+
+      {/* Dialog walidacji z licznikiem */}
+      <ValidationDialog
+        open={showValidationDialog}
+        onClose={handleValidationCancel}
+        onConfirm={handleValidationConfirm}
+        message={validationMessage}
+        countdown={5}
+      />
 
       {/* Dialog potwierdzenia */}
       {showConfirmDialog && (

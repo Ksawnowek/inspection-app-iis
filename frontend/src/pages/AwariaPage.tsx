@@ -398,6 +398,7 @@ export default function AwariaPage() {
           onClose={() => setShowSignatureDialog(false)}
           onSave={handleSign}
           oldSignature={zadanie?.vZNAG_KlientPodpis || null}
+          znagId={znagId ? Number(znagId) : null}
         />
       </div>
     </>

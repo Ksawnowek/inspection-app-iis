@@ -516,7 +516,7 @@ export default function ZadaniePozycjePage() {
                 )}
 
                 <td style={{ padding: 8 }}>
-                  {r.ZPOZ_UrzadzenieDoPrzegladu === true && (
+                  {r.ZPOZ_UrzadzenieDoPrzegladu === true && !isPodpisany && (
                     <Button
                       variant="primary"
                       onClick={(e) => {
@@ -526,6 +526,11 @@ export default function ZadaniePozycjePage() {
                     >
                       Otwórz protokół
                     </Button>
+                  )}
+                  {r.ZPOZ_UrzadzenieDoPrzegladu === true && isPodpisany && (
+                    <span style={{ color: '#6c757d', fontStyle: 'italic' }}>
+                      Zablokowany
+                    </span>
                   )}
                 </td>
               </tr>
@@ -547,6 +552,7 @@ export default function ZadaniePozycjePage() {
           onClose={() => setShowSignatureDialog(false)}
           onSave={handleSign}
           oldSignature={zadanie?.vZNAG_KlientPodpis || null}
+          znagId={znagId ? Number(znagId) : null}
         />
       </div>
     </>

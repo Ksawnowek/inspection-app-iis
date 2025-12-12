@@ -13,6 +13,7 @@ type Props = {
   items: ProtokolPozycja[];
   onChange: (ppozId: number, partial: Partial<ProtokolPozycja>) => void;
   onSyncZdjecia: (ppozId: number, nowaListaZdjec: ZdjecieProtokolPoz[]) => void;
+  disabled?: boolean;
 };
 
 const OCENY = ["NP", "O", "NR", "NA"] as const;
@@ -25,7 +26,7 @@ const MAP: Record<typeof OCENY[number], keyof ProtokolPozycja> = {
 
 
 
-export default function ProtokolGroup({ group, items, onChange, onSyncZdjecia }: Props) {
+export default function ProtokolGroup({ group, items, onChange, onSyncZdjecia, disabled = false }: Props) {
 
   /*
   Funkcja zmienia pole radio tak, zeby lokalny obiekt odzwierciedlił stan, który chcemy uzyskać w bazie
@@ -69,8 +70,8 @@ export default function ProtokolGroup({ group, items, onChange, onSyncZdjecia }:
                 <ToggleButtonGroup
                   type="radio"
                   name={`ocena-${row.PPOZ_Id}`}
-                  value={obecnaOcena} 
-                  onChange={(newOcena) => handleRadioChange(row.PPOZ_Id, newOcena)} 
+                  value={obecnaOcena}
+                  onChange={(newOcena) => !disabled && handleRadioChange(row.PPOZ_Id, newOcena)}
                   style={{ marginTop: 6 }}
                   size="lg" // "sm" dobrze wygląda w listach, możesz dać "lg" dla super-dotyku
                 >
@@ -80,6 +81,7 @@ export default function ProtokolGroup({ group, items, onChange, onSyncZdjecia }:
                       id={`tbg-ocena-${row.PPOZ_Id}-${o}`}
                       value={o}
                       variant="outline-primary" // Styl, możesz zmienić na "outline-primary"
+                      disabled={disabled}
                     >
                       {o}
                     </ToggleButton>
@@ -90,7 +92,7 @@ export default function ProtokolGroup({ group, items, onChange, onSyncZdjecia }:
                   ppozId={row.PPOZ_Id}
                   initialValue={row.PPOZ_Uwagi}
                   onChange={onChange}
-                  
+                  disabled={disabled}
                 />
               </div>
             </div>
@@ -101,6 +103,7 @@ export default function ProtokolGroup({ group, items, onChange, onSyncZdjecia }:
                   ppozId={row.PPOZ_Id}
                   initialZdjecia={row.ZdjeciaProtokolPoz}
                   onSyncZdjecia={onSyncZdjecia}
+                  disabled={disabled}
                 />
               </label>
             </div>
