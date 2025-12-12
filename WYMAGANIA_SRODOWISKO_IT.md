@@ -148,41 +148,108 @@ GO
 
 ## 4. OPROGRAMOWANIE I KOMPONENTY
 
-### Docker Desktop for Windows
+### WAŻNE: Docker na Windows Server 2019
+
+**Docker Desktop NIE JEST dostępny dla Windows Server 2019.**
+
+Dostępne są **DWA WARIANTY** wdrożenia:
+
+---
+
+### **WARIANT A: Natywne wdrożenie na IIS + Python Service (ZALECANE)**
+
+Ten wariant nie wymaga Docker - aplikacja działa bezpośrednio na Windows Server.
 
 **Wymagane:**
-- [ ] Zainstalować Docker Desktop for Windows (wersja 4.x lub nowsza)
-  - Link: https://www.docker.com/products/docker-desktop/
-- [ ] Skonfigurować Docker z obsługą kontenerów Linux (WSL 2 backend)
-- [ ] Zrestartować serwer po instalacji Docker
+- [ ] **IIS (Internet Information Services)**
+  - Włączyć rolę Web Server (IIS) w Server Manager
+  - Zainstalować moduł URL Rewrite dla IIS
+  - Zainstalować moduł Application Request Routing (ARR)
+
+- [ ] **Python 3.11**
+  - Pobrać z: https://www.python.org/downloads/
+  - Podczas instalacji zaznaczyć "Add Python to PATH"
+  - Zainstalować pip (package manager)
+
+- [ ] **Node.js 18.x LTS**
+  - Pobrać z: https://nodejs.org/
+  - Zainstalować wraz z npm
+
+- [ ] **wkhtmltopdf** (do generowania PDF)
+  - Pobrać z: https://wkhtmltopdf.org/downloads.html
+  - Zainstalować w domyślnej lokalizacji
+
+**Komendy instalacyjne IIS (PowerShell jako administrator):**
+```powershell
+# Instalacja IIS
+Install-WindowsFeature -Name Web-Server -IncludeManagementTools
+
+# Instalacja URL Rewrite
+# Pobrać z: https://www.iis.net/downloads/microsoft/url-rewrite
+
+# Instalacja ARR (Application Request Routing)
+# Pobrać z: https://www.iis.net/downloads/microsoft/application-request-routing
+```
 
 **Weryfikacja:**
-- [ ] Po instalacji uruchomić w PowerShell: `docker --version`
-- [ ] Powinno wyświetlić: `Docker version 4.x.x` (lub nowsza)
+```powershell
+# Sprawdzenie Python
+python --version
 
-### Windows Subsystem for Linux (WSL 2)
+# Sprawdzenie Node.js
+node --version
+
+# Sprawdzenie IIS
+Get-WindowsFeature Web-Server
+```
+
+---
+
+### **WARIANT B: Docker Engine (Mirantis Container Runtime)**
+
+Docker Engine dla Windows Server wymaga licencji enterprise.
 
 **Wymagane:**
-- [ ] Włączyć WSL 2 na serwerze Windows Server 2019
+- [ ] Zakup licencji Mirantis Container Runtime (MCR)
+- [ ] Instalacja Mirantis Container Runtime
+  - Link: https://www.mirantis.com/software/container-runtime/
 
 **Komendy PowerShell (jako administrator):**
 ```powershell
-# Włączenie WSL
-dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-
-# Włączenie Virtual Machine Platform
-dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+# Instalacja Docker Engine z repozytorium Mirantis
+Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
+Install-Package -Name docker -ProviderName DockerMsftProvider -Force
 
 # Restart serwera
 Restart-Computer
 
-# Po restarcie - ustawienie WSL 2 jako domyślnej wersji
-wsl --set-default-version 2
+# Po restarcie - uruchomienie usługi Docker
+Start-Service Docker
+
+# Weryfikacja
+docker version
 ```
 
-**Weryfikacja:**
-- [ ] Uruchomić w PowerShell: `wsl --status`
-- [ ] Powinna być aktywna wersja WSL 2
+**Instalacja docker-compose:**
+```powershell
+# Pobranie docker-compose (standalone)
+Invoke-WebRequest "https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-windows-x86_64.exe" -UseBasicParsing -OutFile $Env:ProgramFiles\Docker\docker-compose.exe
+
+# Weryfikacja
+docker-compose --version
+```
+
+---
+
+### **Rekomendacja:**
+
+Dla Windows Server 2019 **zalecamy WARIANT A** (natywne wdrożenie na IIS):
+- ✅ Brak kosztów licencji Docker
+- ✅ Lepsza integracja z Windows
+- ✅ Łatwiejsze zarządzanie
+- ✅ Lepsza wydajność na Windows Server
+
+WARIANT B (Docker) jest bardziej skomplikowany i wymaga dodatkowych kosztów licencji.
 
 ### Katalogi i Struktura Plików
 
@@ -330,13 +397,22 @@ Hasło klucza:       _________________________
 
 ### Szacowany Czas Przygotowania
 
+**WARIANT A (IIS + Python - zalecany):**
 - **Przygotowanie serwera (instalacja OS, aktualizacje):** 2-4 godziny
-- **Instalacja Docker i WSL 2:** 1-2 godziny
+- **Instalacja IIS, Python, Node.js, wkhtmltopdf:** 1-2 godziny
 - **Konfiguracja SQL Server (użytkownik, uprawnienia):** 1 godzina
 - **Konfiguracja sieciowa (firewall, routing):** 1 godzina
 - **Testy połączeń i weryfikacja:** 1 godzina
+- **ŁĄCZNIE: 6-9 godzin pracy**
 
-**ŁĄCZNIE: 6-9 godzin pracy**
+**WARIANT B (Docker Engine):**
+- **Przygotowanie serwera (instalacja OS, aktualizacje):** 2-4 godziny
+- **Zakup i instalacja Mirantis Container Runtime:** 2-3 godziny
+- **Instalacja docker-compose:** 0.5 godziny
+- **Konfiguracja SQL Server (użytkownik, uprawnienia):** 1 godzina
+- **Konfiguracja sieciowa (firewall, routing):** 1 godzina
+- **Testy połączeń i weryfikacja:** 1 godzina
+- **ŁĄCZNIE: 7.5-10.5 godzin pracy + czas na zakup licencji**
 
 ### Kontakt
 
@@ -357,8 +433,9 @@ Przed przekazaniem środowiska do wdrożenia, upewnić się że:
 
 ### Serwer
 - [ ] Windows Server 2019 zainstalowany i zaktualizowany
-- [ ] Docker Desktop zainstalowany i działający
-- [ ] WSL 2 włączone i skonfigurowane
+- [ ] Wybrany wariant wdrożenia: [ ] WARIANT A (IIS) / [ ] WARIANT B (Docker)
+- [ ] **WARIANT A:** IIS, Python 3.11, Node.js 18.x, wkhtmltopdf zainstalowane
+- [ ] **WARIANT B:** Mirantis Container Runtime i docker-compose zainstalowane
 - [ ] Katalogi aplikacji utworzone (`C:\InspectionApp`)
 - [ ] Dostęp RDP skonfigurowany
 
