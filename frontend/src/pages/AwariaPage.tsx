@@ -182,15 +182,15 @@ export default function AwariaPage() {
 
           <div className="card-body">
             <Form>
-              {/* Uwagi */}
+              {/* Obserwacje serwisantów / wnioski */}
               <Form.Group className="mb-3">
-                <Form.Label><strong>Uwagi</strong></Form.Label>
+                <Form.Label><strong>Obserwacje serwisantów / wnioski</strong></Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
                   value={uwagi}
                   onChange={(e) => setUwagi(e.target.value)}
-                  placeholder="Wprowadź uwagi..."
+                  placeholder="Wprowadź obserwacje serwisantów i wnioski..."
                   disabled={isPodpisany}
                 />
               </Form.Group>

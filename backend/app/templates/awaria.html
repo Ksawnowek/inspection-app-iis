@@ -230,15 +230,13 @@
                     {% for opis in opis_prac %}
                         <p style="margin: 0 0 5px 0;">{{ opis.ZOP_OpisPrac or '' }}</p>
                     {% endfor %}
-                {% else %}
-                    {{ naglowek.ZNAG_Uwagi or '' }}
                 {% endif %}
             </div>
         </div>
 
-        <!-- Obserwacje serwisantów -->
+        <!-- Obserwacje serwisantów / wnioski -->
         <div class="section-block">
-            <div class="section-title">OBSERWACJE SERWISANTÓW</div>
+            <div class="section-title">OBSERWACJE SERWISANTÓW / WNIOSKI</div>
             <div class="text-field auto-expand">{{ naglowek.ZNAG_Uwagi or '' }}</div>
         </div>
 
