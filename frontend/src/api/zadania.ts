@@ -130,3 +130,30 @@ export async function getProtokolyZadania(
   const { data } = await api.get(`/zadania/${znagId}/protokoly`);
   return data;
 }
+
+// ============= OPISY PRAC =============
+
+export interface OpisPrac {
+  ZOP_Id: number;
+  ZOP_ZNAGL_Id: number;
+  ZOP_OpisPrac: string;
+}
+
+export async function getOpisyPrac(znagId: number): Promise<OpisPrac[]> {
+  const { data } = await api.get(`/zadania/${znagId}/opisy-prac`);
+  return data;
+}
+
+export async function addOpisPrac(znagId: number, opisPrac: string): Promise<OpisPrac> {
+  const { data } = await api.post(`/zadania/${znagId}/opisy-prac`, { opis_prac: opisPrac });
+  return data;
+}
+
+export async function updateOpisPrac(zopId: number, opisPrac: string): Promise<OpisPrac> {
+  const { data } = await api.patch(`/zadania/opisy-prac/${zopId}`, { opis_prac: opisPrac });
+  return data;
+}
+
+export async function deleteOpisPrac(zopId: number): Promise<void> {
+  await api.delete(`/zadania/opisy-prac/${zopId}`);
+}

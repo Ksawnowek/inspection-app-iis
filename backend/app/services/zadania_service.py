@@ -88,6 +88,18 @@ class ZadaniaService:
         """Pobiera opisy prac dla zadania (dla awarii i prac różnych)."""
         return self.repo.get_opis_prac(znag_id)
 
+    def add_opis_prac(self, znag_id: int, opis_prac: str) -> ZadanieInneOpis:
+        """Dodaje nowy opis prac dla zadania."""
+        return self.repo.add_opis_prac(znag_id, opis_prac)
+
+    def update_opis_prac(self, zop_id: int, opis_prac: str) -> ZadanieInneOpis | None:
+        """Aktualizuje opis prac."""
+        return self.repo.update_opis_prac(zop_id, opis_prac)
+
+    def delete_opis_prac(self, zop_id: int) -> bool:
+        """Usuwa opis prac."""
+        return self.repo.delete_opis_prac(zop_id)
+
     def get_materialy(self, znag_id: int) -> List[Dict[str, Any]]:
         """Pobiera materiały użyte w zadaniu (dla awarii i prac różnych) używając funkcji SQL."""
         return self.repo.get_materialy(znag_id)

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getZadanie, patchZadanieMultiple, podpiszZadanie } from "../api/zadania";
+import { getZadanie, patchZadanieMultiple, podpiszZadanie, getOpisyPrac, addOpisPrac, updateOpisPrac, deleteOpisPrac, OpisPrac } from "../api/zadania";
 import { Zadanie } from "../types";
 import Spinner from "../components/Spinner";
 import SignatureDialog from "../components/SignatureDialog";
 import TopBar from "../components/TopBar";
 import BackButton from "../components/BackButton";
-import { Form, Button, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Row, Col, Card, ListGroup } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 
 export default function AwariaPage() {
@@ -33,11 +33,22 @@ export default function AwariaPage() {
   const [showSignatureDialog, setShowSignatureDialog] = useState(false);
   const isPodpisany = zadanie?.vZNAG_KlientPodpis ? true : false;
 
+  // Opisy prac
+  const [opisyPrac, setOpisyPrac] = useState<OpisPrac[]>([]);
+  const [nowyOpis, setNowyOpis] = useState("");
+  const [edytowanyOpis, setEdytowanyOpis] = useState<{ id: number; tekst: string } | null>(null);
+
   useEffect(() => {
     if (!znagId) return;
-    getZadanie(Number(znagId))
-      .then((data) => {
+
+    Promise.all([
+      getZadanie(Number(znagId)),
+      getOpisyPrac(Number(znagId))
+    ])
+      .then(([data, opisy]) => {
         setZadanie(data);
+        setOpisyPrac(opisy);
+
         // Wypełnij formularz danymi
         setUwagi(data.vZNAG_Uwagi || "");
         setGodzSwieta(data.vZNAG_GodzSwieta || "");
@@ -158,6 +169,64 @@ export default function AwariaPage() {
     }
   };
 
+  // ============= OPISY PRAC =============
+
+  const handleAddOpis = async () => {
+    if (!znagId || !nowyOpis.trim()) return;
+
+    try {
+      const nowy = await toast.promise(
+        addOpisPrac(Number(znagId), nowyOpis),
+        {
+          loading: 'Dodaję opis...',
+          success: 'Opis dodany pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się dodać'}`,
+        }
+      );
+      setOpisyPrac([...opisyPrac, nowy]);
+      setNowyOpis("");
+    } catch (error) {
+      console.error("Błąd dodawania opisu:", error);
+    }
+  };
+
+  const handleUpdateOpis = async () => {
+    if (!edytowanyOpis || !edytowanyOpis.tekst.trim()) return;
+
+    try {
+      const updated = await toast.promise(
+        updateOpisPrac(edytowanyOpis.id, edytowanyOpis.tekst),
+        {
+          loading: 'Aktualizuję opis...',
+          success: 'Opis zaktualizowany pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się zaktualizować'}`,
+        }
+      );
+      setOpisyPrac(opisyPrac.map(o => o.ZOP_Id === updated.ZOP_Id ? updated : o));
+      setEdytowanyOpis(null);
+    } catch (error) {
+      console.error("Błąd aktualizacji opisu:", error);
+    }
+  };
+
+  const handleDeleteOpis = async (zopId: number) => {
+    if (!window.confirm('Czy na pewno chcesz usunąć ten opis?')) return;
+
+    try {
+      await toast.promise(
+        deleteOpisPrac(zopId),
+        {
+          loading: 'Usuwam opis...',
+          success: 'Opis usunięty pomyślnie!',
+          error: (err) => `Błąd: ${err.message || 'Nie udało się usunąć'}`,
+        }
+      );
+      setOpisyPrac(opisyPrac.filter(o => o.ZOP_Id !== zopId));
+    } catch (error) {
+      console.error("Błąd usuwania opisu:", error);
+    }
+  };
+
   if (loading) return <Spinner />;
   if (!zadanie) return <div className="alert alert-danger">Nie znaleziono zadania</div>;
 
@@ -182,9 +251,81 @@ export default function AwariaPage() {
 
           <div className="card-body">
             <Form>
+              {/* Opisy prac / zgłoszenie */}
+              <h6 className="mb-3">Opis prac / zgłoszenie</h6>
+              <ListGroup className="mb-3">
+                {opisyPrac.map((opis, idx) => (
+                  <ListGroup.Item key={opis.ZOP_Id}>
+                    {edytowanyOpis?.id === opis.ZOP_Id ? (
+                      <div className="d-flex gap-2">
+                        <Form.Control
+                          as="textarea"
+                          rows={2}
+                          value={edytowanyOpis.tekst}
+                          onChange={(e) => setEdytowanyOpis({ id: opis.ZOP_Id, tekst: e.target.value })}
+                          autoFocus
+                        />
+                        <div className="d-flex flex-column gap-1">
+                          <Button size="sm" variant="success" onClick={handleUpdateOpis}>
+                            Zapisz
+                          </Button>
+                          <Button size="sm" variant="secondary" onClick={() => setEdytowanyOpis(null)}>
+                            Anuluj
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="d-flex justify-content-between align-items-start">
+                        <div className="flex-grow-1">
+                          <strong>{idx + 1}.</strong> {opis.ZOP_OpisPrac}
+                        </div>
+                        {!isPodpisany && (
+                          <div className="d-flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="outline-primary"
+                              onClick={() => setEdytowanyOpis({ id: opis.ZOP_Id, tekst: opis.ZOP_OpisPrac })}
+                            >
+                              Edytuj
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline-danger"
+                              onClick={() => handleDeleteOpis(opis.ZOP_Id)}
+                            >
+                              Usuń
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+
+              {!isPodpisany && (
+                <div className="d-flex gap-2 mb-4">
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    value={nowyOpis}
+                    onChange={(e) => setNowyOpis(e.target.value)}
+                    placeholder="Dodaj nowy opis prac..."
+                  />
+                  <Button
+                    variant="primary"
+                    onClick={handleAddOpis}
+                    disabled={!nowyOpis.trim()}
+                    style={{ minWidth: '100px' }}
+                  >
+                    Dodaj
+                  </Button>
+                </div>
+              )}
+
               {/* Obserwacje serwisantów / wnioski */}
+              <h6 className="mb-3 mt-4">Obserwacje serwisantów / wnioski</h6>
               <Form.Group className="mb-3">
-                <Form.Label><strong>Obserwacje serwisantów / wnioski</strong></Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}

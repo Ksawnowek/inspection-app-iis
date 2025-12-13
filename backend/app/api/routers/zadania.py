@@ -214,3 +214,72 @@ def generuj_pdf_old(
         media_type="application/pdf",
         filename=f"zadanie_{znag_id}.pdf"
     )
+
+# ============= OPISY PRAC (dla awarii i prac różnych) =============
+
+@router.get("/{znag_id}/opisy-prac")
+def get_opisy_prac(
+        znag_id: int,
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
+        user: Uzytkownik = Depends(any_logged_in_user)
+) -> List[Dict[str, Any]]:
+    """
+    Zwraca listę opisów prac dla zadania (awaria/prace różne).
+    """
+    opisy = zadania_service.get_opis_prac(znag_id)
+    return [{"ZOP_Id": o.ZOP_Id, "ZOP_ZNAGL_Id": o.ZOP_ZNAGL_Id, "ZOP_OpisPrac": o.ZOP_OpisPrac} for o in opisy]
+
+
+@router.post("/{znag_id}/opisy-prac")
+def add_opis_prac(
+        znag_id: int,
+        payload: Dict[str, str] = Body(...),
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
+        user: Uzytkownik = Depends(any_logged_in_user)
+):
+    """
+    Dodaje nowy opis prac do zadania.
+    """
+    opis_prac = payload.get("opis_prac", "").strip()
+    if not opis_prac:
+        raise HTTPException(400, "Opis prac nie może być pusty")
+
+    nowy = zadania_service.add_opis_prac(znag_id, opis_prac)
+    return {"ZOP_Id": nowy.ZOP_Id, "ZOP_ZNAGL_Id": nowy.ZOP_ZNAGL_Id, "ZOP_OpisPrac": nowy.ZOP_OpisPrac}
+
+
+@router.patch("/opisy-prac/{zop_id}")
+def update_opis_prac(
+        zop_id: int,
+        payload: Dict[str, str] = Body(...),
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
+        user: Uzytkownik = Depends(any_logged_in_user)
+):
+    """
+    Aktualizuje opis prac.
+    """
+    opis_prac = payload.get("opis_prac", "").strip()
+    if not opis_prac:
+        raise HTTPException(400, "Opis prac nie może być pusty")
+
+    updated = zadania_service.update_opis_prac(zop_id, opis_prac)
+    if not updated:
+        raise HTTPException(404, "Opis prac nie został znaleziony")
+
+    return {"ZOP_Id": updated.ZOP_Id, "ZOP_ZNAGL_Id": updated.ZOP_ZNAGL_Id, "ZOP_OpisPrac": updated.ZOP_OpisPrac}
+
+
+@router.delete("/opisy-prac/{zop_id}")
+def delete_opis_prac(
+        zop_id: int,
+        zadania_service: ZadaniaService = Depends(get_zadania_service),
+        user: Uzytkownik = Depends(any_logged_in_user)
+):
+    """
+    Usuwa opis prac.
+    """
+    success = zadania_service.delete_opis_prac(zop_id)
+    if not success:
+        raise HTTPException(404, "Opis prac nie został znaleziony")
+
+    return {"ok": True}

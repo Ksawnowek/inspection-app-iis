@@ -244,6 +244,36 @@ class ZadaniaRepo:
         result = self.session.execute(stmt)
         return list(result.scalars().all())
 
+    def add_opis_prac(self, znag_id: int, opis_prac: str) -> ZadanieInneOpis:
+        """Dodaje nowy opis prac dla zadania."""
+        nowy_opis = ZadanieInneOpis(
+            ZOP_ZNAGL_Id=znag_id,
+            ZOP_OpisPrac=opis_prac
+        )
+        self.session.add(nowy_opis)
+        self.session.flush()  # Aby uzyskać ID
+        self.session.refresh(nowy_opis)
+        return nowy_opis
+
+    def update_opis_prac(self, zop_id: int, opis_prac: str) -> ZadanieInneOpis | None:
+        """Aktualizuje opis prac."""
+        opis = self.session.get(ZadanieInneOpis, zop_id)
+        if not opis:
+            return None
+        opis.ZOP_OpisPrac = opis_prac
+        self.session.flush()
+        self.session.refresh(opis)
+        return opis
+
+    def delete_opis_prac(self, zop_id: int) -> bool:
+        """Usuwa opis prac."""
+        opis = self.session.get(ZadanieInneOpis, zop_id)
+        if not opis:
+            return False
+        self.session.delete(opis)
+        self.session.flush()
+        return True
+
     def get_materialy(self, znag_id: int) -> List[Dict[str, Any]]:
         """Pobiera materiały użyte w zadaniu (dla awarii i prac różnych) używając funkcji fun_ZadanieInnePoz."""
         from sqlalchemy import text
